@@ -246,6 +246,17 @@ table.mini{width:100%;font-size:13px;margin-top:8px} table.mini th,table.mini td
 .news-it{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--fg)}
 .news-it:hover{border-color:var(--purple)}
 .news-t{font-weight:700;font-size:15px}
+.saude-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.stackbar{display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--line);gap:2px}
+.stackbar span{min-width:4px}
+.legend2{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 16px}
+.legend2 button{background:none;border:0;padding:2px 0;cursor:pointer;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.legend2 button b{color:var(--fg)} .legend2 button:hover{color:var(--fg)}
+.legend2 i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.atencao{border-top:1px solid var(--line);padding-top:12px}
+.atencao h3{font-size:14px;margin:0 0 8px}
+.at-row{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 2px;text-align:left;cursor:pointer;font-size:14px}
+.at-row:hover{background:var(--purple-soft)}
 h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
 .fila{display:flex;flex-direction:column}
 .fila-it{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 2px;cursor:pointer}
@@ -544,21 +555,12 @@ function pPainel(){
   const m=metrics(), P=S.pdvs.filter(p=>isPdv(p)&&(p.status==="ativo"||p.status==="implantacao"));
   P.sort((a,b)=>{const o={off:0,nosale:1,on:2,nodata:3,impl:4};return o[pdvState(a)]-o[pdvState(b)]||String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})});
   const hoje=now().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
-  const tiles = P.map(p=>{const s=pdvState(p); const flag=certState(p)==="vencido"||p.facialOk===false||p.appOk===false;
-    const lab={on:"vendendo",nosale:"sem vendas",off:"offline",nodata:"sem monitoramento",impl:"em implantação"}[s];
-    return '<button class="tile '+s+(flag?' flag':'')+'" data-act="pdv" data-id="'+esc(p.codigo)+'" title="'+esc(p.codigo+" "+p.unidade+" | "+lab)+'" aria-label="'+esc(p.unidade+", "+lab)+'">'+esc(p.codigo)+'</button>';}).join("");
   const k=(v,l,d,cls,go)=>'<button class="kpi '+(cls||"")+'" data-go="'+(go||"")+'"><span class="v">'+v+'</span><span class="l">'+l+'</span>'+(d?'<span class="d muted">'+d+'</span>':'')+'</button>';
   const leitura = leituraDoDia(m);
   return `
   <div class="topbar"><div><h1>Painel da rede</h1><p class="sub">${esc(hoje.charAt(0).toUpperCase()+hoje.slice(1))}</p></div>
     <div class="row"><button class="btn" data-act="export-painel">Exportar indicadores</button>${S.canWrite?'<button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
-  <section class="panel" style="margin-bottom:14px">
-    <div class="wall-head">
-      <div>${(m.ativos-m.semDados)>0?`<div class="wall-big">${pct(m.onVenda,m.ativos-m.semDados)}%<small>dos PDVs monitorados vendendo normalmente</small></div>`:`<div class="wall-big">—<small>conexão e vendas dos PDVs ainda sem monitoramento</small></div><p class="small muted" style="margin:6px 0 0">Esses dados chegam com a integração do Infinity e do PagBank, ou podem ser marcados à mão em cada PDV.</p>`}</div>
-      <div class="legend"><span><i style="background:var(--ok)"></i>Vendendo (${m.onVenda})</span><span><i style="background:var(--warn)"></i>Online sem vendas há +${S.config.horasSemVenda} h (${m.semVenda})</span><span><i style="background:var(--bad)"></i>Offline (${m.offline})</span><span><i style="background:transparent;border:1px dashed var(--line-strong)"></i>Sem monitoramento (${m.semDados})</span><span><i style="background:var(--idle)"></i>Em implantação (${m.implantacao})</span><span><i style="background:transparent;border:2px solid var(--muted);border-radius:50%"></i>Certificado vencido, facial ou app com falha</span></div>
-    </div>
-    ${P.length?'<div class="wall">'+tiles+'</div>':'<div class="empty">Nenhum PDV cadastrado ainda. <a href="#pdvs">Cadastre ou importe seus PDVs</a>.</div>'}
-  </section>
+  <section class="panel saude" style="margin-bottom:14px">${saudeRede(m,P)}</section>
   <h2 class="sec">A rede</h2>
   <div class="kpis" style="margin-bottom:18px">
     ${k(m.ativos,"PDVs ativos",m.franqueados+" franqueados com PDV","","pdvs")}
@@ -601,6 +603,21 @@ function pPainel(){
     <section class="panel"><h2>Chamados abertos por fornecedor</h2><div class="chartbox"><canvas id="cForn"></canvas></div></section>
     <section class="panel"><h2>Por canal de entrada (30 dias)</h2><div class="chartbox"><canvas id="cOrig"></canvas></div></section>
   </div>`;
+}
+function saudeRede(m,P){
+  if(!P.length) return '<div class="empty">Nenhum PDV cadastrado ainda. <a href="#pdvs">Cadastre ou importe seus PDVs</a>.</div>';
+  const total=P.length, mon=m.ativos-m.semDados;
+  const seg=[["on","Vendendo",m.onVenda,"var(--ok)"],["nosale","Sem vendas há +"+S.config.horasSemVenda+" h",m.semVenda,"var(--warn)"],["off","Offline",m.offline,"var(--bad)"],["nodata","Sem monitoramento",m.semDados,"var(--line-strong)"],["impl","Em implantação",m.implantacao,"var(--idle)"]];
+  const motivo=p=>{const s=pdvState(p); return s==="off"?["Offline há "+ago(p.ultimoPing),"p-bad",0]:s==="nosale"?["Sem vendas há "+ago(p.ultimaVenda),"p-warn",1]:certState(p)==="vencido"?["Certificado vencido","p-bad",2]:p.facialOk===false?["Facial com falha","p-warn",3]:p.appOk===false?["App com falha","p-warn",3]:p.auditOk===false?["Câmeras sem imagem","p-warn",4]:null;};
+  const atencao=P.filter(p=>p.status==="ativo").map(p=>[p,motivo(p)]).filter(x=>x[1]).sort((a,b)=>a[1][2]-b[1][2]);
+  return `<div class="saude-top">
+      <div>${mon>0?`<div class="wall-big">${pct(m.onVenda,mon)}%<small>dos PDVs monitorados vendendo normalmente</small></div>`:`<div class="wall-big">${m.ativos}<small>PDVs ativos</small></div><p class="small muted" style="margin:4px 0 0">Conexão e vendas ainda sem monitoramento. Chegam com a integração do Infinity e do PagBank.</p>`}</div>
+    </div>
+    <div class="stackbar" role="img" aria-label="Distribuição dos PDVs por situação">${seg.filter(x=>x[2]).map(([k,l,n,c])=>`<span style="flex:${n};background:${c}" title="${esc(l)}: ${n}"></span>`).join("")}</div>
+    <div class="legend2">${seg.map(([k,l,n,c])=>`<button data-act="pdv-filtro" data-v="${k}"><i style="background:${c}"></i>${esc(l)} <b>${n}</b></button>`).join("")}</div>
+    <div class="atencao"><h3>Precisam de atenção <span class="muted">(${atencao.length})</span></h3>
+      ${atencao.length?atencao.slice(0,6).map(([p,mo])=>`<button class="at-row" data-act="pdv" data-id="${esc(p.codigo)}"><span>${esc(p.nomeSults||p.unidade||p.codigo)}</span><span class="pill ${mo[1]}">${esc(mo[0])}</span></button>`).join("")+(atencao.length>6?`<a class="small" href="#alertas">Ver todos os ${atencao.length} em Alertas</a>`:""):`<p class="small muted" style="margin:0">${mon>0?"Nenhum PDV com problema detectado agora.":"Nenhum problema registrado. Quando houver dados de conexão, vendas, certificado ou facial, os PDVs com problema aparecem aqui."}</p>`}
+    </div>`;
 }
 function filaTop(){
   const o={critica:0,alta:1,media:2,baixa:3};
@@ -1656,6 +1673,7 @@ document.addEventListener("click",async e=>{
     case "sug-ia": { const c=S.chamados.find(x=>x.id===id); if(c) gerarComIA(c); break; }
     case "ia-salvar": { const k=($("#iaKey")||{}).value||""; if(k.trim()){ try{localStorage.setItem("f4y-claude-key",k.trim());}catch(_){} toast("IA ativada neste navegador."); } el.closest(".ia-cfg").remove(); break; }
     case "ia-fechar": el.closest(".ia-cfg").remove(); break;
+    case "pdv-filtro": S.f.pdv.online=el.dataset.v==="impl"?"impl":el.dataset.v; S.f.pdv.status=el.dataset.v==="impl"?"implantacao":""; location.hash="pdvs"; break;
     case "pdv-vista": ev_stop(e); S.f.pdvVista=el.dataset.v; renderMain(); break;
     case "new-ch": chForm(null,el.dataset.pdv?{pdv:el.dataset.pdv}:null); break;
     case "save-ch": saveCh(); break;
