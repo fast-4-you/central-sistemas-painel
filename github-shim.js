@@ -72,7 +72,7 @@
         <button type="submit">Entrar</button>
         <p>Como criar o token: GitHub &gt; Settings &gt; Developer settings &gt; Fine-grained tokens. Acesso só a este repositório, permissão “Contents: Read and write”.</p>
       </form>`;
-      document.body.appendChild(box);
+         if (document.body) document.body.appendChild(box); else document.addEventListener("DOMContentLoaded", () => document.body.appendChild(box), { once: true });
       box.querySelector("form").addEventListener("submit", ev => {
         ev.preventDefault();
         const f = new FormData(ev.target);
