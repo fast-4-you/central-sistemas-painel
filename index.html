@@ -191,6 +191,61 @@ details.integ[open] summary{margin-bottom:6px}
   .kv{grid-template-columns:1fr}
 }
 .muted{color:var(--muted)} .small{font-size:13px}
+.kanban{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.kcol{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px;min-height:200px}
+.kcol h3{font-size:14px;margin:2px 4px 10px;display:flex;gap:6px}
+.kcol.voce{border-top:4px solid var(--bad)} .kcol.andamento{border-top:4px solid var(--purple)} .kcol.forn{border-top:4px solid var(--warn)} .kcol.franq{border-top:4px solid var(--info)}
+.kcards{display:flex;flex-direction:column;gap:8px}
+.ch-card{display:flex;flex-direction:column;gap:5px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;width:100%}
+.ch-card:hover{border-color:var(--purple)}
+.ch-tags{display:flex;gap:4px;flex-wrap:wrap}
+.ch-unit{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-title{font-weight:700;font-size:14px;line-height:1.3}
+.ch-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px}
+.ch-foot{font-size:12.5px;border-top:1px solid var(--line);padding-top:6px}
+.t-bad{color:var(--bad)} .t-warn{color:var(--warn)} .t-info{color:var(--info)} .t-ok{color:var(--ok)} .t-brand{color:var(--purple)} .t-idle{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--panel);padding:8px 12px;cursor:pointer;font-weight:600;font-size:14px}
+.seg button.on{background:var(--purple);color:#fff}
+.modal.wide{width:min(1200px,96vw);height:92vh;max-height:92vh;padding:0;display:none;overflow:hidden}
+.modal.wide.show{display:flex}
+.chv{display:flex;flex-direction:column;width:100%;height:100%}
+.chv-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:16px 20px;border-bottom:1px solid var(--line)}
+.chv-body{display:grid;grid-template-columns:340px 1fr;flex:1;min-height:0}
+.chv-side{overflow:auto;padding:14px 16px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:14px;background:var(--bg)}
+.chv-side h3{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+.chv-conv{overflow:auto;padding:14px 20px}
+.acao-box{display:flex;flex-direction:column;gap:2px;border-radius:12px;padding:12px;border:1px solid var(--line);background:var(--panel)}
+.acao-box b{font-size:16px} .acao-box.voce{border-color:var(--bad);background:var(--bad-bg)} .acao-box.franq{background:var(--info-bg)} .acao-box.forn{background:var(--warn-bg)}
+.kv2{display:grid;grid-template-columns:120px 1fr;gap:5px 10px;font-size:13.5px;margin:0}
+.kv2 dt{color:var(--muted)} .kv2 dd{margin:0}
+table.mini{width:100%;font-size:13px;margin-top:8px} table.mini th,table.mini td{padding:4px 6px}
+.timeline{display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;border-radius:12px;padding:10px 12px;border:1px solid var(--line);background:var(--panel)}
+.msg.nos{align-self:flex-end;background:var(--purple-soft)} .msg.eles{align-self:flex-start}
+.msg.interno{border-style:dashed;border-color:var(--warn)}
+.msg-h{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;margin-bottom:4px}
+.msg-t{white-space:pre-wrap;font-size:14px;line-height:1.45}
+.msg-a{margin-top:6px;font-size:13px;display:flex;gap:10px;flex-wrap:wrap}
+.evt{font-size:12.5px;text-align:center;color:var(--muted)}
+.nota{margin-top:12px;border:1px dashed var(--line-strong);border-radius:10px;padding:10px;font-size:13.5px;white-space:pre-wrap}
+.grp{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.grp>summary{list-style:none;cursor:pointer;padding:10px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grp>summary::-webkit-details-marker{display:none}
+.grp .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;background:var(--purple);flex:none}
+.grp .pdv-row{display:grid;grid-template-columns:34px minmax(0,2fr) 90px 120px 1fr;gap:10px;align-items:center;padding:8px 14px;border-top:1px solid var(--line);cursor:pointer}
+.grp .pdv-row:hover{background:var(--purple-soft)}
+.grp .pdv-row .av{background:var(--orange);font-size:10px}
+@media (max-width:860px){.chv-body{grid-template-columns:1fr}.chv-side{border-right:0;border-bottom:1px solid var(--line);max-height:40vh}.kanban{grid-template-columns:repeat(4,85vw)}.grp .pdv-row{grid-template-columns:34px 1fr}.grp .pdv-row>:nth-child(n+3){display:none}}
+.sug{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:16px;background:var(--bg)}
+.sug h3{margin:0 0 8px}
+.sug-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.sug textarea{width:100%;border:1px solid var(--line-strong);border-radius:10px;padding:10px;background:var(--panel);color:var(--fg);font:inherit;font-size:14px;resize:vertical}
+.ia-cfg{position:fixed;inset:0;z-index:70;background:rgba(20,8,16,.55);display:grid;place-items:center;padding:16px}
+.news{display:flex;flex-direction:column;gap:8px}
+.news-it{display:flex;flex-direction:column;gap:4px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--fg)}
+.news-it:hover{border-color:var(--purple)}
+.news-t{font-weight:700;font-size:15px}
 h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
 .fila{display:flex;flex-direction:column}
 .fila-it{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 2px;cursor:pointer}
@@ -222,6 +277,7 @@ h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
     <nav class="nav" id="nav">
       <a href="#painel">Painel da rede</a>
       <a href="#chamados">Fila de chamados <span class="count" id="navChamados" hidden></span></a>
+      <a href="#sla">SLA do atendimento</a>
       <a href="#pdvs">Unidades e PDVs</a>
       <a href="#problemas">Problemas recorrentes <span class="count" id="navProb" hidden></span></a>
       <a href="#fornecedores">Fornecedores e SLAs</a>
@@ -262,7 +318,7 @@ const PRIOR_HELP = {critica:"Loja sem conseguir vender ou falha grave de acesso/
   baixa:"Dúvidas, solicitações administrativas, melhorias e treinamentos. Atendimento programado."};
 const ST_CH = {aberto:"Aberto",andamento:"Em diagnóstico",fornecedor:"Aguardando fornecedor",contorno:"Contornado (operando)",validacao:"Aguardando validação",resolvido:"Resolvido"};
 const ST_PROB = {investigando:"Investigando",causa:"Causa identificada",plano:"Plano em execução",validando:"Validando solução",resolvido:"Resolvido"};
-const DEF_CONFIG = {horasSemVenda:24, diasCertAviso:30, horasSLACritico:24, recorrenciaMin:3, time:"Coordenação, Alice, Augusto", okrBaseCriticos:0, okrReducao:20};
+const DEF_CONFIG = {metaPrimeiraResposta:4, metaResposta:4, metaNoPrazo:90, horasResposta:4, horasSemVenda:24, diasCertAviso:30, horasSLACritico:24, recorrenciaMin:3, time:"Coordenação, Alice, Augusto", okrBaseCriticos:0, okrReducao:20};
 const DEF_FORN = {
   "Soft-line/Infinity":{escopo:"Infraestrutura sistêmica das unidades, ERP (SacVarejo/Infinity), PDV, roteador, totem, leitor, trava, certificado no ERP.",reuniao:"Semanal"},
   "Beepay":{escopo:"App F4Y para clientes, painel do franqueado, facial e pagamento pelo app.",reuniao:"Quinzenal"},
@@ -272,7 +328,7 @@ const DEF_FORN = {
   "Interno":{escopo:"Demandas resolvidas pelo próprio time de Sistemas fast4you.",reuniao:""}};
 
 const S = {db:null,user:null,dl:null,sample:null,canWrite:false,ready:false,
-  pdvs:[],chamados:[],dicas:[],snaps:[],problemas:[],forn:[],procs:[],config:{...DEF_CONFIG},
+  pdvs:[],chamados:[],dicas:[],noticias:[],snaps:[],problemas:[],forn:[],procs:[],config:{...DEF_CONFIG},
   loaded:{pdvs:false,chamados:false,dicas:false,snaps:false,config:false,problemas:false,forn:false,procs:false},
   error:null, charts:[], snapWritten:false, toastShown:false,
   f:{pdv:{q:"",status:"",online:"",trava:"",cert:""}, ch:{q:"",status:"abertos",prioridade:"",origem:"",fornecedor:"",categoria:"",dono:""}},
@@ -311,10 +367,11 @@ function certState(p){
 }
 const abertos = () => S.chamados.filter(c=>c.status!=="resolvido");
 const pdvByCode = code => S.pdvs.find(p=>String(p.codigo)===String(code));
-const pdvLabel = code => { const p=pdvByCode(code); return p? p.codigo+" "+p.unidade : (code||"—"); };
+const isPdv = p => p.tipo!=="empresa";
+const pdvLabel = code => { const p=pdvByCode(code); if(p&&p.nomeSults) return p.nomeSults; return p? p.codigo+" "+p.unidade : (code||"—"); };
 
 function metrics(){
-  const P=S.pdvs, ativos=P.filter(p=>p.status==="ativo");
+  const P=S.pdvs.filter(isPdv), ativos=P.filter(p=>p.status==="ativo");
   const st = ativos.map(pdvState);
   const m = {
     total:P.length, ativos:ativos.length,
@@ -345,6 +402,8 @@ function metrics(){
   m.slaMedio = res.length? res.reduce((s,c)=>s+(new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5,0)/res.length : null;
   m.recorrencias = recorrencias(now(),30).length;
   m.aguardForn = A.filter(c=>c.status==="fornecedor").length;
+  m.devendo = A.filter(c=>acao(c).k==="voce").length;
+  m.slaVencido = A.filter(c=>slaInfo(c).vencido).length;
   m.pendVencidas = A.filter(c=>c.proximoRetorno && new Date(c.proximoRetorno)<now()).length;
   m.semDono = A.filter(c=>!donoDe(c)).length;
   m.reabertos30 = S.chamados.filter(c=>(c.reaberturas||0)>0 && hoursSince(c.abertoEm)<24*30).length;
@@ -374,7 +433,7 @@ function recorrencias(ate, dias){
 }
 function computeAlerts(){
   const out=[], cfg=S.config;
-  S.pdvs.filter(p=>p.status==="ativo").forEach(p=>{
+  S.pdvs.filter(p=>p.status==="ativo"&&isPdv(p)).forEach(p=>{
     const s=pdvState(p), lbl=p.codigo+" "+p.unidade;
     if(s==="off") out.push({sev:"crit",t:"PDV offline: "+lbl,m:"Último sinal há "+ago(p.ultimoPing)+". Franqueado "+(p.franqueado||"—")+".",pdv:p.codigo});
     else if(s==="nosale") out.push({sev:"high",t:"PDV sem vendas: "+lbl,m:"Online, mas sem venda há "+ago(p.ultimaVenda)+" (limite "+cfg.horasSemVenda+" h).",pdv:p.codigo});
@@ -388,6 +447,9 @@ function computeAlerts(){
   });
   abertos().forEach(c=>{
     if(c.prioridade==="critica" && hoursSince(c.abertoEm)>cfg.horasSLACritico) out.push({sev:"crit",t:"Chamado crítico aberto há "+ago(c.abertoEm),m:c.titulo+" | "+pdvLabel(c.pdv)+" | "+c.fornecedor,ch:c.id});
+    { const ac=acao(c), hh=hoursSince(desdeAcao(c));
+      if(ac.k==="voce" && hh>Number(S.config.horasResposta||4)) out.push({sev:hh>24?"crit":"high",t:"Devendo resposta há "+ago(desdeAcao(c))+": "+pdvLabel(c.pdv),m:c.titulo+" | "+ac.t+" | dono: "+(donoDe(c)||"sem dono"),ch:c.id});
+      if(slaInfo(c).vencido) out.push({sev:"high",t:"Prazo do Sults vencido: "+c.titulo,m:pdvLabel(c.pdv)+" | venceu em "+fmtDT(c.sults.prazo)+" | dono: "+(donoDe(c)||"sem dono"),ch:c.id}); }
     if(c.proximoRetorno && new Date(c.proximoRetorno)<now()) out.push({sev:"high",t:"Retorno vencido: "+c.titulo,m:"Combinado para "+fmtDT(c.proximoRetorno)+" com "+c.fornecedor+". Próxima ação: "+(c.proximaAcao||"não definida")+". Dono: "+(donoDe(c)||"sem dono")+".",ch:c.id});
     if(!donoDe(c) && (c.prioridade==="critica"||c.prioridade==="alta")) out.push({sev:"high",t:"Chamado "+PCODE[c.prioridade]+" sem dono na fast4you",m:c.titulo+" | defina quem acompanha, mesmo aguardando fornecedor.",ch:c.id});
     const fi=fornInfo(c.fornecedor);
@@ -419,7 +481,7 @@ async function init(){
     if(S.loaded.pdvs&&S.loaded.chamados){ clearTimeout(timer); if(S.error==="slow") S.error=null; }
     S.ready=true; renderAll(); maybeSnapshot(); maybeToast();
   },err=>{ S.error="db:"+err.code; renderAll(); });
-  sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("fornecedores","forn"); sub("procedimentos","procs");
+  sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("noticias","noticias"); sub("fornecedores","forn"); sub("procedimentos","procs");
   db.doc("config/integracoes").onSnapshot(d=>{ S.integ=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/geral").onSnapshot(d=>{ S.config=Object.assign({},DEF_CONFIG,d.exists?d.data():{}); S.loaded.config=true; renderAll(); },()=>{});
 }
@@ -440,7 +502,7 @@ function maybeToast(){
 }
 
 /* ---------- roteamento ---------- */
-const PAGES=["painel","pdvs","chamados","problemas","fornecedores","conhecimento","semanal","alertas","novidades","integracoes"];
+const PAGES=["painel","sla","pdvs","chamados","problemas","fornecedores","conhecimento","semanal","alertas","novidades","integracoes"];
 function route(){
   const h=(location.hash||"").slice(1); const p=PAGES.includes(h)?h:"painel";
   document.querySelectorAll("#nav a").forEach(a=>a.setAttribute("aria-current", a.getAttribute("href")==="#"+p?"page":"false"));
@@ -451,9 +513,9 @@ window.addEventListener("hashchange",route);
 function renderAll(){ renderNav(); renderMain(); }
 function renderNav(){
   const al=computeAlerts().filter(a=>a.sev==="crit"||a.sev==="high").length;
-  const ca=abertos().filter(c=>c.prioridade==="critica").length;
+  const ca=abertos().filter(c=>acao(c).k==="voce").length;
   const n1=$("#navAlertas"), n2=$("#navChamados");
-  n1.hidden=!al; n1.textContent=al; n2.hidden=!ca; n2.textContent=ca; n2.title="Chamados P1 abertos";
+  n1.hidden=!al; n1.textContent=al; n2.hidden=!ca; n2.textContent=ca; n2.title="Chamados aguardando resposta de vocês";
   const pa=S.problemas.filter(p=>p.status!=="resolvido").length, n3=$("#navProb"); n3.hidden=!pa; n3.textContent=pa;
   $("#syncInfo").textContent = S.error==="offline"?"Abra no Claude para ver os dados" : S.ready? ("Atualizado "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+(S.canWrite?"":" (somente leitura)")) : "Conectando…";
 }
@@ -470,15 +532,16 @@ function banners(){
 function destroyCharts(){ S.charts.forEach(c=>{try{c.destroy()}catch(e){}}); S.charts=[]; }
 function renderMain(){
   destroyCharts();
-  const el=$("#main"); const fn={painel:pPainel,pdvs:pPdvs,chamados:pChamados,problemas:pProblemas,fornecedores:pFornecedores,conhecimento:pConhecimento,semanal:pSemanal,alertas:pAlertas,novidades:pNovidades,integracoes:pIntegracoes}[S.page];
+  const el=$("#main"); const fn={sla:pSla,painel:pPainel,pdvs:pPdvs,chamados:pChamados,problemas:pProblemas,fornecedores:pFornecedores,conhecimento:pConhecimento,semanal:pSemanal,alertas:pAlertas,novidades:pNovidades,integracoes:pIntegracoes}[S.page];
   el.innerHTML = banners() + fn();
   if(S.page==="painel") drawPainelCharts();
   if(S.page==="semanal") drawSemanaCharts();
+  if(S.page==="sla") drawSlaCharts();
 }
 
 /* ---------- PAINEL ---------- */
 function pPainel(){
-  const m=metrics(), P=S.pdvs.filter(p=>p.status==="ativo"||p.status==="implantacao");
+  const m=metrics(), P=S.pdvs.filter(p=>isPdv(p)&&(p.status==="ativo"||p.status==="implantacao"));
   P.sort((a,b)=>{const o={off:0,nosale:1,on:2,nodata:3,impl:4};return o[pdvState(a)]-o[pdvState(b)]||String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})});
   const hoje=now().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
   const tiles = P.map(p=>{const s=pdvState(p); const flag=certState(p)==="vencido"||p.facialOk===false||p.appOk===false;
@@ -510,6 +573,7 @@ function pPainel(){
   </div>
   <h2 class="sec">Operação do time</h2>
   <div class="kpis" style="margin-bottom:14px">
+    ${k(m.devendo,"Vocês devem resposta",m.slaVencido+" com prazo do Sults vencido",m.devendo?"bad":"ok","chamados")}
     ${k(m.chAbertos,"Chamados em aberto",m.semDono?m.semDono+" sem dono":"todos com dono",m.semDono?"warn":"","chamados")}
     ${k(m.chCriticos,"P1 críticos ativos","",m.chCriticos?"bad":"ok","chamados")}
     ${k(m.aguardForn,"Aguardando fornecedor","","","fornecedores")}
@@ -543,7 +607,7 @@ function filaTop(){
   const A=abertos().sort((a,b)=>o[a.prioridade]-o[b.prioridade]||String(a.abertoEm).localeCompare(String(b.abertoEm))).slice(0,6);
   if(!A.length) return '<p class="muted">Nenhum chamado em aberto.</p>';
   return '<div class="fila">'+A.map(c=>{const venc=c.proximoRetorno&&new Date(c.proximoRetorno)<now();
-    return `<button class="fila-it" data-act="ch" data-id="${esc(c.id)}"><span><b>${esc(pdvLabel(c.pdv))}</b>: ${esc(c.titulo)}<span class="small muted" style="display:block">${esc(c.fornecedor)} | ${esc(ST_CH[c.status]||c.status)} | dono: ${esc(donoDe(c)||"sem dono")}${c.proximoRetorno?' | retorno '+(venc?'<b style="color:var(--bad)">vencido</b>':fmtDT(c.proximoRetorno)):''}</span></span>${prPill(c.prioridade)}</button>`;}).join("")+'</div>';
+    return `<button class="fila-it" data-act="ch" data-id="${esc(c.id)}"><span><b>${esc(pdvLabel(c.pdv))}</b>: ${esc(c.titulo)}<span class="small muted" style="display:block">${esc(acao(c).t)} | ${esc(c.fornecedor)} | dono: ${esc(donoDe(c)||"sem dono")}${c.proximoRetorno?' | retorno '+(venc?'<b style="color:var(--bad)">vencido</b>':fmtDT(c.proximoRetorno)):''}</span></span>${prPill(c.prioridade)}</button>`;}).join("")+'</div>';
 }
 function okrHtml(m){
   const base=Number(S.config.okrBaseCriticos)||0, red=Number(S.config.okrReducao)||20, meta=base?Math.round(base*(1-red/100)):null;
@@ -635,9 +699,20 @@ function pPdvs(){
     <select data-f="pdv.trava" aria-label="Travas"><option value="">Todas as travas</option>${opt({completas:"Com as duas travas","sem-cerv":"Sem trava na cervejeira","sem-porta":"Sem trava na porta"},f.trava)}</select>
     <select data-f="pdv.cert" aria-label="Certificado"><option value="">Todo certificado</option>${opt({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"},f.cert)}</select>
   </div>
-  <p class="small muted">${rows.length} de ${S.pdvs.length} PDVs</p>
-  <div class="tablewrap"><table><thead><tr><th>Código</th><th>Unidade</th><th>Franqueado</th><th>Contrato</th><th>Situação</th><th>Última venda</th><th>Trava cervejeira</th><th>Trava porta</th><th>Certificado</th><th>Facial</th><th>App</th><th>Adquirente</th></tr></thead>
-  <tbody>${rows.map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td><b>${esc(p.codigo)}</b></td><td>${esc(p.unidade)}<div class="small muted">${esc([p.cidade,p.uf].filter(Boolean).join("/"))}</div></td><td>${esc(p.franqueado||"—")}</td><td>${esc(STATUS_PDV[p.status]||p.status||"—")}</td><td>${stPill(p)}</td><td>${p.status==="ativo"?ago(p.ultimaVenda):"—"}</td><td>${yn(p.travaCervejeira)}</td><td>${yn(p.travaPorta)}</td><td>${certPill(p)}</td><td>${p.facialOk===false?'<span class="pill p-bad">Falha</span>':p.facialOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${p.appOk===false?'<span class="pill p-bad">Falha</span>':p.appOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${esc(p.adquirente||"—")}</td></tr>`).join("") || '<tr><td colspan="12" class="empty">Nenhum PDV encontrado com esses filtros.</td></tr>'}</tbody></table></div>`;
+  <div class="row" style="justify-content:space-between;margin-bottom:8px"><p class="small muted" style="margin:0">${rows.filter(isPdv).length} PDVs e ${rows.filter(p=>!isPdv(p)).length} empresas de franqueado</p><div class="seg"><button class="${S.f.pdvVista!=="tabela"?"on":""}" data-act="pdv-vista" data-v="grupo">Por franqueado</button><button class="${S.f.pdvVista==="tabela"?"on":""}" data-act="pdv-vista" data-v="tabela">Tabela</button></div></div>
+  ${S.f.pdvVista!=="tabela"?gruposPdv(rows):`<div class="tablewrap"><table><thead><tr><th>Código</th><th>Unidade</th><th>Franqueado</th><th>Contrato</th><th>Situação</th><th>Última venda</th><th>Trava cervejeira</th><th>Trava porta</th><th>Certificado</th><th>Facial</th><th>App</th><th>Adquirente</th></tr></thead>
+  <tbody>${rows.map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td><b>${esc(p.codigo)}</b></td><td>${esc(p.unidade)}<div class="small muted">${esc([p.cidade,p.uf].filter(Boolean).join("/"))}</div></td><td>${esc(p.franqueado||"—")}</td><td>${esc(STATUS_PDV[p.status]||p.status||"—")}</td><td>${stPill(p)}</td><td>${p.status==="ativo"?ago(p.ultimaVenda):"—"}</td><td>${yn(p.travaCervejeira)}</td><td>${yn(p.travaPorta)}</td><td>${certPill(p)}</td><td>${p.facialOk===false?'<span class="pill p-bad">Falha</span>':p.facialOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${p.appOk===false?'<span class="pill p-bad">Falha</span>':p.appOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${esc(p.adquirente||"—")}</td></tr>`).join("") || '<tr><td colspan="12" class="empty">Nenhum PDV encontrado com esses filtros.</td></tr>'}</tbody></table></div>`}`;
+}
+function gruposPdv(rows){
+  const g={}; rows.forEach(p=>{const k=p.grupoFranqueado||p.codigo; (g[k]=g[k]||[]).push(p);});
+  const abrir=!!S.f.pdv.q;
+  const chaves=Object.keys(g).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  if(!chaves.length) return '<div class="panel empty">Nenhuma unidade encontrada com esses filtros.</div>';
+  return chaves.slice(0,400).map(k=>{ const l=g[k], emp=l.find(p=>!isPdv(p)), pdvs=l.filter(isPdv).sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true}));
+    const ref=emp||l[0], ativos=pdvs.filter(p=>p.status==="ativo").length;
+    return `<details class="grp"${abrir?" open":""}><summary><span class="av">${esc(String(k).slice(-2))}</span><span style="flex:1;min-width:200px"><b>${esc(k)} ${esc(ref.franqueado||"")}</b><span class="small muted" style="display:block">${esc(ref.razaoSocial||"")}${ref.cnpj&&!/^9+$/.test(ref.cnpj)?" · CNPJ "+esc(ref.cnpj):""}${ref.cidade?" · "+esc(ref.cidade)+"/"+esc(ref.uf||""):""}</span></span><span class="pill p-ok">${ativos} ativo${ativos===1?"":"s"}</span><span class="pill p-idle">${pdvs.length} PDV${pdvs.length===1?"":"s"}</span>${emp?`<button class="btn small" data-act="pdv" data-id="${esc(emp.codigo)}">Empresa</button>`:""}</summary>
+      ${pdvs.map(p=>`<div class="pdv-row" data-act="pdv" data-id="${esc(p.codigo)}"><span class="av">PDV${esc(String(p.codigo).split("-")[1]||"")}</span><span><b>${esc(p.unidade||p.nomeSults)}</b><span class="small muted" style="display:block">${esc(p.nomeSults||"")}</span></span><span class="small muted">${p.sultsId?"#"+esc(p.sultsId):""}</span><span>${esc(STATUS_PDV[p.status]||p.status)}</span><span>${stPill(p)}</span></div>`).join("")||'<div class="pdv-row small muted">Sem PDVs cadastrados para este franqueado.</div>'}
+    </details>`; }).join("")+(chaves.length>400?`<p class="small muted">Mostrando 400 de ${chaves.length} franqueados. Use a busca para encontrar os demais.</p>`:"");
 }
 function openPdv(code){
   const p=pdvByCode(code); if(!p) return;
@@ -731,25 +806,268 @@ const prPill = p => '<span class="pill '+({critica:"p-bad",alta:"p-warn",media:"
 const chPill = s => '<span class="pill '+({aberto:"p-bad",andamento:"p-info",fornecedor:"p-warn",contorno:"p-brand",validacao:"p-info",resolvido:"p-ok"}[s]||"p-idle")+'">'+esc(ST_CH[s]||s)+'</span>';
 const optList=(arr,v)=>arr.map(x=>Array.isArray(x)?`<option value="${esc(x[0])}"${v===x[0]?" selected":""}>${esc(x[1])}</option>`:`<option${v===x?" selected":""}>${esc(x)}</option>`).join("");
 const dtLocal=iso=>iso?new Date(new Date(iso)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):"";
+/* ---------- Situação no Sults, quem deve agir e SLA ---------- */
+const SIT_SULTS={1:"Novo",2:"Concluído",3:"Resolvido",4:"Em andamento",5:"Aguardando solicitante",6:"Aguardando responsável"};
+const sitSults = c => c.sults && c.sults.situacao;
+function acao(c){
+  const s=sitSults(c);
+  if(c.status==="resolvido"||s===2) return {k:"fim",t:"Encerrado",cls:"p-ok"};
+  if(s===1) return {k:"voce",t:"Você deve a primeira resposta",cls:"p-bad"};
+  if(s===6) return {k:"voce",t:"O franqueado respondeu: você deve resposta",cls:"p-bad"};
+  if(c.status==="fornecedor") return {k:"forn",t:"Aguardando o fornecedor",cls:"p-warn"};
+  if(s===5) return {k:"franq",t:"Aguardando resposta do franqueado",cls:"p-info"};
+  if(s===3||c.status==="validacao") return {k:"franq",t:"Aguardando o franqueado confirmar a solução",cls:"p-info"};
+  if(s===4) return {k:"andamento",t:"Em andamento com vocês",cls:"p-brand"};
+  if(c.status==="aberto") return {k:"voce",t:"Ainda sem resposta",cls:"p-bad"};
+  return {k:"andamento",t:"Em andamento com vocês",cls:"p-brand"};
+}
+const desdeAcao = c => (acao(c).k==="voce"&&c.aguardandoRespostaDesde) || c.situacaoDesde || c.ultimaInteracaoEm || c.abertoEm;
+function slaInfo(c){
+  const prazo=c.sults&&c.sults.prazo;
+  if(!prazo) return {t:"Sem prazo no Sults",cls:"p-idle",vencido:false};
+  if(c.status==="resolvido"){ const ok=c.resolvidoEm&&new Date(c.resolvidoEm)<=new Date(prazo); return {t:ok?"Resolvido no prazo":"Resolvido fora do prazo",cls:ok?"p-ok":"p-warn",vencido:false}; }
+  const h=(new Date(prazo)-now())/36e5;
+  if(h<0) return {t:"Prazo vencido há "+fmtH(-h),cls:"p-bad",vencido:true};
+  if(h<24) return {t:"Vence em "+fmtH(h),cls:"p-warn",vencido:false};
+  return {t:"Vence em "+Math.round(h/24)+" d",cls:"p-ok",vencido:false};
+}
+const ehDoTime = nome => { const n=norm(nome); return timeList().some(t=>{const x=norm(t); return n===x||n.startsWith(x+" ");}); };
+
+/* ---------- FILA DE CHAMADOS ---------- */
+function cardChamado(c){
+  const a=acao(c), sl=slaInfo(c), etq=(c.sults&&c.sults.etiquetas)||[];
+  return `<button class="ch-card ${a.k}" data-act="ch" data-id="${esc(c.id)}">
+    <span class="ch-tags">${prPill(c.prioridade)}${etq.slice(0,3).map(e=>`<span class="pill p-idle">${esc(e)}</span>`).join("")}</span>
+    <span class="ch-unit">${esc(pdvLabel(c.pdv))}</span>
+    <span class="ch-title">${esc(c.titulo)}</span>
+    <span class="ch-meta"><span class="pill ${sl.cls}">${esc(sl.t)}</span><span>${donoDe(c)?esc(donoDe(c)):'<b style="color:var(--warn)">sem dono</b>'}</span>${c.protocolo?`<span class="muted">${esc(c.protocolo)}</span>`:""}</span>
+    <span class="ch-foot"><b class="${a.cls.replace("p-","t-")}">${esc(a.t)}</b> <span class="muted">há ${ago(desdeAcao(c))}</span></span>
+  </button>`;
+}
 function pChamados(){
-  const f=S.f.ch, rows=filteredCh(), o=optList;
+  const f=S.f.ch, rows=filteredCh(), o=optList, vista=f.vista||"quadro";
+  const cols=[["voce","Você deve agir"],["andamento","Em andamento"],["forn","Com o fornecedor"],["franq","Aguardando o franqueado"]];
+  const grupos={}; rows.forEach(c=>{const k=acao(c).k; (grupos[k]=grupos[k]||[]).push(c);});
+  Object.values(grupos).forEach(l=>l.sort((a,b)=>String(desdeAcao(a)).localeCompare(String(desdeAcao(b)))));
+  const quadro=`<div class="kanban">${cols.map(([k,l])=>`<section class="kcol ${k}"><h3>${l} <span class="muted">(${(grupos[k]||[]).length})</span></h3><div class="kcards">${(grupos[k]||[]).map(cardChamado).join("")||'<p class="small muted" style="padding:8px">Nada aqui.</p>'}</div></section>`).join("")}</div>
+    ${(grupos.fim||[]).length?`<details class="panel" style="margin-top:12px"><summary class="small"><b>Encerrados (${grupos.fim.length})</b></summary><div class="kcards" style="margin-top:10px">${grupos.fim.map(cardChamado).join("")}</div></details>`:""}`;
+  const lista=`<div class="tablewrap"><table><thead><tr><th>Quem deve agir</th><th>Chamado</th><th>Unidade</th><th>SLA do Sults</th><th>Situação no Sults</th><th>Dono</th><th>Fornecedor</th><th>Prioridade</th></tr></thead>
+  <tbody>${rows.map(c=>{const a=acao(c), sl=slaInfo(c); return `<tr data-act="ch" data-id="${esc(c.id)}"><td><span class="pill ${a.cls}">${esc(a.t)}</span><div class="small muted">há ${ago(desdeAcao(c))}</div></td><td class="wrap"><b>${esc(c.titulo)}</b><div class="small muted">${esc(c.protocolo||"")} ${esc(c.categoria)}</div></td><td class="wrap">${esc(pdvLabel(c.pdv))}</td><td><span class="pill ${sl.cls}">${esc(sl.t)}</span></td><td>${esc(SIT_SULTS[sitSults(c)]||ST_CH[c.status]||"")}</td><td>${donoDe(c)?esc(donoDe(c)):'<span class="pill p-warn">Sem dono</span>'}</td><td>${esc(c.fornecedor)}</td><td>${prPill(c.prioridade)}</td></tr>`;}).join("")||'<tr><td colspan="8" class="empty">Nenhum chamado com esses filtros.</td></tr>'}</tbody></table></div>`;
   return `
-  <div class="topbar"><div><h1>Fila de chamados</h1><p class="sub">Fila única: todo chamado tem dono na fast4you, próxima ação e data de retorno, mesmo quando está com o fornecedor.</p></div>
-  <div class="row"><button class="btn" data-act="export-ch">Exportar</button>${S.canWrite?'<button class="btn" data-act="tpl-ch">Baixar modelo</button><button class="btn" data-act="import-ch">Importar planilha do fornecedor</button><button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
+  <div class="topbar"><div><h1>Fila de chamados</h1><p class="sub">Organizada por quem precisa agir agora. Clique num chamado para ver a conversa completa e o SLA.</p></div>
+  <div class="row"><div class="seg"><button class="${vista==="quadro"?"on":""}" data-act="vista" data-v="quadro">Quadro</button><button class="${vista==="lista"?"on":""}" data-act="vista" data-v="lista">Lista</button></div><button class="btn" data-act="export-ch">Exportar</button>${S.canWrite?'<button class="btn" data-act="import-ch">Importar planilha do fornecedor</button><button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
   <div class="filters">
-    <input type="search" placeholder="Buscar título, PDV, protocolo, dono ou próxima ação" value="${esc(f.q)}" data-f="ch.q" aria-label="Buscar">
+    <input type="search" placeholder="Buscar título, unidade, protocolo ou dono" value="${esc(f.q)}" data-f="ch.q" aria-label="Buscar">
     <select data-f="ch.dono" aria-label="Dono"><option value="">Todos os donos</option>${o([...timeList(),["__sem","Sem dono"]],f.dono)}</select>
-    <select data-f="ch.status" aria-label="Status">${o([["abertos","Todos os abertos"],["","Todos"],...Object.entries(ST_CH)],f.status)}</select>
+    <select data-f="ch.status" aria-label="Status">${o([["abertos","Em aberto"],["","Todos, com encerrados"]],f.status==="abertos"||f.status===""?f.status:"abertos")}</select>
     <select data-f="ch.prioridade" aria-label="Prioridade"><option value="">Toda prioridade</option>${o(Object.entries(PRIOR),f.prioridade)}</select>
     <select data-f="ch.categoria" aria-label="Tipo"><option value="">Todo tipo</option>${o(CATEGORIAS,f.categoria)}</select>
     <select data-f="ch.fornecedor" aria-label="Fornecedor"><option value="">Todo fornecedor</option>${o(FORNECEDORES,f.fornecedor)}</select>
-    <select data-f="ch.origem" aria-label="Canal"><option value="">Todo canal</option>${o(ORIGENS,f.origem)}</select>
   </div>
   <p class="small muted">${rows.length} chamados</p>
-  <div class="tablewrap"><table><thead><tr><th>Prioridade</th><th>Chamado</th><th>PDV</th><th>Fornecedor</th><th>Dono</th><th>Próxima ação</th><th>Aberto</th><th>Status</th></tr></thead>
-  <tbody>${rows.map(c=>{const venc=c.status!=="resolvido"&&c.proximoRetorno&&new Date(c.proximoRetorno)<now(); const prob=c.problemaId&&S.problemas.find(p=>p.id===c.problemaId);
-    return `<tr data-act="ch" data-id="${esc(c.id)}"><td>${prPill(c.prioridade)}</td><td class="wrap"><b>${esc(c.titulo)}</b><div class="small muted">${esc(c.categoria)}${c.reaberturas?' | reaberto '+c.reaberturas+'x':''}</div>${c.feedbackFranqueado?'<span class="pill p-brand">Feedback do franqueado</span> ':''}${prob?'<span class="pill p-warn">Problema: '+esc(prob.titulo)+'</span>':''}</td><td>${esc(pdvLabel(c.pdv))}</td><td>${esc(c.fornecedor)}<div class="small muted">${esc(c.origem)}${c.protocolo?' | '+esc(c.protocolo):''}${c.turno==="plantao"?' | plantão':''}</div></td><td>${donoDe(c)?esc(donoDe(c)):'<span class="pill p-warn">Sem dono</span>'}</td><td class="wrap">${esc(c.proximaAcao||"—")}${c.proximoRetorno?'<div class="small" style="color:'+(venc?'var(--bad)':'var(--muted)')+'">'+(venc?'Vencido: ':'Retorno: ')+fmtDT(c.proximoRetorno)+'</div>':''}</td><td>${fmtDT(c.abertoEm)}<div class="small muted">há ${ago(c.abertoEm)}</div></td><td>${chPill(c.status)}</td></tr>`;}).join("")||'<tr><td colspan="8" class="empty">Nenhum chamado com esses filtros.</td></tr>'}</tbody></table></div>`;
+  ${vista==="lista"?lista:quadro}`;
 }
+
+/* ---------- SLA DO ATENDIMENTO ---------- */
+const mediana = a => { if(!a.length) return null; const s=a.slice().sort((x,y)=>x-y), m=Math.floor(s.length/2); return s.length%2?s[m]:(s[m-1]+s[m])/2; };
+const media = a => a.length? a.reduce((x,y)=>x+y,0)/a.length : null;
+const pessoaDoTime = nome => { const n=norm(nome); return timeList().find(t=>{const x=norm(t); return n===x||n.startsWith(x+" ");}) || nome || "—"; };
+function slaDados(dias){
+  const ini=now().getTime()-dias*864e5, cfg=S.config;
+  const metaP=Number(cfg.metaPrimeiraResposta||4), metaR=Number(cfg.metaResposta||4);
+  const sults=S.chamados.filter(c=>c.origem==="Sults");
+  const abertos=sults.filter(c=>new Date(c.abertoEm).getTime()>=ini);
+  const prim=abertos.filter(c=>c.primeiraRespostaH!=null).map(c=>c.primeiraRespostaH);
+  const resp=sults.flatMap(c=>(c.respostas||[]).map(r=>Object.assign({c},r))).filter(r=>new Date(r.em).getTime()>=ini);
+  const respH=resp.map(r=>r.h);
+  const resolv=sults.filter(c=>c.resolvidoEm&&new Date(c.resolvidoEm).getTime()>=ini);
+  const comPrazo=resolv.filter(c=>c.sults&&c.sults.prazo), noPrazo=comPrazo.filter(c=>new Date(c.resolvidoEm)<=new Date(c.sults.prazo));
+  const resolH=resolv.map(c=>(new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5);
+  let comVoces=0, comFranq=0;
+  abertos.forEach(c=>Object.entries(c.temposSituacao||{}).forEach(([k,v])=>{ if(["Novo","Em andamento","Aguardando responsável"].includes(k)) comVoces+=v; else if(["Aguardando solicitante","Resolvido"].includes(k)) comFranq+=v; }));
+  const semanas=[]; const nS=Math.max(1,Math.ceil(dias/7));
+  for(let i=nS-1;i>=0;i--){ const a=now().getTime()-(i+1)*7*864e5, b=now().getTime()-i*7*864e5; const rs=resp.filter(r=>{const t=new Date(r.em).getTime(); return t>=a&&t<b;}).map(r=>r.h);
+    semanas.push({rot:new Date(a).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),media:media(rs),dentro:rs.length?pct(rs.filter(h=>h<=metaR).length,rs.length):null,n:rs.length}); }
+  const faixas=[["Até 1 h",0,1],["1 a 4 h",1,4],["4 a 8 h",4,8],["8 a 24 h",8,24],["Mais de 24 h",24,1e9]].map(([l,a,b])=>[l,respH.filter(h=>h>a-1e-9&&h<=b).length]);
+  faixas[0][1]=respH.filter(h=>h<=1).length; faixas[1][1]=respH.filter(h=>h>1&&h<=4).length;
+  const porPessoa={}; resp.forEach(r=>{const p=pessoaDoTime(r.por); (porPessoa[p]=porPessoa[p]||[]).push(r.h);});
+  const devendo=abertos.concat(sults.filter(c=>!abertos.includes(c))).filter(c=>c.status!=="resolvido"&&acao(c).k==="voce");
+  return {metaP,metaR,metaPrazo:Number(cfg.metaNoPrazo||90),prim,resp,respH,resolv,comPrazo,noPrazo,resolH,comVoces,comFranq,semanas,faixas,porPessoa,devendo,abertos};
+}
+function pSla(){
+  const dias=Number(S.f.slaDias||30), d=slaDados(dias);
+  const kp=(v,l,sub,cls)=>`<div class="kpi ${cls||""}" style="cursor:default"><span class="v">${v}</span><span class="l">${l}</span>${sub?`<span class="d muted">${sub}</span>`:""}</div>`;
+  const pP=d.prim.length?pct(d.prim.filter(h=>h<=d.metaP).length,d.prim.length):null, pR=d.respH.length?pct(d.respH.filter(h=>h<=d.metaR).length,d.respH.length):null, pZ=d.comPrazo.length?pct(d.noPrazo.length,d.comPrazo.length):null;
+  const cor=(p,meta)=>p==null?"":p>=meta?"ok":p>=meta-15?"warn":"bad";
+  const maisAntigo=d.devendo.sort((a,b)=>String(desdeAcao(a)).localeCompare(String(desdeAcao(b))))[0];
+  const piores=d.resp.slice().sort((a,b)=>b.h-a.h).slice(0,8);
+  const totT=d.comVoces+d.comFranq;
+  return `
+  <div class="topbar"><div><h1>SLA do atendimento</h1><p class="sub">Quanto tempo o time leva para responder os franqueados, calculado pela conversa de cada chamado do Sults. Horas corridas, incluindo noites e fins de semana.</p></div>
+  <div class="row"><div class="seg">${[[7,"7 dias"],[30,"30 dias"],[90,"90 dias"]].map(([v,l])=>`<button class="${dias===v?"on":""}" data-act="sla-dias" data-v="${v}">${l}</button>`).join("")}</div><button class="btn" data-act="export-sla">Exportar</button></div></div>
+  <div class="kpis" style="margin-bottom:14px">
+    ${kp(fmtH(mediana(d.prim)),"Primeira resposta (mediana)",pP==null?"sem dados no período":`${pP}% em até ${d.metaP} h · ${d.prim.length} chamados`,cor(pP,d.metaPrazo))}
+    ${kp(fmtH(mediana(d.respH)),"Resposta ao franqueado (mediana)",pR==null?"sem dados no período":`${pR}% em até ${d.metaR} h · ${d.respH.length} respostas`,cor(pR,d.metaPrazo))}
+    ${kp(pZ==null?"—":pZ+"%","Resolvidos no prazo do Sults",`${d.noPrazo.length} de ${d.comPrazo.length} com prazo · meta ${d.metaPrazo}%`,cor(pZ,d.metaPrazo))}
+    ${kp(fmtH(mediana(d.resolH)),"Tempo até resolver (mediana)",`${d.resolv.length} resolvidos no período`)}
+    ${kp(d.devendo.length,"Devendo resposta agora",maisAntigo?`mais antigo: há ${ago(desdeAcao(maisAntigo))}`:"nenhum",d.devendo.length?"bad":"ok")}
+    ${kp(totT?pct(d.comVoces,totT)+"%":"—","Do tempo, o chamado ficou com vocês",totT?`${pct(d.comFranq,totT)}% aguardando o franqueado`:"sem dados")}
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel"><h2>Tempo de resposta por semana</h2><div class="chartbox"><canvas id="cSlaSem"></canvas></div><p class="small muted">Barras: tempo médio de resposta. Linha: % das respostas dentro da meta de ${d.metaR} h.</p></section>
+    <section class="panel"><h2>Distribuição dos tempos de resposta</h2><div class="chartbox"><canvas id="cSlaFaixa"></canvas></div></section>
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel"><h2>Por pessoa</h2><div class="tablewrap"><table><thead><tr><th>Pessoa</th><th>Respostas</th><th>Mediana</th><th>Média</th><th>Dentro da meta</th></tr></thead><tbody>${Object.entries(d.porPessoa).sort((a,b)=>b[1].length-a[1].length).map(([p,l])=>`<tr><td>${esc(p)}</td><td>${l.length}</td><td>${fmtH(mediana(l))}</td><td>${fmtH(media(l))}</td><td>${pct(l.filter(h=>h<=d.metaR).length,l.length)}%</td></tr>`).join("")||'<tr><td colspan="5" class="empty">Sem respostas no período.</td></tr>'}</tbody></table></div></section>
+    <section class="panel"><h2>Respostas mais demoradas</h2><div class="tablewrap"><table><thead><tr><th>Tempo</th><th>Chamado</th><th>Respondido por</th></tr></thead><tbody>${piores.map(r=>`<tr data-act="ch" data-id="${esc(r.c.id)}"><td><span class="pill ${r.h>d.metaR?"p-bad":"p-ok"}">${fmtH(r.h)}</span></td><td class="wrap">${esc(r.c.titulo)}<div class="small muted">${esc(pdvLabel(r.c.pdv))}</div></td><td>${esc(pessoaDoTime(r.por))}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">Sem respostas no período.</td></tr>'}</tbody></table></div></section>
+  </div>
+  <section class="panel"><h2>Metas</h2><div class="form" id="metaForm">
+    <label class="field">Primeira resposta em até (horas)<input type="number" min="1" name="metaPrimeiraResposta" value="${d.metaP}"></label>
+    <label class="field">Responder o franqueado em até (horas)<input type="number" min="1" name="metaResposta" value="${d.metaR}"></label>
+    <label class="field">Meta de cumprimento (%)<input type="number" min="1" max="100" name="metaNoPrazo" value="${d.metaPrazo}"></label>
+  </div>${S.canWrite?'<div class="row" style="margin-top:10px"><button class="btn primary" data-act="save-metas">Salvar metas</button></div>':""}
+  <p class="small muted" style="margin-bottom:0">A conversa dos chamados é lida pelo coletor. Chamados abertos pelo próprio time não entram no cálculo de primeira resposta.</p></section>`;
+}
+function drawSlaCharts(){
+  if(!window.Chart) return; const d=slaDados(Number(S.f.slaDias||30)); chartBase();
+  const el=document.getElementById("cSlaSem");
+  if(el) S.charts.push(new Chart(el,{data:{labels:d.semanas.map(s=>s.rot),datasets:[
+    {type:"bar",label:"Média (h)",data:d.semanas.map(s=>s.media==null?null:Math.round(s.media*10)/10),backgroundColor:css("--purple"),borderRadius:5,yAxisID:"y"},
+    {type:"line",label:"% na meta",data:d.semanas.map(s=>s.dentro),borderColor:css("--orange"),backgroundColor:css("--orange"),tension:.3,yAxisID:"y1"}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{boxWidth:10}}},scales:{y:{beginAtZero:true,title:{display:true,text:"horas"}},y1:{position:"right",min:0,max:100,grid:{display:false},title:{display:true,text:"%"}}}}}));
+  barChart("cSlaFaixa",d.faixas.map(f=>f[0]),d.faixas.map(f=>f[1]),[css("--ok"),css("--ok"),css("--warn"),css("--orange"),css("--bad")]);
+}
+
+/* ---------- SUGESTÕES DE RESPOSTA ---------- */
+function nomeFranq(c){
+  const s=c.sults||{}; const cand=[s.solicitante,s.responsavel].map(p=>p&&p.nome).filter(n=>n&&!ehDoTime(n))[0]||"";
+  const limpo=cand.replace(/^\s*\d+\s*-?\s*/,"").split(/[|/]/)[0].trim(); const p=limpo.split(/\s+/)[0]||"";
+  return p? p.charAt(0).toUpperCase()+p.slice(1).toLowerCase() : "";
+}
+const PERGUNTAS_PADRAO={
+  "PDV offline":["O roteador está ligado e com as luzes normais?","A internet do condomínio está funcionando?","Vocês já reiniciaram o roteador e o PDV, nessa ordem?"],
+  "PDV sem vendas":["As vendas aparecem aprovadas na maquininha?","Elas aparecem no SAC Varejo?","Desde que horário a loja está sem vendas?"],
+  "Pagamento/POS":["A venda foi aprovada na maquininha?","Ela aparece no SAC Varejo?","A maquininha está usando Wi-Fi ou 4G?","Aparece alguma mensagem de erro? Se puder, mande uma foto."],
+  "Facial":["Acontece com todos os clientes ou só com alguns?","O totem e a câmera da facial estão ligados?","Houve alguma atualização recente do app?"],
+  "App F4Y":["Qual mensagem aparece? Se puder, mande um print.","Em qual etapa acontece: cadastro, compra ou pagamento?","Acontece com todos os clientes?"],
+  "Certificado digital":["Qual a validade do certificado digital instalado?","As notas estão sendo rejeitadas? Qual mensagem aparece?"],
+  "Trava":["É a trava da cervejeira ou da porta de entrada?","A compra estava aprovada quando a trava não liberou?","Acontece em todas as compras?"],
+  "Câmeras/Audit":["Qual câmera está sem imagem?","Desde quando?"],
+};
+function sugestoes(c){
+  const nome=nomeFranq(c), a=acao(c), forn=c.fornecedor&&c.fornecedor!=="Interno"?c.fornecedor:"";
+  const ola=`Olá${nome?", "+nome:""}! Tudo bem?`;
+  const ref=c.protocolo?` (chamado ${c.protocolo.replace("SLT-","#")})`:"";
+  const retorno=c.proximoRetorno?`Nosso próximo retorno será até ${fmtDT(c.proximoRetorno)}.`:"Retornamos assim que tivermos novidades.";
+  const fim=`\n\nAgradeço a compreensão e fico à disposição!\n\nAtte.,\n${donoDe(c)||"Time de Sistemas fast4you"}`;
+  const proc=S.procs.find(p=>p.categoria===c.categoria&&p.status==="validado")||S.procs.find(p=>p.categoria===c.categoria);
+  const perguntas=(proc?String(proc.perguntas||"").split("\n").map(s=>s.trim()).filter(Boolean):null)||PERGUNTAS_PADRAO[c.categoria]||["Pode nos enviar mais detalhes do que está acontecendo e, se possível, fotos ou prints?"];
+  const lista=[];
+  if(a.k==="voce"&&!c.primeiraRespostaH&&!(c.respostas||[]).length) lista.push(["Primeiro retorno",`${ola}\n\nRecebemos sua solicitação sobre "${c.titulo}"${ref} e já estamos analisando${forn?` junto à ${forn}`:""}.\n\n${retorno}${fim}`]);
+  if(a.k==="voce"&&(c.primeiraRespostaH!=null||(c.respostas||[]).length)) lista.push(["Responder o franqueado",`${ola}\n\nObrigada pelo retorno! ${c.proximaAcao?`Estamos agora com o seguinte encaminhamento: ${c.proximaAcao}.`:`Já estamos verificando o que você nos informou${forn?` com a ${forn}`:""}.`}\n\n${retorno}${fim}`]);
+  if(forn||c.proximaAcao) lista.push(["Atualização de andamento",`${ola}\n\nPassando para atualizar sobre "${c.titulo}"${ref}: ${c.proximaAcao?c.proximaAcao+".":`seguimos acompanhando a tratativa junto à ${forn}.`}\n\n${retorno}${fim}`]);
+  lista.push(["Pedir informações",`${ola}\n\nPara darmos andamento${forn?` junto à ${forn}`:""}, pode nos ajudar com algumas informações?\n\n${perguntas.map(q=>"• "+q).join("\n")}\n\nCom isso conseguimos agilizar a solução.${fim}`]);
+  if(a.k==="franq"||c.status==="contorno"||c.status==="validacao") lista.push(["Confirmar se resolveu",`${ola}\n\n${forn?`A ${forn} informou que`:"Pelo nosso acompanhamento,"} o problema foi tratado. Pode confirmar, por gentileza, se está tudo funcionando normalmente na sua unidade?\n\nSe ainda houver qualquer instabilidade, nos avise por aqui que seguimos acompanhando.${fim}`]);
+  lista.push(["Encerramento",`${ola}\n\nQue bom que deu tudo certo! Vamos encerrar este chamado${ref}. Se precisar, é só abrir um novo que estamos à disposição.${fim}`]);
+  return lista;
+}
+function blocoSugestoes(c){
+  const l=sugestoes(c); S._sug={c:c.id,l};
+  return `<section class="sug"><h3>Sugestões de resposta</h3><div class="sug-tabs">${l.map(([t],i)=>`<button class="btn small${i===0?" purple":""}" data-act="sug" data-i="${i}">${esc(t)}</button>`).join("")}<button class="btn small" data-act="sug-ia" data-id="${esc(c.id)}">✨ Gerar com IA</button></div>
+  <textarea id="sugTxt" rows="9">${esc(l[0][1])}</textarea>
+  <div class="row" style="margin-top:6px;justify-content:space-between"><span class="small muted" id="sugInfo">Edite à vontade, copie e cole no Sults.</span><button class="btn primary small" data-act="sug-copiar">Copiar</button></div></section>`;
+}
+async function gerarComIA(c){
+  let key=""; try{ key=localStorage.getItem("f4y-claude-key")||""; }catch(e){}
+  if(!key){ iaConfig(); return; }
+  const info=$("#sugInfo"), txt=$("#sugTxt"); info.textContent="Gerando com o Claude…";
+  let itens=[]; try{ const d=await S.db.collection("timelines").doc(c.id).get(); itens=(d.exists&&d.data().itens)||[]; }catch(e){}
+  const conversa=itens.filter(i=>i.tipo==="interacao"&&!i.interno).slice(-12).map(i=>`[${fmtDT(i.em)}] ${i.por}: ${String(i.texto||"").slice(0,900)}`).join("\n\n");
+  const proc=S.procs.find(p=>p.categoria===c.categoria&&p.status==="validado");
+  const prompt=`Você ajuda o time de Sistemas da fast4you, rede de franquias de mercados autônomos, a responder franqueados no sistema de chamados.
+Escreva UMA resposta para o franqueado, em português do Brasil, tom cordial, próximo e profissional (como "Oi, Nome! Tudo bem?" ... "Agradeço a compreensão e fico à disposição! Atte., ${donoDe(c)||"Time de Sistemas"}").
+Regras: no máximo 170 palavras; texto simples, sem markdown; não prometa prazos ou soluções que não estejam confirmados no contexto; não invente procedimentos técnicos; se faltar informação para resolver, peça de forma objetiva.
+
+Contexto do chamado:
+- Título: ${c.titulo}
+- Unidade: ${pdvLabel(c.pdv)}
+- Tipo: ${c.categoria} | Fornecedor envolvido: ${c.fornecedor}
+- Situação: ${acao(c).t}
+- Próxima ação registrada pelo time: ${c.proximaAcao||"nenhuma"}${c.proximoRetorno?` | retorno combinado: ${fmtDT(c.proximoRetorno)}`:""}
+${proc?`- Procedimento validado do time: ${proc.solucao||""} | Quando escalar: ${proc.escalar||""}`:""}
+
+Conversa (mais recente por último):
+${conversa||"(sem conversa carregada)"}`;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:localStorage.getItem("f4y-claude-modelo")||"claude-sonnet-5-5",max_tokens:800,messages:[{role:"user",content:prompt}]})});
+    if(r.status===401){ info.textContent="Chave da IA inválida. Configure de novo."; iaConfig(); return; }
+    if(!r.ok){ info.textContent="Não foi possível gerar agora (HTTP "+r.status+")."; return; }
+    const j=await r.json(); txt.value=(j.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim(); info.textContent="Sugestão gerada pela IA. Revise antes de enviar.";
+  }catch(e){ info.textContent="Não foi possível gerar agora."; }
+}
+function iaConfig(){
+  const box=document.createElement("div"); box.className="ia-cfg";
+  box.innerHTML=`<div class="panel" style="max-width:460px"><h2>Ativar sugestões com IA</h2><p class="small">As sugestões automáticas já funcionam sem IA. Para gerar respostas com o Claude, lendo a conversa do chamado, cole uma chave da API da Anthropic (criada em console.anthropic.com). A chave fica salva só neste navegador. Ao usar, o texto da conversa é enviado à Anthropic para gerar a resposta.</p><label class="field">Chave da API<input type="password" id="iaKey" placeholder="sk-ant-..."></label><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" data-act="ia-fechar">Cancelar</button><button class="btn primary" data-act="ia-salvar">Salvar</button></div></div>`;
+  document.body.appendChild(box);
+}
+
+/* ---------- CHAMADO COMPLETO ---------- */
+async function openChamado(id){
+  const c=S.chamados.find(x=>x.id===id); if(!c) return;
+  const a=acao(c), sl=slaInfo(c), s=c.sults||{}, etq=s.etiquetas||[];
+  const prim=c.primeiraRespostaEm&&c.abertoEm?(new Date(c.primeiraRespostaEm)-new Date(c.abertoEm))/36e5:null;
+  const tempos=Object.entries(c.temposSituacao||{});
+  const prob=c.problemaId&&S.problemas.find(p=>p.id===c.problemaId);
+  openModal(`<div class="chv">
+   <div class="chv-head"><div><h2 style="margin:0">${esc(c.protocolo?c.protocolo+" · ":"")}${esc(c.titulo)}</h2><p class="muted small" style="margin:4px 0 0">${esc(pdvLabel(c.pdv))}</p></div><button class="btn ghost" data-act="close">Fechar</button></div>
+   <div class="chv-body">
+    <aside class="chv-side">
+      <div class="acao-box ${a.k}"><span class="small">Quem deve agir</span><b>${esc(a.t)}</b><span class="small">há ${ago(desdeAcao(c))}${c.ultimaInteracaoPor?" · última mensagem de "+esc(c.ultimaInteracaoPor):""}</span></div>
+      <section><h3>SLA</h3><dl class="kv2">
+        <dt>Prazo para resolver</dt><dd>${s.prazo?fmtDT(s.prazo):"—"} <span class="pill ${sl.cls}">${esc(sl.t)}</span></dd>
+        <dt>Primeira resposta</dt><dd>${prim==null?(sitSults(c)===1?'<span class="pill p-bad">ainda não respondido</span>':"—"):fmtH(prim)}</dd>
+        <dt>Aberto em</dt><dd>${fmtDT(c.abertoEm)} (há ${ago(c.abertoEm)})</dd>
+        ${c.contornoEm?`<dt>Operação restabelecida</dt><dd>${fmtDT(c.contornoEm)}</dd>`:""}
+        ${c.resolvidoEm?`<dt>Resolvido em</dt><dd>${fmtDT(c.resolvidoEm)}</dd>`:""}
+      </dl>
+      ${tempos.length?`<table class="mini"><thead><tr><th>Situação</th><th>Tempo</th></tr></thead><tbody>${tempos.map(([k,v])=>`<tr><td>${esc(k)}</td><td>${fmtH(v)}</td></tr>`).join("")}</tbody></table>`:""}</section>
+      <section><h3>No Sults</h3><dl class="kv2">
+        <dt>Situação</dt><dd>${esc(SIT_SULTS[sitSults(c)]||"—")}</dd>
+        <dt>Responsável</dt><dd>${esc((s.responsavel&&s.responsavel.nome)||"—")}</dd>
+        <dt>Solicitante</dt><dd>${esc((s.solicitante&&s.solicitante.nome)||"—")}</dd>
+        <dt>Departamento</dt><dd>${esc((s.departamento&&s.departamento.nome)||"—")}</dd>
+        <dt>Etiquetas</dt><dd>${etq.map(e=>`<span class="pill p-idle">${esc(e)}</span>`).join(" ")||"—"}</dd>
+        ${s.avaliacaoNota!=null?`<dt>Avaliação</dt><dd>${esc(s.avaliacaoNota)} de 5</dd>`:""}
+      </dl></section>
+      <section><h3>Na Central</h3><dl class="kv2">
+        <dt>Prioridade</dt><dd>${prPill(c.prioridade)}</dd>
+        <dt>Tipo</dt><dd>${esc(c.categoria)}</dd>
+        <dt>Fornecedor</dt><dd>${esc(c.fornecedor)}</dd>
+        <dt>Dono</dt><dd>${esc(donoDe(c)||"sem dono")}</dd>
+        <dt>Próxima ação</dt><dd>${esc(c.proximaAcao||"—")}${c.proximoRetorno?`<div class="small muted">retorno ${fmtDT(c.proximoRetorno)}</div>`:""}</dd>
+        ${prob?`<dt>Problema</dt><dd>${esc(prob.titulo)}</dd>`:""}
+      </dl>
+      ${S.canWrite?`<button class="btn primary" style="margin-top:8px;width:100%" data-act="edit-ch" data-id="${esc(c.id)}">Editar classificação</button>`:""}</section>
+    </aside>
+    <section class="chv-conv" id="chvConv"><p class="muted">Carregando a conversa…</p></section>
+   </div></div>`,"wide");
+  const box=$("#chvConv");
+  let itens=[];
+  if(c.origem==="Sults"){ try{ const d=await S.db.collection("timelines").doc(c.id).get(); itens=(d.exists&&d.data().itens)||[]; }catch(e){} }
+  if(!box) return;
+  const extra=[c.evidencias?`<div class="nota"><b>Diagnóstico e evidências (Central)</b><div>${esc(c.evidencias)}</div></div>`:"",c.obs?`<div class="nota"><b>Andamento (Central)</b><div>${esc(c.obs)}</div></div>`:""].join("");
+  const sugHtml=c.status!=="resolvido"?blocoSugestoes(c):"";
+  if(!itens.length){ box.innerHTML=sugHtml+`<h3>Conversa</h3>${c.origem==="Sults"?'<p class="muted">A conversa deste chamado ainda não foi carregada. Ela chega na próxima execução do coletor (até 30 minutos).</p>':'<p class="muted">Chamado registrado na Central, sem conversa no Sults.</p>'}${extra}`; return; }
+  const evento=i=> i.tipo==="prazo"?`Prazo alterado de ${fmtDT(i.prazo&&i.prazo.de)} para ${fmtDT(i.prazo&&i.prazo.para)}`
+    : i.tipo==="responsavel"?`Responsável: ${esc((i.responsavel&&i.responsavel.de)||"—")} → ${esc((i.responsavel&&i.responsavel.para)||"—")}`
+    : i.tipo==="assunto"?`Assunto alterado para ${esc((i.assunto&&i.assunto.para)||"")}`
+    : i.tipo==="apoio"?`Apoio adicionado: ${esc(i.apoio||"")}` : i.tipo==="apoio-removido"?`Apoio removido: ${esc(i.apoio||"")}`
+    : i.tipo==="concluido"?`Chamado concluído${i.avaliacao?` · avaliação ${esc(i.avaliacao.nota)}/5 ${esc(i.avaliacao.obs||"")}`:""}` : esc(i.tipo);
+  box.innerHTML=sugHtml+`<h3>Conversa (${itens.filter(i=>i.tipo==="interacao").length} mensagens)</h3><div class="timeline">${itens.map(i=> i.tipo==="interacao"
+    ? `<div class="msg ${ehDoTime(i.por)?"nos":"eles"}${i.interno?" interno":""}"><div class="msg-h"><b>${esc(i.por)}</b>${i.interno?' <span class="pill p-warn">Interna</span>':""}<span class="muted">${fmtDT(i.em)}</span>${i.situacao?`<span class="pill p-idle">${esc(SIT_SULTS[i.situacao]||"")}</span>`:""}</div><div class="msg-t">${esc(i.texto||"")}</div>${(i.anexos||[]).length?`<div class="msg-a">${i.anexos.map(x=>`<a href="${esc(x.url)}" target="_blank" rel="noopener">📎 ${esc(x.nome)}</a>`).join(" ")}</div>`:""}</div>`
+    : `<div class="evt"><span class="muted">${fmtDT(i.em)} · ${esc(i.por)}</span> ${evento(i)}</div>`).join("")}</div>${extra}`;
+}
+
 function chForm(c,pre){
   const isNew=!c; pre=pre||{};
   c=c||Object.assign({origem:"WhatsApp",fornecedor:"Soft-line/Infinity",categoria:"PDV sem vendas",prioridade:"critica",status:"aberto",abertoEm:now().toISOString(),pdv:""},pre);
@@ -1063,6 +1381,7 @@ function pAlertas(){
       <label class="field">Avisar certificado com antecedência (dias)<input type="number" min="1" name="diasCertAviso" value="${S.config.diasCertAviso}"></label>
       <label class="field">Chamado crítico em atraso após (horas)<input type="number" min="1" name="horasSLACritico" value="${S.config.horasSLACritico}"></label>
       <label class="field">Recorrência a partir de (chamados em 30 dias)<input type="number" min="2" name="recorrenciaMin" value="${S.config.recorrenciaMin}"></label>
+      <label class="field">Avisar quando vocês devem resposta há mais de (horas)<input type="number" min="1" name="horasResposta" value="${S.config.horasResposta||4}"></label>
       <label class="field">Base da OKR: média mensal de P1 antes do projeto<input type="number" min="0" name="okrBaseCriticos" value="${S.config.okrBaseCriticos||0}"></label>
       <label class="field">Meta de redução de críticos (%)<input type="number" min="1" name="okrReducao" value="${S.config.okrReducao||20}"></label>
       <label class="field full">Time de Sistemas (nomes separados por vírgula)<input name="time" value="${esc(S.config.time||"")}"></label>
@@ -1073,14 +1392,22 @@ function pAlertas(){
 
 /* ---------- NOVIDADES ---------- */
 function pNovidades(){
+  const aba=S.f.novAba||"noticias";
   const ds=S.dicas.slice().sort((a,b)=>String(b.criadoEm).localeCompare(String(a.criadoEm)));
   const cls={"Novidade":"p-brand","Dica":"p-ok","Atualização de fornecedor":"p-info","Segurança":"p-bad"};
-  return `
-  <div class="topbar"><div><h1>Novidades e dicas</h1><p class="sub">Tecnologia para franquias e mercados autônomos, atualizações dos fornecedores e boas práticas do time.</p></div>
-  ${S.canWrite?'<div class="row"><button class="btn primary" data-act="new-dica">Publicar novidade</button></div>':''}</div>
-  <div class="grid g3">${ds.map(d=>`<article class="panel tip"><div class="row" style="justify-content:space-between"><span class="pill ${cls[d.categoria]||"p-idle"}">${esc(d.categoria||"Dica")}</span><span class="meta">${fmtD(d.criadoEm)}</span></div>
+  const reg=S.f.novReg||"", tema=S.f.novTema||"";
+  const temas=[...new Set(S.noticias.map(n=>n.tema))].sort();
+  const ns=S.noticias.filter(n=>(!reg||n.regiao===reg)&&(!tema||n.tema===tema)).sort((a,b)=>String(b.em).localeCompare(String(a.em)));
+  const noticias=`<div class="filters"><select data-f="novReg" aria-label="Região"><option value="">Brasil e mundo</option>${optList(["Brasil","Mundo"],reg)}</select><select data-f="novTema" aria-label="Tema"><option value="">Todos os temas</option>${optList(temas,tema)}</select></div>
+    <p class="small muted">${ns.length} notícias dos últimos 30 dias, coletadas automaticamente todo dia às 6h (Google Notícias). Clique para ler na fonte.</p>
+    <div class="news">${ns.slice(0,120).map(n=>`<a class="news-it" href="${esc(n.link)}" target="_blank" rel="noopener"><span class="news-t">${esc(n.titulo)}</span><span class="small muted">${esc(n.fonte||"")} · ${fmtD(n.em)} · <span class="pill ${n.regiao==="Mundo"?"p-info":"p-brand"}">${esc(n.regiao)}</span> <span class="pill p-idle">${esc(n.tema)}</span></span></a>`).join("")||'<div class="panel empty">Ainda não há notícias. Elas chegam na coleta diária das 6h, ou rodando o coletor com a opção “tudo”.</div>'}</div>`;
+  const dicas=`<div class="grid g3">${ds.map(d=>`<article class="panel tip"><div class="row" style="justify-content:space-between"><span class="pill ${cls[d.categoria]||"p-idle"}">${esc(d.categoria||"Dica")}</span><span class="meta">${fmtD(d.criadoEm)}</span></div>
     <h3>${esc(d.titulo)}</h3><p style="margin:0">${esc(d.texto)}</p>${d.link&&/^https?:\/\//.test(d.link)?`<a href="${esc(d.link)}" target="_blank" rel="noopener">Abrir fonte</a>`:""}
-    ${S.canWrite?`<div><button class="btn small ghost danger" data-act="del-dica" data-id="${esc(d.id)}">Remover</button></div>`:""}</article>`).join("")||'<div class="panel empty">Nenhuma novidade publicada ainda.</div>'}</div>`;
+    ${S.canWrite?`<div><button class="btn small ghost danger" data-act="del-dica" data-id="${esc(d.id)}">Remover</button></div>`:""}</article>`).join("")||'<div class="panel empty">Nenhuma dica publicada ainda.</div>'}</div>`;
+  return `
+  <div class="topbar"><div><h1>Novidades e dicas</h1><p class="sub">Notícias de tecnologia para franquias e mercados autônomos, no Brasil e no mundo, e as dicas do time.</p></div>
+  <div class="row"><div class="seg"><button class="${aba==="noticias"?"on":""}" data-act="nov-aba" data-v="noticias">Notícias</button><button class="${aba==="dicas"?"on":""}" data-act="nov-aba" data-v="dicas">Dicas do time</button></div>${S.canWrite&&aba==="dicas"?'<button class="btn primary" data-act="new-dica">Publicar dica</button>':''}</div></div>
+  ${aba==="noticias"?noticias:dicas}`;
 }
 function dicaForm(){
   openModal(`<h2>Publicar novidade</h2><div class="form" id="dicaForm">
@@ -1098,7 +1425,7 @@ function pIntegracoes(){
   <div class="topbar"><div><h1>Integrações e APIs</h1><p class="sub">O que cada fonte oferece hoje e o caminho para alimentar este painel automaticamente.</p></div></div>
   <section class="panel" style="margin-bottom:14px"><h2>Status das integrações automáticas</h2>
     <div class="tablewrap"><table><thead><tr><th>Integração</th><th>Situação</th><th>Última execução</th><th>Registros</th><th>Mensagem</th></tr></thead><tbody>
-    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
+    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
     </tbody></table></div></section>
   <section class="panel" style="margin-bottom:14px"><h2>Como as peças se conectam</h2>
     <div class="arch">
@@ -1175,7 +1502,7 @@ Obrigado!</p></section>`;
 }
 
 /* ---------- modal / drawer ---------- */
-function openModal(html){ $("#modal").innerHTML=html; $("#modal").classList.add("show"); $("#scrim").classList.add("show"); $("#drawer").classList.remove("show"); const f=$("#modal input:not([type=hidden]):not([readonly]),#modal select"); if(f) f.focus(); }
+function openModal(html,cls){ $("#modal").className="modal"+(cls?" "+cls:""); $("#modal").innerHTML=html; $("#modal").classList.add("show"); $("#scrim").classList.add("show"); $("#drawer").classList.remove("show"); const f=$("#modal input:not([type=hidden]):not([readonly]),#modal select"); if(f) f.focus(); }
 function openDrawer(){ $("#drawer").classList.add("show"); $("#scrim").classList.add("show"); }
 function closeAll(){ $("#modal").classList.remove("show"); $("#drawer").classList.remove("show"); $("#scrim").classList.remove("show"); }
 $("#scrim").addEventListener("click",closeAll);
@@ -1199,7 +1526,7 @@ function xlsxFile(name,sheets){
 }
 const stamp=()=>isoDay(now());
 const pdvRow=p=>({"Código":p.codigo,"Unidade":p.unidade,"Franqueado":p.franqueado,"Cidade":p.cidade,"UF":p.uf,"Status contrato":STATUS_PDV[p.status]||p.status,"Situação":({on:"Vendendo",nosale:"Sem vendas",off:"Offline",nodata:"Sem monitoramento",impl:"Fora de operação"})[pdvState(p)],"Online":p.online==null?"":p.online?"Sim":"Não","Último sinal":fmtDT(p.ultimoPing),"Última venda":fmtDT(p.ultimaVenda),"Trava cervejeira":p.travaCervejeira?"Sim":"Não","Trava porta":p.travaPorta?"Sim":"Não","Certificado validade":p.certValidade||"","Certificado situação":({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"})[certState(p)],"Facial":p.facialOk===false?"Falha":"OK","App":p.appOk===false?"Falha":"OK","Câmeras Audit":p.auditOk===false?"Falha":"OK","Adquirente":p.adquirente||"","POS comodato":p.posQtd||"","Internet":p.internet||"","Versão sistema":p.versaoSistema||"","Equipamentos":p.equipamentos||"","Observações":p.obs||""});
-const chRow=c=>({"Protocolo":c.protocolo||"","Título":c.titulo,"PDV":pdvLabel(c.pdv),"Tipo":c.categoria,"Prioridade":PRIOR[c.prioridade]||c.prioridade,"Status":ST_CH[c.status]||c.status,"Fornecedor":c.fornecedor,"Canal":c.origem,"Turno":c.turno==="plantao"?"Plantão":c.turno==="suporte"?"Suporte":"","Aberto em":fmtDT(c.abertoEm),"Resolvido em":fmtDT(c.resolvidoEm),"Horas até solução":c.resolvidoEm&&c.abertoEm?Math.round((new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5):"","Dono fast4you":donoDe(c),"Próxima ação":c.proximaAcao||"","Próximo retorno":fmtDT(c.proximoRetorno),"Primeira resposta":fmtDT(c.primeiraRespostaEm),"Contorno":fmtDT(c.contornoEm),"Reaberturas":c.reaberturas||0,"Problema vinculado":(S.problemas.find(p=>p.id===c.problemaId)||{}).titulo||"","Validado pelo franqueado":c.validadoFranqueado?"Sim":"","Feedback franqueado":c.feedbackFranqueado?"Sim":"","Evidências":c.evidencias||"","Andamento":c.obs||""});
+const chRow=c=>({"Protocolo":c.protocolo||"","Quem deve agir":acao(c).t,"Desde":fmtDT(desdeAcao(c)),"Situação no Sults":SIT_SULTS[sitSults(c)]||"","Prazo do Sults":fmtDT(c.sults&&c.sults.prazo),"SLA":slaInfo(c).t,"Etiquetas":((c.sults&&c.sults.etiquetas)||[]).join(", "),"Título":c.titulo,"PDV":pdvLabel(c.pdv),"Tipo":c.categoria,"Prioridade":PRIOR[c.prioridade]||c.prioridade,"Status":ST_CH[c.status]||c.status,"Fornecedor":c.fornecedor,"Canal":c.origem,"Turno":c.turno==="plantao"?"Plantão":c.turno==="suporte"?"Suporte":"","Aberto em":fmtDT(c.abertoEm),"Resolvido em":fmtDT(c.resolvidoEm),"Horas até solução":c.resolvidoEm&&c.abertoEm?Math.round((new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5):"","Dono fast4you":donoDe(c),"Próxima ação":c.proximaAcao||"","Próximo retorno":fmtDT(c.proximoRetorno),"Primeira resposta":fmtDT(c.primeiraRespostaEm),"Contorno":fmtDT(c.contornoEm),"Reaberturas":c.reaberturas||0,"Problema vinculado":(S.problemas.find(p=>p.id===c.problemaId)||{}).titulo||"","Validado pelo franqueado":c.validadoFranqueado?"Sim":"","Feedback franqueado":c.feedbackFranqueado?"Sim":"","Evidências":c.evidencias||"","Andamento":c.obs||""});
 
 /* ---------- importação ---------- */
 const MAP_PDV={codigo:["codigo","cod","codigo unidade","unidade codigo","id","loja","pdv"],unidade:["unidade","nome","nome unidade","nome da unidade","condominio","local"],franqueado:["franqueado","franqueada","proprietario","responsavel"],cidade:["cidade","municipio"],uf:["uf","estado"],status:["status","status contrato","situacao contrato","contrato"],online:["online","conectado","status conexao"],ultimoPing:["ultimo sinal","ultimo ping","ping","ultima conexao"],ultimaVenda:["ultima venda","data ultima venda"],travaCervejeira:["trava cervejeira","cervejeira"],travaPorta:["trava porta","porta","trava porta entrada","porta de entrada"],certValidade:["certificado","validade certificado","certificado validade","vencimento certificado","certificado digital"],adquirente:["adquirente","maquininha","pos"],posQtd:["pos comodato","qtd pos","quantidade pos"],facialOk:["facial"],appOk:["app"],auditOk:["cameras","camera","audit","cameras audit"],obs:["observacoes","obs","observacao"]};
@@ -1308,6 +1635,7 @@ document.addEventListener("input",e=>{
 });
 document.addEventListener("change",e=>{ if(e.target.dataset.act==="semana"&&e.target.value){ S.semanaIni=e.target.value; renderMain(); }
   if(e.target.dataset.act==="prio-help"){ const hlp=$("#prioHelp"); if(hlp) hlp.textContent=PRIOR_HELP[e.target.value]||""; } });
+const ev_stop = e => { e.preventDefault(); e.stopPropagation(); };
 document.addEventListener("click",async e=>{
   const go=e.target.closest("[data-go]"); if(go&&go.dataset.go){ location.hash=go.dataset.go; return; }
   const el=e.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act, id=el.dataset.id;
@@ -1316,7 +1644,19 @@ document.addEventListener("click",async e=>{
     case "close": closeAll(); break;
     case "toast-go": $("#toast").classList.remove("show"); location.hash="alertas"; break;
     case "pdv": closeAll(); openPdv(id); break;
-    case "ch": { const c=S.chamados.find(x=>x.id===id); if(c){ chForm(c); } break; }
+    case "ch": closeAll(); openChamado(id); break;
+    case "edit-ch": { const c=S.chamados.find(x=>x.id===id); if(c){ chForm(c); } break; }
+    case "vista": S.f.ch.vista=el.dataset.v; renderMain(); break;
+    case "nov-aba": S.f.novAba=el.dataset.v; renderMain(); break;
+    case "sla-dias": S.f.slaDias=Number(el.dataset.v); renderMain(); break;
+    case "save-metas": { const d=readForm("metaForm"); Object.keys(d).forEach(k=>d[k]=Math.max(1,Number(d[k])||4)); await safeWrite(()=>S.db.doc("config/geral").set(Object.assign({},stripId(S.config),d)),"Metas salvas"); break; }
+    case "export-sla": { const d=slaDados(Number(S.f.slaDias||30)); xlsxFile("sla-atendimento-"+stamp()+".xlsx",[["Respostas",d.resp.map(r=>({"Respondido em":fmtDT(r.em),"Horas":r.h,"Por":pessoaDoTime(r.por),"Dentro da meta":r.h<=d.metaR?"Sim":"Não","Chamado":r.c.titulo,"Protocolo":r.c.protocolo||"","Unidade":pdvLabel(r.c.pdv)}))],["Primeira resposta",d.abertos.filter(c=>c.primeiraRespostaH!=null).map(c=>({"Chamado":c.titulo,"Protocolo":c.protocolo||"","Aberto em":fmtDT(c.abertoEm),"Horas até 1ª resposta":c.primeiraRespostaH,"Por":pessoaDoTime(c.primeiraRespostaPor)}))],["Por semana",d.semanas.map(s=>({"Semana de":s.rot,"Respostas":s.n,"Média (h)":s.media==null?"":Math.round(s.media*10)/10,"% na meta":s.dentro==null?"":s.dentro}))]]); break; }
+    case "sug": { const i=Number(el.dataset.i); $("#sugTxt").value=S._sug.l[i][1]; document.querySelectorAll('[data-act="sug"]').forEach(b=>b.classList.toggle("purple",b===el)); $("#sugInfo").textContent="Edite à vontade, copie e cole no Sults."; break; }
+    case "sug-copiar": { const t=$("#sugTxt"); try{ await navigator.clipboard.writeText(t.value); toast("Resposta copiada. Cole no Sults."); }catch(_){ t.select(); document.execCommand("copy"); toast("Resposta copiada."); } break; }
+    case "sug-ia": { const c=S.chamados.find(x=>x.id===id); if(c) gerarComIA(c); break; }
+    case "ia-salvar": { const k=($("#iaKey")||{}).value||""; if(k.trim()){ try{localStorage.setItem("f4y-claude-key",k.trim());}catch(_){} toast("IA ativada neste navegador."); } el.closest(".ia-cfg").remove(); break; }
+    case "ia-fechar": el.closest(".ia-cfg").remove(); break;
+    case "pdv-vista": ev_stop(e); S.f.pdvVista=el.dataset.v; renderMain(); break;
     case "new-ch": chForm(null,el.dataset.pdv?{pdv:el.dataset.pdv}:null); break;
     case "save-ch": saveCh(); break;
     case "save-ch-force": saveCh(true); break;

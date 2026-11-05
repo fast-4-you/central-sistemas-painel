@@ -14,7 +14,7 @@
   const API = "https://api.github.com";
   const LS = "f4y-central-github";
   const POLL_MS = 30000;
-  const COLECOES = ["pdvs", "chamados", "dicas", "snapshots", "problemas", "fornecedores", "procedimentos", "config"];
+  const COLECOES = ["pdvs", "chamados", "dicas", "snapshots", "problemas", "fornecedores", "procedimentos", "config", "timelines", "noticias"];
 
   /* ---------------- configuração e login ---------------- */
   function lerCfg() { try { return JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) { return null; } }
@@ -72,7 +72,7 @@
         <button type="submit">Entrar</button>
         <p>Como criar o token: GitHub &gt; Settings &gt; Developer settings &gt; Fine-grained tokens. Acesso só a este repositório, permissão “Contents: Read and write”.</p>
       </form>`;
-         if (document.body) document.body.appendChild(box); else document.addEventListener("DOMContentLoaded", () => document.body.appendChild(box), { once: true });
+      if (document.body) document.body.appendChild(box); else document.addEventListener("DOMContentLoaded", () => document.body.appendChild(box), { once: true });
       box.querySelector("form").addEventListener("submit", ev => {
         ev.preventDefault();
         const f = new FormData(ev.target);
