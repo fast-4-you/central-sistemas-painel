@@ -1,0 +1,1386 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central de Sistemas fast4you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  /* Opcional: preencha para o login já vir com o repositório certo */
+  window.CENTRAL_REPO = { owner: "fast-4-you", repo: "central-sistemas", branch: "dados" };
+</script>
+<script src="github-shim.js"></script>
+<style>
+:root{
+  --orange:#ff7700; --orange-ink:#c25700; --purple:#8F1C5A; --purple-deep:#5a0f38; --purple-soft:#f6e9f0;
+  --bg:#f6f4f7; --panel:#ffffff; --fg:#241a22; --muted:#6d6170; --line:#e6dfe8; --line-strong:#cfc4d2;
+  --ok:#17935f; --warn:#d99a00; --bad:#d23642; --info:#5b6bd1; --idle:#a593ab;
+  --ok-bg:#e5f5ee; --warn-bg:#fff4d6; --bad-bg:#fde8ea; --info-bg:#eaedfb;
+  --side-fg:#f7e9f1; --shadow:0 1px 0 rgba(36,26,34,.06);
+  color-scheme:light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161116; --panel:#211922; --fg:#f4edf3; --muted:#b3a5b5; --line:#352a37; --line-strong:#4a3c4d;
+    --purple-soft:#3a1a2c; --purple-deep:#3d0a26; --orange-ink:#ff9a40;
+    --ok:#3cc78a; --warn:#f2bd2c; --bad:#ff5c68; --info:#8e9bff; --idle:#7d6b82;
+    --ok-bg:#16342a; --warn-bg:#3a2f0e; --bad-bg:#3d1a1e; --info-bg:#1f2448;
+    --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161116; --panel:#211922; --fg:#f4edf3; --muted:#b3a5b5; --line:#352a37; --line-strong:#4a3c4d;
+  --purple-soft:#3a1a2c; --purple-deep:#3d0a26; --orange-ink:#ff9a40;
+  --ok:#3cc78a; --warn:#f2bd2c; --bad:#ff5c68; --info:#8e9bff; --idle:#7d6b82;
+  --ok-bg:#16342a; --warn-bg:#3a2f0e; --bad-bg:#3d1a1e; --info-bg:#1f2448;
+  --shadow:none; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--purple)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) a{color:#e58fbd}}
+:root[data-theme="dark"] a{color:#e58fbd}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--purple-deep);color:var(--side-fg);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.brand-mark{width:36px;height:36px;border-radius:10px;background:var(--orange);display:grid;place-items:center;font-weight:800;color:#fff;font-stretch:80%;font-size:15px;letter-spacing:-.02em}
+.brand-name{font-weight:800;font-size:18px;line-height:1;font-stretch:88%}
+.brand-sub{font-size:12px;opacity:.75;margin-top:3px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:8px;color:var(--side-fg);text-decoration:none;font-weight:500}
+.nav a:hover{background:rgba(255,255,255,.07)}
+.nav a[aria-current="page"]{background:rgba(255,255,255,.12);box-shadow:inset 3px 0 0 var(--orange)}
+.nav .count{background:var(--orange);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px;min-width:24px;text-align:center}
+.side-foot{margin-top:auto;font-size:12px;opacity:.8;padding:0 6px;display:flex;flex-direction:column;gap:8px}
+.side-foot button{background:transparent;border:1px solid rgba(255,255,255,.25);color:var(--side-fg);border-radius:8px;padding:6px 8px;cursor:pointer;text-align:left}
+
+.main{min-width:0;padding:22px clamp(14px,3vw,34px) 60px}
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:clamp(24px,3vw,32px);font-stretch:85%;font-weight:800;letter-spacing:-.01em;margin:0;line-height:1.1}
+.sub{color:var(--muted);margin:4px 0 0}
+h2{font-size:17px;font-weight:700;margin:0 0 10px;font-stretch:92%}
+h3{font-size:15px;margin:0 0 6px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line-strong);background:var(--panel);border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--purple)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.primary:hover{background:#ec6c00}
+.btn.purple{background:var(--purple);border-color:var(--purple);color:#fff}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.small{padding:5px 9px;font-size:13px}
+.btn.danger{color:var(--bad)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+/* status wall: the signature element */
+.wall-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.wall-big{font-size:clamp(40px,6vw,64px);font-weight:800;font-stretch:72%;line-height:.9;letter-spacing:-.02em}
+.wall-big small{font-size:.36em;font-weight:600;font-stretch:100%;color:var(--muted);letter-spacing:0;margin-left:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px}
+.tile{border:0;border-radius:7px;height:38px;cursor:pointer;color:#fff;font-weight:700;font-size:11.5px;font-stretch:78%;display:flex;align-items:flex-end;justify-content:flex-start;padding:4px 6px;position:relative}
+.tile.on{background:var(--ok)} .tile.nosale{background:var(--warn);color:#2b2100} .tile.off{background:var(--bad)} .tile.impl{background:var(--idle)}
+.tile.flag::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.18)}
+.tile:hover{filter:brightness(1.08)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.kpi:hover{border-color:var(--purple)}
+.kpi .v{font-size:28px;font-weight:800;font-stretch:80%;line-height:1.05}
+.kpi .l{font-size:13px;color:var(--muted)}
+.kpi .d{font-size:12px;font-weight:600}
+.kpi.bad .v{color:var(--bad)} .kpi.warn .v{color:var(--warn)} .kpi.ok .v{color:var(--ok)}
+
+.read{border-left:4px solid var(--orange);padding-left:14px}
+.read ul{margin:6px 0 0;padding-left:18px}
+.read li{margin:3px 0}
+.ai-out{white-space:pre-wrap;background:var(--purple-soft);border-radius:10px;padding:12px;margin-top:10px;font-size:14px;display:none}
+.ai-out.show{display:block}
+
+.chartbox{position:relative;height:240px}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters input,.filters select,.field input,.field select,.field textarea{border:1px solid var(--line-strong);background:var(--panel);border-radius:8px;padding:7px 10px;min-width:0}
+.filters input[type=search]{flex:1 1 220px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:12.5px;color:var(--muted);font-weight:600;background:var(--bg);position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--purple-soft)}
+td.wrap{white-space:normal;min-width:220px}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-ok{background:var(--ok-bg);color:var(--ok)} .p-warn{background:var(--warn-bg);color:var(--warn)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-info{background:var(--info-bg);color:var(--info)} .p-idle{background:var(--line);color:var(--muted)} .p-brand{background:var(--purple-soft);color:var(--purple)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .p-brand{color:#f0a6cd}}
+:root[data-theme="dark"] .p-brand{color:#f0a6cd}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+.alert{display:grid;grid-template-columns:6px 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px 10px 0;overflow:hidden}
+.alert .bar{align-self:stretch;border-radius:0 4px 4px 0}
+.alert.crit .bar{background:var(--bad)} .alert.high .bar{background:var(--orange)} .alert.warn .bar{background:var(--warn)} .alert.info .bar{background:var(--info)}
+.alert .t{font-weight:600}
+.alert .m{font-size:13px;color:var(--muted)}
+
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--warn-bg);border:1px solid var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.banner.err{background:var(--bad-bg);border-color:var(--bad)}
+
+.tip{display:flex;flex-direction:column;gap:6px}
+.tip .meta{font-size:12.5px;color:var(--muted)}
+
+.steps{counter-reset:s;list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:10px}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--purple);color:#fff;display:grid;place-items:center;font-weight:700}
+.integ{display:flex;flex-direction:column;gap:8px}
+.integ code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 5px;word-break:break-all}
+.integ ul{margin:0;padding-left:18px}
+.integ li{margin:3px 0}
+details.integ summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:8px;align-items:center}
+details.integ summary::-webkit-details-marker{display:none}
+details.integ[open] summary{margin-bottom:6px}
+.arch{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch}
+.arch div{border:1px dashed var(--line-strong);border-radius:10px;padding:10px;font-size:13px}
+.arch b{display:block;margin-bottom:3px}
+
+/* modal + drawer */
+.scrim{position:fixed;inset:0;background:rgba(20,8,16,.45);display:none;z-index:40}
+.scrim.show{display:block}
+.modal{position:fixed;z-index:50;left:50%;top:50%;transform:translate(-50%,-50%);width:min(720px,94vw);max-height:88vh;overflow:auto;background:var(--panel);border-radius:16px;padding:20px;display:none;border:1px solid var(--line)}
+.modal.show{display:block}
+.drawer{position:fixed;z-index:50;top:0;right:0;height:100%;width:min(480px,96vw);background:var(--panel);border-left:1px solid var(--line);padding:calc(20px + env(safe-area-inset-top,0px)) 20px 20px;overflow:auto;transform:translateX(105%);transition:transform .22s ease}
+.drawer.show{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.field.full{grid-column:1/-1}
+.field input,.field select,.field textarea{color:var(--fg);font-size:14px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--fg)}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+
+.toast{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--purple-deep);color:#fff;border-radius:12px;padding:12px 14px;max-width:360px;display:none;gap:10px;align-items:flex-start;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.show{display:flex}
+.toast b{color:#ffb070}
+.toast button{background:var(--orange);color:#fff;border:0;border-radius:8px;padding:5px 10px;font-weight:600;cursor:pointer}
+
+.mobilebar{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:250px;z-index:45;transform:translateX(-105%);transition:transform .2s;height:100%;padding-top:calc(20px + env(safe-area-inset-top,0px))}
+  .side.open{transform:none}
+  .mobilebar{display:flex;align-items:center;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--purple-deep);color:#fff;padding:10px 14px}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--purple-deep)}
+  .mobilebar button{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:5px 10px}
+  .kv{grid-template-columns:1fr}
+}
+.muted{color:var(--muted)} .small{font-size:13px}
+h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
+.fila{display:flex;flex-direction:column}
+.fila-it{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 2px;cursor:pointer}
+.fila-it:last-child{border-bottom:0}
+.fila-it:hover{background:var(--purple-soft)}
+.okr{display:flex;flex-direction:column;gap:8px}
+.okr-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:6px 0}
+.meter{position:relative;height:10px;border-radius:99px;background:var(--line);overflow:visible}
+.meter span{display:block;height:100%;border-radius:99px}
+.meter i{position:absolute;top:-4px;width:2px;height:18px;background:var(--fg)}
+.help{font-size:12.5px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;border:1px solid var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.card-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.score{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:13.5px;margin:10px 0}
+.score span{color:var(--muted)}
+.score b.bad{color:var(--bad)} .score b.warn{color:var(--warn)}
+.qa{display:flex;flex-direction:column;gap:10px}
+.qa-it{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px}
+.qa-it select{border:1px solid var(--line-strong);background:var(--panel);border-radius:8px;padding:5px 8px}
+.matrix td{white-space:normal;vertical-align:top}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="mobilebar"><button id="menuBtn" aria-label="Abrir menu">Menu</button><b>fast4you</b><span class="small" style="opacity:.8">Central de Sistemas</span></div>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand"><div class="brand-mark">f4y</div><div><div class="brand-name">fast4you</div><div class="brand-sub">Central de Sistemas</div></div></div>
+    <nav class="nav" id="nav">
+      <a href="#painel">Painel da rede</a>
+      <a href="#chamados">Fila de chamados <span class="count" id="navChamados" hidden></span></a>
+      <a href="#pdvs">Unidades e PDVs</a>
+      <a href="#problemas">Problemas recorrentes <span class="count" id="navProb" hidden></span></a>
+      <a href="#fornecedores">Fornecedores e SLAs</a>
+      <a href="#conhecimento">Base de conhecimento</a>
+      <a href="#semanal">Relatório de segunda</a>
+      <a href="#alertas">Alertas <span class="count" id="navAlertas" hidden></span></a>
+      <a href="#novidades">Novidades e dicas</a>
+      <a href="#integracoes">Integrações e APIs</a>
+    </nav>
+    <div class="side-foot">
+      <span id="syncInfo">Conectando…</span>
+      <button id="themeBtn" type="button">Alternar tema</button>
+      <button id="sairBtn" type="button" onclick="window.centralGithub&&window.centralGithub.sair()">Sair</button>
+    </div>
+  </aside>
+  <main class="main" id="main" tabindex="-1"></main>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+<aside class="drawer" id="drawer" aria-label="Detalhes"></aside>
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+
+<script>
+(function(){
+"use strict";
+/* ---------- constantes ---------- */
+const STATUS_PDV = {ativo:"Ativo",implantacao:"Em implantação",repasse:"Repasse",distrato:"Distrato",cancelado:"Cancelado"};
+const ORIGENS = ["Sults","WhatsApp","E-mail","Teams","Planilha fornecedor"];
+const FORNECEDORES = ["Soft-line/Infinity","Beepay","Preditta","PagBank","Santander","Interno"];
+const CATEGORIAS = ["PDV sem vendas","PDV offline","Facial","App F4Y","Trava","Certificado digital","Pagamento/POS","Câmeras/Audit","Equipamento/Infra","Outro"];
+const CRITICAS = ["PDV sem vendas","PDV offline","Facial","App F4Y"];
+const PRIOR = {critica:"P1 Crítica",alta:"P2 Alta",media:"P3 Média",baixa:"P4 Baixa"};
+const PCODE = {critica:"P1",alta:"P2",media:"P3",baixa:"P4"};
+const PRIOR_HELP = {critica:"Loja sem conseguir vender ou falha grave de acesso/segurança. Plantão imediato, responsável definido e acompanhamento até o contorno.",
+  alta:"Falha em função importante com operação parcial. Atendimento prioritário e prazo específico.",
+  media:"Divergência em relatório, NF ou estoque sem paralisação. Fila normal com prazo.",
+  baixa:"Dúvidas, solicitações administrativas, melhorias e treinamentos. Atendimento programado."};
+const ST_CH = {aberto:"Aberto",andamento:"Em diagnóstico",fornecedor:"Aguardando fornecedor",contorno:"Contornado (operando)",validacao:"Aguardando validação",resolvido:"Resolvido"};
+const ST_PROB = {investigando:"Investigando",causa:"Causa identificada",plano:"Plano em execução",validando:"Validando solução",resolvido:"Resolvido"};
+const DEF_CONFIG = {horasSemVenda:24, diasCertAviso:30, horasSLACritico:24, recorrenciaMin:3, time:"Coordenação, Alice, Augusto", okrBaseCriticos:0, okrReducao:20};
+const DEF_FORN = {
+  "Soft-line/Infinity":{escopo:"Infraestrutura sistêmica das unidades, ERP (SacVarejo/Infinity), PDV, roteador, totem, leitor, trava, certificado no ERP.",reuniao:"Semanal"},
+  "Beepay":{escopo:"App F4Y para clientes, painel do franqueado, facial e pagamento pelo app.",reuniao:"Quinzenal"},
+  "Preditta":{escopo:"Ferramenta Audit de auditoria pelas câmeras dos PDVs.",reuniao:""},
+  "PagBank":{escopo:"Adquirente principal, POS em comodato, liquidação e conciliação.",reuniao:"Quinzenal"},
+  "Santander":{escopo:"Adquirente secundária (POS e conciliação).",reuniao:""},
+  "Interno":{escopo:"Demandas resolvidas pelo próprio time de Sistemas fast4you.",reuniao:""}};
+
+const S = {db:null,user:null,dl:null,sample:null,canWrite:false,ready:false,
+  pdvs:[],chamados:[],dicas:[],snaps:[],problemas:[],forn:[],procs:[],config:{...DEF_CONFIG},
+  loaded:{pdvs:false,chamados:false,dicas:false,snaps:false,config:false,problemas:false,forn:false,procs:false},
+  error:null, charts:[], snapWritten:false, toastShown:false,
+  f:{pdv:{q:"",status:"",online:"",trava:"",cert:""}, ch:{q:"",status:"abertos",prioridade:"",origem:"",fornecedor:"",categoria:"",dono:""}},
+  semanaIni:null, importCtx:null};
+
+/* ---------- utilidades ---------- */
+const $ = s=>document.querySelector(s);
+const esc = v => String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now = ()=>new Date();
+const hoursSince = iso => iso? (now()-new Date(iso))/36e5 : Infinity;
+const daysUntil = d => d? Math.floor((new Date(d+"T23:59:59")-now())/864e5) : null;
+const fmtDT = iso => { if(!iso) return "—"; const d=new Date(iso); if(isNaN(d)) return "—"; return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}); };
+const fmtD = s => { if(!s) return "—"; const d=new Date(s.length<=10? s+"T12:00:00": s); return isNaN(d)?"—":d.toLocaleDateString("pt-BR"); };
+const ago = iso => { const h=hoursSince(iso); if(!isFinite(h)) return "sem registro"; if(h<1) return Math.max(1,Math.round(h*60))+" min"; if(h<48) return Math.round(h)+" h"; return Math.round(h/24)+" dias"; };
+const pct = (a,b)=> b? Math.round(a/b*100) : 0;
+const norm = s => String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const isoDay = d => { const x=new Date(d); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
+const slug = s => norm(s).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,120) || ("id-"+Date.now());
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+/* ---------- regras de negócio ---------- */
+function pdvState(p){
+  if(p.status!=="ativo") return "impl";
+  if(!p.online) return "off";
+  if(hoursSince(p.ultimaVenda) > S.config.horasSemVenda) return "nosale";
+  return "on";
+}
+function certState(p){
+  const d = daysUntil(p.certValidade);
+  if(d===null) return "sem";
+  if(d<0) return "vencido";
+  if(d<=S.config.diasCertAviso) return "avencer";
+  return "ok";
+}
+const abertos = () => S.chamados.filter(c=>c.status!=="resolvido");
+const pdvByCode = code => S.pdvs.find(p=>String(p.codigo)===String(code));
+const pdvLabel = code => { const p=pdvByCode(code); return p? p.codigo+" "+p.unidade : (code||"—"); };
+
+function metrics(){
+  const P=S.pdvs, ativos=P.filter(p=>p.status==="ativo");
+  const st = ativos.map(pdvState);
+  const m = {
+    total:P.length, ativos:ativos.length,
+    online: st.filter(s=>s==="on"||s==="nosale").length,
+    onVenda: st.filter(s=>s==="on").length,
+    semVenda: st.filter(s=>s==="nosale").length,
+    offline: st.filter(s=>s==="off").length,
+    implantacao:P.filter(p=>p.status==="implantacao").length,
+    repasse:P.filter(p=>p.status==="repasse").length,
+    distrato:P.filter(p=>p.status==="distrato").length,
+    cancelado:P.filter(p=>p.status==="cancelado").length,
+    franqueados:new Set(ativos.map(p=>norm(p.franqueado)).filter(Boolean)).size,
+    travaCerv:ativos.filter(p=>p.travaCervejeira).length,
+    travaPorta:ativos.filter(p=>p.travaPorta).length,
+    certVenc:ativos.filter(p=>certState(p)==="vencido").length,
+    certAvencer:ativos.filter(p=>certState(p)==="avencer").length,
+    facialFalha:ativos.filter(p=>p.facialOk===false).length,
+    appFalha:ativos.filter(p=>p.appOk===false).length,
+    auditFalha:ativos.filter(p=>p.auditOk===false).length
+  };
+  const A=abertos();
+  m.chAbertos=A.length;
+  m.chCriticos=A.filter(c=>c.prioridade==="critica").length;
+  m.chWhats=A.filter(c=>c.origem==="WhatsApp").length;
+  m.chSemProtocolo=A.filter(c=>c.origem==="WhatsApp" && !c.protocolo).length;
+  const res=S.chamados.filter(c=>c.status==="resolvido"&&c.resolvidoEm&&c.abertoEm&&hoursSince(c.resolvidoEm)<24*30);
+  m.slaMedio = res.length? res.reduce((s,c)=>s+(new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5,0)/res.length : null;
+  m.recorrencias = recorrencias(now(),30).length;
+  m.aguardForn = A.filter(c=>c.status==="fornecedor").length;
+  m.pendVencidas = A.filter(c=>c.proximoRetorno && new Date(c.proximoRetorno)<now()).length;
+  m.semDono = A.filter(c=>!donoDe(c)).length;
+  m.reabertos30 = S.chamados.filter(c=>(c.reaberturas||0)>0 && hoursSince(c.abertoEm)<24*30).length;
+  m.probAbertos = S.problemas.filter(p=>p.status!=="resolvido").length;
+  m.probSemCausa = S.problemas.filter(p=>p.status!=="resolvido" && !String(p.causaRaiz||"").trim()).length;
+  const p1=S.chamados.filter(c=>c.prioridade==="critica"&&hoursSince(c.abertoEm)<24*30&&(c.contornoEm||c.resolvidoEm));
+  m.recP1 = p1.length? p1.reduce((s,c)=>s+(new Date(c.contornoEm||c.resolvidoEm)-new Date(c.abertoEm))/36e5,0)/p1.length : null;
+  const fr=S.chamados.filter(c=>c.primeiraRespostaEm&&hoursSince(c.abertoEm)<24*30);
+  m.primResp = fr.length? fr.reduce((s,c)=>s+(new Date(c.primeiraRespostaEm)-new Date(c.abertoEm))/36e5,0)/fr.length : null;
+  m.crit30 = S.chamados.filter(c=>c.prioridade==="critica"&&hoursSince(c.abertoEm)<24*30).length;
+  const c30=S.chamados.filter(c=>hoursSince(c.abertoEm)<24*30), recIds=new Set(); recorrencias(now(),30).forEach(r=>r.ultimos.forEach(c=>recIds.add(c.id)));
+  m.reincidPct = c30.length? Math.round(c30.filter(c=>recIds.has(c.id)||c.problemaId).length/c30.length*100) : 0;
+  return m;
+}
+const timeList = () => String(S.config.time||"").split(",").map(s=>s.trim()).filter(Boolean);
+const donoDe = c => c.dono || c.responsavel || "";
+const fmtH = h => h==null? "—" : (h<1? Math.max(1,Math.round(h*60))+" min" : h<48? Math.round(h)+" h" : Math.round(h/24)+" d");
+function fornInfo(nome){ const d=S.forn.find(f=>f.nome===nome)||{}; return Object.assign({nome},DEF_FORN[nome]||{},d); }
+function incidentesGerais(){
+  const map={}; S.chamados.filter(c=>hoursSince(c.abertoEm)<24 && c.pdv).forEach(c=>{ const k=c.categoria+"|"+c.fornecedor; (map[k]=map[k]||new Set()).add(c.pdv); });
+  return Object.entries(map).filter(([,s])=>s.size>=3).map(([k,s])=>{const [cat,f]=k.split("|"); return {categoria:cat,fornecedor:f,pdvs:[...s]};});
+}
+function recorrencias(ate, dias){
+  const ini = new Date(ate - dias*864e5), map={};
+  S.chamados.forEach(c=>{ const d=new Date(c.abertoEm); if(!(d>=ini&&d<=ate)||!c.pdv) return; const k=c.pdv+"|"+c.categoria; (map[k]=map[k]||[]).push(c); });
+  return Object.entries(map).filter(([,v])=>v.length>=S.config.recorrenciaMin).map(([k,v])=>{const [pdv,cat]=k.split("|");return {pdv,categoria:cat,qtd:v.length,ultimos:v,vinculado:v.every(c=>c.problemaId)}}).sort((a,b)=>b.qtd-a.qtd);
+}
+function computeAlerts(){
+  const out=[], cfg=S.config;
+  S.pdvs.filter(p=>p.status==="ativo").forEach(p=>{
+    const s=pdvState(p), lbl=p.codigo+" "+p.unidade;
+    if(s==="off") out.push({sev:"crit",t:"PDV offline: "+lbl,m:"Último sinal há "+ago(p.ultimoPing)+". Franqueado "+(p.franqueado||"—")+".",pdv:p.codigo});
+    else if(s==="nosale") out.push({sev:"high",t:"PDV sem vendas: "+lbl,m:"Online, mas sem venda há "+ago(p.ultimaVenda)+" (limite "+cfg.horasSemVenda+" h).",pdv:p.codigo});
+    const c=certState(p), d=daysUntil(p.certValidade);
+    if(c==="vencido") out.push({sev:"crit",t:"Certificado digital vencido: "+lbl,m:"Venceu em "+fmtD(p.certValidade)+". Emissão fiscal pode estar parada.",pdv:p.codigo});
+    else if(c==="avencer") out.push({sev:"warn",t:"Certificado vence em "+d+" dias: "+lbl,m:"Validade "+fmtD(p.certValidade)+". Agende a renovação com o franqueado.",pdv:p.codigo});
+    if(p.facialOk===false) out.push({sev:"high",t:"Falha no acesso por facial: "+lbl,m:"Clientes podem não conseguir entrar.",pdv:p.codigo});
+    if(p.appOk===false) out.push({sev:"high",t:"Falha no app F4Y: "+lbl,m:"Clientes podem não conseguir comprar pelo app.",pdv:p.codigo});
+    if(p.auditOk===false) out.push({sev:"warn",t:"Câmeras/Audit com falha: "+lbl,m:"Auditoria Preditta sem imagem.",pdv:p.codigo});
+    if(!p.travaCervejeira||!p.travaPorta) out.push({sev:"info",t:"Trava pendente: "+lbl,m:[!p.travaCervejeira?"cervejeira":null,!p.travaPorta?"porta de entrada":null].filter(Boolean).join(" e ")+" sem trava instalada.",pdv:p.codigo});
+  });
+  abertos().forEach(c=>{
+    if(c.prioridade==="critica" && hoursSince(c.abertoEm)>cfg.horasSLACritico) out.push({sev:"crit",t:"Chamado crítico aberto há "+ago(c.abertoEm),m:c.titulo+" | "+pdvLabel(c.pdv)+" | "+c.fornecedor,ch:c.id});
+    if(c.proximoRetorno && new Date(c.proximoRetorno)<now()) out.push({sev:"high",t:"Retorno vencido: "+c.titulo,m:"Combinado para "+fmtDT(c.proximoRetorno)+" com "+c.fornecedor+". Próxima ação: "+(c.proximaAcao||"não definida")+". Dono: "+(donoDe(c)||"sem dono")+".",ch:c.id});
+    if(!donoDe(c) && (c.prioridade==="critica"||c.prioridade==="alta")) out.push({sev:"high",t:"Chamado "+PCODE[c.prioridade]+" sem dono na fast4you",m:c.titulo+" | defina quem acompanha, mesmo aguardando fornecedor.",ch:c.id});
+    const fi=fornInfo(c.fornecedor);
+    if(c.prioridade==="critica" && !c.primeiraRespostaEm && fi.slaRespostaP1 && hoursSince(c.abertoEm)*60>Number(fi.slaRespostaP1)) out.push({sev:"crit",t:"SLA de resposta P1 estourado: "+c.fornecedor,m:c.titulo+" | sem resposta há "+ago(c.abertoEm)+". Escalonar para: "+(fi.nivel2||"nível 2 não cadastrado")+".",ch:c.id});
+    if(c.origem==="WhatsApp" && !c.protocolo) out.push({sev:"info",t:"Chamado do WhatsApp sem protocolo",m:c.titulo+" | registre o protocolo do Sults ou do fornecedor para não perder a rastreabilidade.",ch:c.id});
+  });
+  recorrencias(now(),30).forEach(r=>{ if(r.vinculado) return; out.push({sev:"warn",t:"Reincidência sem problema aberto: "+pdvLabel(r.pdv),m:r.qtd+" chamados de "+r.categoria+" em 30 dias. Abra um problema para investigar a causa raiz.",pdv:r.pdv,rec:r.pdv+"|"+r.categoria}); });
+  incidentesGerais().forEach(i=>out.push({sev:"crit",t:"Possível instabilidade geral: "+i.categoria+" ("+i.fornecedor+")",m:i.pdvs.length+" unidades com o mesmo tipo de falha nas últimas 24 h: "+i.pdvs.join(", ")+".",go:"problemas"}));
+  S.problemas.filter(p=>p.status!=="resolvido"&&p.prazo&&daysUntil(p.prazo)<0).forEach(p=>out.push({sev:"high",t:"Plano de ação vencido: "+p.titulo,m:"Prazo era "+fmtD(p.prazo)+". Cobrar "+(p.fornecedor||"fornecedor")+".",prob:p.id}));
+  if(now().getDay()===1) out.push({sev:"info",t:"Hoje é segunda: relatório semanal",m:"Abra o Relatório de segunda e exporte para a reunião.",go:"semanal"});
+  const ord={crit:0,high:1,warn:2,info:3};
+  return out.sort((a,b)=>ord[a.sev]-ord[b.sev]);
+}
+
+/* ---------- inicialização ---------- */
+async function init(){
+  route();
+  if(!window.claude || typeof window.claude.use!=="function"){ S.error="offline"; renderAll(); return; }
+  const [db,user,dl,sample] = await Promise.all([claude.use("db"),claude.use("user"),claude.use("downloads"),claude.use("sample")]);
+  S.db=db; S.user=user; S.dl=dl; S.sample=sample;
+  if(!db){ S.error="nodb"; renderAll(); return; }
+  let can=null; try{ can = user? await user.can("data.write") : null; }catch(e){}
+  S.canWrite = can!==false;
+  const timer=setTimeout(()=>{ if(!S.loaded.pdvs||!S.loaded.chamados){ S.error="slow"; renderAll(); } },10000);
+  const sub=(path,key,map)=>db.collection(path).onSnapshot(snap=>{
+    S[key]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
+    if(map) map();
+    if(!snap.metadata.fromCache){ S.loaded[key]=true; }
+    if(S.loaded.pdvs&&S.loaded.chamados){ clearTimeout(timer); if(S.error==="slow") S.error=null; }
+    S.ready=true; renderAll(); maybeSnapshot(); maybeToast();
+  },err=>{ S.error="db:"+err.code; renderAll(); });
+  sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("fornecedores","forn"); sub("procedimentos","procs");
+  db.doc("config/integracoes").onSnapshot(d=>{ S.integ=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
+  db.doc("config/geral").onSnapshot(d=>{ S.config=Object.assign({},DEF_CONFIG,d.exists?d.data():{}); S.loaded.config=true; renderAll(); },()=>{});
+}
+async function maybeSnapshot(){
+  if(S.snapWritten||!S.canWrite||!S.loaded.pdvs||!S.loaded.chamados||!S.loaded.snaps||!S.pdvs.length) return;
+  const day=isoDay(now()); if(S.snaps.some(s=>s.id===day)){ S.snapWritten=true; return; }
+  S.snapWritten=true; const m=metrics();
+  try{ await S.db.doc("snapshots/"+day).set({dia:day,ativos:m.ativos,online:m.online,semVenda:m.semVenda,offline:m.offline,chAbertos:m.chAbertos,chCriticos:m.chCriticos,certVenc:m.certVenc,gravadoEm:now().toISOString()}); }catch(e){}
+}
+function maybeToast(){
+  if(S.toastShown||!S.loaded.pdvs||!S.loaded.chamados) return;
+  S.toastShown=true;
+  const al=computeAlerts(), crit=al.filter(a=>a.sev==="crit").length, high=al.filter(a=>a.sev==="high").length;
+  if(!crit&&!high) return;
+  const t=$("#toast");
+  t.innerHTML='<div><b>'+crit+' alertas críticos</b> e '+high+' de alta prioridade na rede agora.</div><button type="button" data-act="toast-go">Ver</button>';
+  t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),12000);
+}
+
+/* ---------- roteamento ---------- */
+const PAGES=["painel","pdvs","chamados","problemas","fornecedores","conhecimento","semanal","alertas","novidades","integracoes"];
+function route(){
+  const h=(location.hash||"").slice(1); const p=PAGES.includes(h)?h:"painel";
+  document.querySelectorAll("#nav a").forEach(a=>a.setAttribute("aria-current", a.getAttribute("href")==="#"+p?"page":"false"));
+  S.page=p; $("#side").classList.remove("open"); renderMain(); $("#main").scrollTop=0;
+}
+window.addEventListener("hashchange",route);
+
+function renderAll(){ renderNav(); renderMain(); }
+function renderNav(){
+  const al=computeAlerts().filter(a=>a.sev==="crit"||a.sev==="high").length;
+  const ca=abertos().filter(c=>c.prioridade==="critica").length;
+  const n1=$("#navAlertas"), n2=$("#navChamados");
+  n1.hidden=!al; n1.textContent=al; n2.hidden=!ca; n2.textContent=ca; n2.title="Chamados P1 abertos";
+  const pa=S.problemas.filter(p=>p.status!=="resolvido").length, n3=$("#navProb"); n3.hidden=!pa; n3.textContent=pa;
+  $("#syncInfo").textContent = S.error==="offline"?"Abra no Claude para ver os dados" : S.ready? ("Atualizado "+new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})+(S.canWrite?"":" (somente leitura)")) : "Conectando…";
+}
+function banners(){
+  let h="";
+  if(S.error==="offline") h+='<div class="banner err">Esta página precisa ser aberta no Claude para carregar e salvar os dados do time.</div>';
+  else if(S.error==="nodb") h+='<div class="banner err">Entre na sua conta para acessar os dados compartilhados do time.</div>';
+  else if(S.error==="slow") h+='<div class="banner">Os dados ainda não carregaram. Verifique sua conexão; a página continua tentando.</div>';
+  else if(S.error&&S.error.startsWith("db:")) h+='<div class="banner err">Não foi possível ler os dados ('+esc(S.error.slice(3))+'). Recarregue a página.</div>';
+  const demo=S.pdvs.some(p=>p.demo)||S.chamados.some(c=>c.demo)||S.problemas.some(x=>x.demo);
+  if(demo) h+='<div class="banner"><span>Você está vendo <b>dados de exemplo</b> para conhecer o sistema. Importe suas planilhas ou cadastre os PDVs reais e depois remova os exemplos.</span>'+(S.canWrite?'<button class="btn small" data-act="clear-demo">Remover dados de exemplo</button>':'')+'</div>';
+  return h;
+}
+function destroyCharts(){ S.charts.forEach(c=>{try{c.destroy()}catch(e){}}); S.charts=[]; }
+function renderMain(){
+  destroyCharts();
+  const el=$("#main"); const fn={painel:pPainel,pdvs:pPdvs,chamados:pChamados,problemas:pProblemas,fornecedores:pFornecedores,conhecimento:pConhecimento,semanal:pSemanal,alertas:pAlertas,novidades:pNovidades,integracoes:pIntegracoes}[S.page];
+  el.innerHTML = banners() + fn();
+  if(S.page==="painel") drawPainelCharts();
+  if(S.page==="semanal") drawSemanaCharts();
+}
+
+/* ---------- PAINEL ---------- */
+function pPainel(){
+  const m=metrics(), P=S.pdvs.filter(p=>p.status==="ativo"||p.status==="implantacao");
+  P.sort((a,b)=>{const o={off:0,nosale:1,on:2,impl:3};return o[pdvState(a)]-o[pdvState(b)]||String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})});
+  const hoje=now().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
+  const tiles = P.map(p=>{const s=pdvState(p); const flag=certState(p)==="vencido"||p.facialOk===false||p.appOk===false;
+    const lab={on:"vendendo",nosale:"sem vendas",off:"offline",impl:"em implantação"}[s];
+    return '<button class="tile '+s+(flag?' flag':'')+'" data-act="pdv" data-id="'+esc(p.codigo)+'" title="'+esc(p.codigo+" "+p.unidade+" | "+lab)+'" aria-label="'+esc(p.unidade+", "+lab)+'">'+esc(p.codigo)+'</button>';}).join("");
+  const k=(v,l,d,cls,go)=>'<button class="kpi '+(cls||"")+'" data-go="'+(go||"")+'"><span class="v">'+v+'</span><span class="l">'+l+'</span>'+(d?'<span class="d muted">'+d+'</span>':'')+'</button>';
+  const leitura = leituraDoDia(m);
+  return `
+  <div class="topbar"><div><h1>Painel da rede</h1><p class="sub">${esc(hoje.charAt(0).toUpperCase()+hoje.slice(1))}</p></div>
+    <div class="row"><button class="btn" data-act="export-painel">Exportar indicadores</button>${S.canWrite?'<button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
+  <section class="panel" style="margin-bottom:14px">
+    <div class="wall-head">
+      <div><div class="wall-big">${m.ativos?pct(m.onVenda,m.ativos):0}%<small>dos PDVs ativos vendendo normalmente</small></div></div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Vendendo (${m.onVenda})</span><span><i style="background:var(--warn)"></i>Online sem vendas há +${S.config.horasSemVenda} h (${m.semVenda})</span><span><i style="background:var(--bad)"></i>Offline (${m.offline})</span><span><i style="background:var(--idle)"></i>Em implantação (${m.implantacao})</span><span><i style="background:transparent;border:2px solid var(--muted);border-radius:50%"></i>Certificado vencido, facial ou app com falha</span></div>
+    </div>
+    ${P.length?'<div class="wall">'+tiles+'</div>':'<div class="empty">Nenhum PDV cadastrado ainda. <a href="#pdvs">Cadastre ou importe seus PDVs</a>.</div>'}
+  </section>
+  <h2 class="sec">A rede</h2>
+  <div class="kpis" style="margin-bottom:18px">
+    ${k(m.ativos,"PDVs ativos",m.franqueados+" franqueados com PDV","","pdvs")}
+    ${k(m.offline,"PDVs offline","",m.offline?"bad":"ok","alertas")}
+    ${k(m.semVenda,"Sem vendas",'há mais de '+S.config.horasSemVenda+' h',m.semVenda?"warn":"ok","alertas")}
+    ${k(m.certVenc,"Certificados vencidos",m.certAvencer+" vencem em até "+S.config.diasCertAviso+" dias",m.certVenc?"bad":(m.certAvencer?"warn":"ok"),"pdvs")}
+    ${k(pct(m.travaCerv,m.ativos)+"%","Trava na cervejeira",m.travaCerv+" de "+m.ativos+" PDVs","","pdvs")}
+    ${k(pct(m.travaPorta,m.ativos)+"%","Trava na porta de entrada",m.travaPorta+" de "+m.ativos+" PDVs","","pdvs")}
+    ${k(m.facialFalha+m.appFalha,"Facial ou app com falha",m.facialFalha+" facial, "+m.appFalha+" app",(m.facialFalha+m.appFalha)?"warn":"ok","alertas")}
+    ${k(m.implantacao,"Em implantação","","","pdvs")}
+    ${k(m.repasse+m.distrato+m.cancelado,"Repasse, distrato e cancelamento",m.repasse+" repasse, "+m.distrato+" distrato, "+m.cancelado+" cancel.","","pdvs")}
+  </div>
+  <h2 class="sec">Operação do time</h2>
+  <div class="kpis" style="margin-bottom:14px">
+    ${k(m.chAbertos,"Chamados em aberto",m.semDono?m.semDono+" sem dono":"todos com dono",m.semDono?"warn":"","chamados")}
+    ${k(m.chCriticos,"P1 críticos ativos","",m.chCriticos?"bad":"ok","chamados")}
+    ${k(m.aguardForn,"Aguardando fornecedor","","","fornecedores")}
+    ${k(m.pendVencidas,"Pendências vencidas","retorno combinado já passou",m.pendVencidas?"bad":"ok","alertas")}
+    ${k(fmtH(m.primResp),"Primeira resposta média","30 dias","","fornecedores")}
+    ${k(fmtH(m.recP1),"Tempo para restabelecer P1","até contorno, 30 dias","","fornecedores")}
+    ${k(fmtH(m.slaMedio),"Solução definitiva média","30 dias","","fornecedores")}
+    ${k(m.reincidPct+"%","Reincidência","chamados ligados a recorrência, 30 dias",m.reincidPct>20?"warn":"","problemas")}
+    ${k(m.probSemCausa,"Problemas sem causa identificada",m.probAbertos+" problemas abertos",m.probSemCausa?"warn":"ok","problemas")}
+    ${k(m.reabertos30,"Chamados reabertos","30 dias",m.reabertos30?"warn":"ok","chamados")}
+    ${k(m.chWhats,"Abertos via WhatsApp",m.chSemProtocolo+" sem protocolo",m.chSemProtocolo?"warn":"","chamados")}
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel"><div class="row" style="justify-content:space-between"><h2>Fila de prioridades</h2><a class="small" href="#chamados">Ver fila completa</a></div>${filaTop()}</section>
+    <section class="panel">${okrHtml(m)}</section>
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel read"><h2>Leitura do dia</h2>${leitura}
+      ${S.sample?'<div class="row" style="margin-top:10px"><button class="btn purple small" data-act="ai-painel">Pedir análise qualitativa ao Claude</button></div><div class="ai-out" id="aiPainel"></div>':''}
+    </section>
+    <section class="panel"><h2>Evolução diária</h2><div class="chartbox"><canvas id="cTrend" aria-label="Evolução diária de PDVs online e chamados críticos"></canvas></div><p class="small muted" id="trendNote"></p></section>
+  </div>
+  <div class="grid g3">
+    <section class="panel"><h2>Chamados abertos por tipo</h2><div class="chartbox"><canvas id="cCat"></canvas></div></section>
+    <section class="panel"><h2>Chamados abertos por fornecedor</h2><div class="chartbox"><canvas id="cForn"></canvas></div></section>
+    <section class="panel"><h2>Por canal de entrada (30 dias)</h2><div class="chartbox"><canvas id="cOrig"></canvas></div></section>
+  </div>`;
+}
+function filaTop(){
+  const o={critica:0,alta:1,media:2,baixa:3};
+  const A=abertos().sort((a,b)=>o[a.prioridade]-o[b.prioridade]||String(a.abertoEm).localeCompare(String(b.abertoEm))).slice(0,6);
+  if(!A.length) return '<p class="muted">Nenhum chamado em aberto.</p>';
+  return '<div class="fila">'+A.map(c=>{const venc=c.proximoRetorno&&new Date(c.proximoRetorno)<now();
+    return `<button class="fila-it" data-act="ch" data-id="${esc(c.id)}"><span><b>${esc(pdvLabel(c.pdv))}</b>: ${esc(c.titulo)}<span class="small muted" style="display:block">${esc(c.fornecedor)} | ${esc(ST_CH[c.status]||c.status)} | dono: ${esc(donoDe(c)||"sem dono")}${c.proximoRetorno?' | retorno '+(venc?'<b style="color:var(--bad)">vencido</b>':fmtDT(c.proximoRetorno)):''}</span></span>${prPill(c.prioridade)}</button>`;}).join("")+'</div>';
+}
+function okrHtml(m){
+  const base=Number(S.config.okrBaseCriticos)||0, red=Number(S.config.okrReducao)||20, meta=base?Math.round(base*(1-red/100)):null;
+  const atual=m.crit30, ok=meta!=null&&atual<=meta;
+  const bar=meta!=null? Math.min(100,Math.round(atual/base*100)) : 0;
+  return `<h2>Metas do setor (OKR)</h2>
+  <div class="okr"><div class="okr-row"><span>Reduzir ${red}% dos chamados críticos</span><b>${meta==null?"defina a base":atual+" de no máximo "+meta}</b></div>
+  ${meta!=null?`<div class="meter"><span style="width:${bar}%;background:${ok?"var(--ok)":"var(--orange)"}"></span><i style="left:${100-red}%"></i></div><p class="small muted">P1 dos últimos 30 dias contra a base de ${base}/mês. A marca mostra a meta.</p>`:'<p class="small muted">Informe a média mensal de críticos antes do projeto em Alertas, Regras.</p>'}
+  <div class="okr-row"><span>Reincidência</span><b>${m.reincidPct}%</b></div>
+  <div class="okr-row"><span>Tempo para restabelecer a operação (P1)</span><b>${fmtH(m.recP1)}</b></div>
+  <div class="okr-row"><span>Chamados com retorno em dia</span><b>${m.chAbertos?pct(m.chAbertos-m.pendVencidas,m.chAbertos):100}%</b></div></div>`;
+}
+function leituraDoDia(m){
+  const it=[];
+  if(!S.pdvs.length) return '<p class="muted">Cadastre PDVs para ver a leitura automática da rede.</p>';
+  it.push(m.offline? `<b>${m.offline} PDV${m.offline>1?"s":""} offline</b> agora; priorize contato com Soft-line/Infinity para infraestrutura.` : "Nenhum PDV ativo offline neste momento.");
+  if(m.semVenda) it.push(`${m.semVenda} PDV${m.semVenda>1?"s estão":" está"} online sem vender há mais de ${S.config.horasSemVenda} h; confira POS (PagBank/Santander), app e facial.`);
+  if(m.certVenc) it.push(`${m.certVenc} certificado${m.certVenc>1?"s":""} digital vencido${m.certVenc>1?"s":""}: risco de parar emissão fiscal.`);
+  if(m.certAvencer) it.push(`${m.certAvencer} certificado${m.certAvencer>1?"s vencem":" vence"} nos próximos ${S.config.diasCertAviso} dias.`);
+  const porF={}; abertos().forEach(c=>porF[c.fornecedor]=(porF[c.fornecedor]||0)+1);
+  const topF=Object.entries(porF).sort((a,b)=>b[1]-a[1])[0];
+  if(topF) it.push(`Fornecedor com mais chamados abertos: <b>${esc(topF[0])}</b> (${topF[1]}).`);
+  const rec=recorrencias(now(),30)[0];
+  if(rec) it.push(`Maior recorrência: ${esc(pdvLabel(rec.pdv))} com ${rec.qtd} chamados de ${esc(rec.categoria)} em 30 dias.`);
+  if(m.pendVencidas) it.push(`<b>${m.pendVencidas} pendência${m.pendVencidas>1?"s":""} vencida${m.pendVencidas>1?"s":""}</b>: o fornecedor não retornou no prazo combinado. Cobre ou escalone.`);
+  const inc=incidentesGerais()[0]; if(inc) it.push(`Possível instabilidade geral de ${esc(inc.categoria)} (${esc(inc.fornecedor)}) em ${inc.pdvs.length} unidades nas últimas 24 h.`);
+  if(m.chSemProtocolo) it.push(`${m.chSemProtocolo} chamado${m.chSemProtocolo>1?"s":""} vindo${m.chSemProtocolo>1?"s":""} do WhatsApp sem protocolo registrado.`);
+  return "<ul>"+it.map(i=>"<li>"+i+"</li>").join("")+"</ul>";
+}
+function chartBase(){
+  Chart.defaults.font.family='"Archivo",system-ui,sans-serif'; Chart.defaults.color=css("--muted"); Chart.defaults.borderColor=css("--line");
+}
+function barChart(id,labels,data,color,horizontal){
+  const el=document.getElementById(id); if(!el||!window.Chart) return;
+  chartBase();
+  S.charts.push(new Chart(el,{type:"bar",data:{labels,datasets:[{data,backgroundColor:color,borderRadius:5,maxBarThickness:28}]},
+    options:{indexAxis:horizontal?"y":"x",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:!horizontal},ticks:{precision:0}},y:{grid:{display:!!horizontal&&false},ticks:{precision:0}}}}}));
+}
+function countBy(arr,key,order){ const m={}; arr.forEach(x=>{const k=x[key]||"—"; m[k]=(m[k]||0)+1}); const keys=(order||Object.keys(m)).filter(k=>m[k]); return [keys,keys.map(k=>m[k])]; }
+function drawPainelCharts(){
+  if(!window.Chart) return;
+  const A=abertos();
+  let [l,d]=countBy(A,"categoria",CATEGORIAS); barChart("cCat",l,d,css("--orange"),true);
+  [l,d]=countBy(A,"fornecedor",FORNECEDORES); barChart("cForn",l,d,css("--purple"),true);
+  const c30=S.chamados.filter(c=>hoursSince(c.abertoEm)<24*30);
+  [l,d]=countBy(c30,"origem",ORIGENS); barChart("cOrig",l,d,css("--info"));
+  const sn=S.snaps.slice().sort((a,b)=>a.id.localeCompare(b.id)).slice(-30);
+  const el=document.getElementById("cTrend");
+  $("#trendNote").textContent = sn.length<2? "A série histórica começa a ser gravada uma vez por dia quando alguém do time abre o painel." : "";
+  if(el&&sn.length){ chartBase();
+    S.charts.push(new Chart(el,{type:"line",data:{labels:sn.map(s=>fmtD(s.id).slice(0,5)),datasets:[
+      {label:"PDVs online",data:sn.map(s=>s.online),borderColor:css("--ok"),backgroundColor:css("--ok"),tension:.3,yAxisID:"y"},
+      {label:"Offline",data:sn.map(s=>s.offline),borderColor:css("--bad"),backgroundColor:css("--bad"),tension:.3,yAxisID:"y"},
+      {label:"Chamados críticos",data:sn.map(s=>s.chCriticos),borderColor:css("--orange"),backgroundColor:css("--orange"),borderDash:[5,4],tension:.3,yAxisID:"y"}]},
+      options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{position:"bottom",labels:{boxWidth:10}}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}));
+  }
+}
+
+/* ---------- PDVs ---------- */
+function filteredPdvs(){
+  const f=S.f.pdv, q=norm(f.q);
+  return S.pdvs.filter(p=>{
+    if(q && !norm([p.codigo,p.unidade,p.franqueado,p.cidade].join(" ")).includes(q)) return false;
+    if(f.status && p.status!==f.status) return false;
+    if(f.online){ const s=pdvState(p); if(f.online!==s) return false; }
+    if(f.trava==="sem-cerv" && p.travaCervejeira) return false;
+    if(f.trava==="sem-porta" && p.travaPorta) return false;
+    if(f.trava==="completas" && !(p.travaCervejeira&&p.travaPorta)) return false;
+    if(f.cert && certState(p)!==f.cert) return false;
+    return true;
+  }).sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true}));
+}
+function stPill(p){ const s=pdvState(p); return {on:'<span class="pill p-ok">Vendendo</span>',nosale:'<span class="pill p-warn">Sem vendas</span>',off:'<span class="pill p-bad">Offline</span>',impl:'<span class="pill p-idle">'+esc(STATUS_PDV[p.status]||p.status)+'</span>'}[s]; }
+function certPill(p){ const c=certState(p), d=daysUntil(p.certValidade); return {vencido:'<span class="pill p-bad">Vencido</span>',avencer:'<span class="pill p-warn">'+d+' dias</span>',ok:'<span class="pill p-ok">'+fmtD(p.certValidade)+'</span>',sem:'<span class="pill p-idle">Sem data</span>'}[c]; }
+const yn = v => v? '<span class="pill p-ok">Sim</span>':'<span class="pill p-bad">Não</span>';
+function pPdvs(){
+  const f=S.f.pdv, rows=filteredPdvs();
+  const opt=(o,v)=>Object.entries(o).map(([k,l])=>'<option value="'+k+'"'+(v===k?" selected":"")+'>'+l+'</option>').join("");
+  return `
+  <div class="topbar"><div><h1>PDVs e unidades</h1><p class="sub">Uma fonte única por PDV: status do contrato, conexão, vendas, travas e certificado.</p></div>
+  <div class="row">
+    <button class="btn" data-act="export-pdvs">Exportar lista</button>
+    ${S.canWrite?'<button class="btn" data-act="tpl-pdvs">Baixar modelo</button><button class="btn" data-act="import-pdvs">Importar planilha</button><button class="btn primary" data-act="new-pdv">Novo PDV</button>':''}
+  </div></div>
+  <div class="filters">
+    <input type="search" placeholder="Buscar código, unidade, franqueado ou cidade" value="${esc(f.q)}" data-f="pdv.q" aria-label="Buscar">
+    <select data-f="pdv.status" aria-label="Status do contrato"><option value="">Todos os status</option>${opt(STATUS_PDV,f.status)}</select>
+    <select data-f="pdv.online" aria-label="Situação"><option value="">Toda situação</option>${opt({on:"Vendendo",nosale:"Sem vendas",off:"Offline",impl:"Fora de operação"},f.online)}</select>
+    <select data-f="pdv.trava" aria-label="Travas"><option value="">Todas as travas</option>${opt({completas:"Com as duas travas","sem-cerv":"Sem trava na cervejeira","sem-porta":"Sem trava na porta"},f.trava)}</select>
+    <select data-f="pdv.cert" aria-label="Certificado"><option value="">Todo certificado</option>${opt({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"},f.cert)}</select>
+  </div>
+  <p class="small muted">${rows.length} de ${S.pdvs.length} PDVs</p>
+  <div class="tablewrap"><table><thead><tr><th>Código</th><th>Unidade</th><th>Franqueado</th><th>Contrato</th><th>Situação</th><th>Última venda</th><th>Trava cervejeira</th><th>Trava porta</th><th>Certificado</th><th>Facial</th><th>App</th><th>Adquirente</th></tr></thead>
+  <tbody>${rows.map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td><b>${esc(p.codigo)}</b></td><td>${esc(p.unidade)}<div class="small muted">${esc([p.cidade,p.uf].filter(Boolean).join("/"))}</div></td><td>${esc(p.franqueado||"—")}</td><td>${esc(STATUS_PDV[p.status]||p.status||"—")}</td><td>${stPill(p)}</td><td>${p.status==="ativo"?ago(p.ultimaVenda):"—"}</td><td>${yn(p.travaCervejeira)}</td><td>${yn(p.travaPorta)}</td><td>${certPill(p)}</td><td>${p.facialOk===false?'<span class="pill p-bad">Falha</span>':'<span class="pill p-ok">OK</span>'}</td><td>${p.appOk===false?'<span class="pill p-bad">Falha</span>':'<span class="pill p-ok">OK</span>'}</td><td>${esc(p.adquirente||"—")}</td></tr>`).join("") || '<tr><td colspan="12" class="empty">Nenhum PDV encontrado com esses filtros.</td></tr>'}</tbody></table></div>`;
+}
+function openPdv(code){
+  const p=pdvByCode(code); if(!p) return;
+  const hist=S.chamados.filter(c=>String(c.pdv)===String(code)).sort((a,b)=>String(b.abertoEm).localeCompare(String(a.abertoEm)));
+  $("#drawer").innerHTML=`
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(p.codigo)} ${esc(p.unidade)}</h2><button class="btn ghost" data-act="close">Fechar</button></div>
+    <p class="muted" style="margin-top:2px">${esc(p.franqueado||"")} ${p.cidade?" | "+esc(p.cidade)+"/"+esc(p.uf||""):""}</p>
+    <div class="row" style="margin:10px 0">${stPill(p)} ${certPill(p)}</div>
+    <dl class="kv">
+      <dt>Contrato</dt><dd>${esc(STATUS_PDV[p.status]||p.status)}</dd>
+      <dt>Último sinal</dt><dd>${fmtDT(p.ultimoPing)} (${ago(p.ultimoPing)})</dd>
+      <dt>Última venda</dt><dd>${fmtDT(p.ultimaVenda)} (${ago(p.ultimaVenda)})</dd>
+      <dt>Travas</dt><dd>Cervejeira: ${p.travaCervejeira?"sim":"não"}; porta: ${p.travaPorta?"sim":"não"}</dd>
+      <dt>Facial / App</dt><dd>${p.facialOk===false?"falha":"ok"} / ${p.appOk===false?"falha":"ok"}</dd>
+      <dt>Câmeras Audit</dt><dd>${p.auditOk===false?"falha":"ok"}</dd>
+      <dt>Adquirente</dt><dd>${esc(p.adquirente||"—")} ${p.posQtd?"("+esc(p.posQtd)+" POS em comodato)":""}</dd>
+      <dt>Certificado A1</dt><dd>${fmtD(p.certValidade)}</dd>
+      <dt>Internet</dt><dd>${esc(p.internet||"—")}</dd>
+      <dt>Versão do sistema</dt><dd>${esc(p.versaoSistema||"—")}</dd>
+      <dt>Equipamentos</dt><dd>${esc(p.equipamentos||"—")}</dd>
+      <dt>Observações</dt><dd>${esc(p.obs||"—")}</dd>
+    </dl>
+    ${S.canWrite?`<div class="row" style="margin:14px 0"><button class="btn" data-act="edit-pdv" data-id="${esc(p.codigo)}">Editar PDV</button><button class="btn primary" data-act="new-ch" data-pdv="${esc(p.codigo)}">Registrar chamado</button></div>`:""}
+    ${(()=>{const pr=S.problemas.filter(x=>String(x.pdvs||"").split(",").map(s=>s.trim()).includes(String(p.codigo))); return pr.length?'<h3 style="margin-top:16px">Problemas recorrentes</h3>'+pr.map(x=>`<div class="alert warn" style="margin-bottom:6px;cursor:pointer" data-act="prob" data-id="${esc(x.id)}"><span class="bar"></span><div><div class="t">${esc(x.titulo)}</div><div class="m">${esc(ST_PROB[x.status])}${x.causaRaiz?' | causa: '+esc(x.causaRaiz):' | causa ainda desconhecida'}</div></div><span></span></div>`).join(""):""})()}
+    <h3 style="margin-top:16px">Histórico de chamados (${hist.length})</h3>
+    ${hist.length?hist.map(c=>`<div class="alert ${c.prioridade==="critica"?"crit":c.prioridade==="alta"?"high":"info"}" style="margin-bottom:6px;cursor:pointer" data-act="ch" data-id="${esc(c.id)}"><span class="bar"></span><div><div class="t">${esc(c.titulo)}</div><div class="m">${fmtDT(c.abertoEm)} | ${esc(c.categoria)} | ${esc(c.fornecedor)} | ${esc(c.origem)}</div></div><span class="pill ${c.status==="resolvido"?"p-ok":"p-warn"}">${esc(ST_CH[c.status])}</span></div>`).join(""):'<p class="muted">Sem chamados registrados.</p>'}`;
+  openDrawer();
+}
+function pdvForm(p){
+  p=p||{status:"ativo",online:true,travaCervejeira:false,travaPorta:false,facialOk:true,appOk:true,auditOk:true,adquirente:"PagBank"};
+  const o=(arr,v)=>arr.map(x=>Array.isArray(x)?`<option value="${x[0]}"${v===x[0]?" selected":""}>${x[1]}</option>`:`<option${v===x?" selected":""}>${x}</option>`).join("");
+  const dt=iso=>iso?new Date(new Date(iso)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):"";
+  openModal(`<h2>${p.codigo?"Editar PDV "+esc(p.codigo):"Novo PDV"}</h2>
+  <div class="form" id="pdvForm">
+    <label class="field">Código da unidade (igual em todos os sistemas)<input name="codigo" required value="${esc(p.codigo||"")}" ${p.codigo?"readonly":""}></label>
+    <label class="field">Nome da unidade<input name="unidade" value="${esc(p.unidade||"")}"></label>
+    <label class="field">Franqueado<input name="franqueado" value="${esc(p.franqueado||"")}"></label>
+    <label class="field">Cidade<input name="cidade" value="${esc(p.cidade||"")}"></label>
+    <label class="field">UF<input name="uf" maxlength="2" value="${esc(p.uf||"")}"></label>
+    <label class="field">Status do contrato<select name="status">${o(Object.entries(STATUS_PDV),p.status)}</select></label>
+    <label class="field">Último sinal (ping)<input type="datetime-local" name="ultimoPing" value="${dt(p.ultimoPing)}"></label>
+    <label class="field">Última venda<input type="datetime-local" name="ultimaVenda" value="${dt(p.ultimaVenda)}"></label>
+    <label class="field">Validade do certificado digital<input type="date" name="certValidade" value="${esc(p.certValidade||"")}"></label>
+    <label class="field">Adquirente principal<select name="adquirente">${o(["PagBank","Santander","PagBank + Santander"],p.adquirente)}</select></label>
+    <label class="field">POS em comodato (qtd)<input type="number" min="0" name="posQtd" value="${esc(p.posQtd||"")}"></label>
+    <label class="field">Internet (operadora e tipo)<input name="internet" value="${esc(p.internet||"")}" placeholder="Ex.: fibra Vivo + 4G de contingência"></label>
+    <label class="field">Versão do sistema PDV<input name="versaoSistema" value="${esc(p.versaoSistema||"")}"></label>
+    <label class="field full">Equipamentos e módulos<input name="equipamentos" value="${esc(p.equipamentos||"")}" placeholder="Ex.: totem, leitor, balança, roteador, módulo facial, câmeras"></label>
+    <div class="field full" style="flex-direction:row;flex-wrap:wrap;gap:16px">
+      <label class="check"><input type="checkbox" name="online" ${p.online?"checked":""}> PDV online</label>
+      <label class="check"><input type="checkbox" name="travaCervejeira" ${p.travaCervejeira?"checked":""}> Trava na cervejeira</label>
+      <label class="check"><input type="checkbox" name="travaPorta" ${p.travaPorta?"checked":""}> Trava na porta de entrada</label>
+      <label class="check"><input type="checkbox" name="facialOk" ${p.facialOk!==false?"checked":""}> Facial funcionando</label>
+      <label class="check"><input type="checkbox" name="appOk" ${p.appOk!==false?"checked":""}> App F4Y funcionando</label>
+      <label class="check"><input type="checkbox" name="auditOk" ${p.auditOk!==false?"checked":""}> Câmeras Audit ok</label>
+    </div>
+    <label class="field full">Observações<textarea name="obs" rows="2">${esc(p.obs||"")}</textarea></label>
+  </div>
+  <div class="row" style="margin-top:16px;justify-content:space-between">
+    <div>${p.codigo?`<button class="btn danger" data-act="del-pdv" data-id="${esc(p.codigo)}">Excluir PDV</button>`:""}</div>
+    <div class="row"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="save-pdv">Salvar PDV</button></div></div>
+  <p class="small muted" id="formMsg"></p>`);
+}
+function readForm(id){
+  const o={}; document.querySelectorAll("#"+id+" [name]").forEach(el=>{
+    if(el.type==="checkbox") o[el.name]=el.checked;
+    else if(el.type==="datetime-local") o[el.name]=el.value? new Date(el.value).toISOString() : null;
+    else if(el.type==="number") o[el.name]=el.value===""?null:Number(el.value);
+    else o[el.name]=el.value.trim();
+  }); return o;
+}
+async function savePdv(){
+  const d=readForm("pdvForm"); if(!d.codigo){ $("#formMsg").textContent="Informe o código da unidade."; return; }
+  const old=pdvByCode(d.codigo); d.uf=(d.uf||"").toUpperCase(); d.atualizadoEm=now().toISOString(); d.demo=old?!!old.demo:false;
+  await safeWrite(()=>S.db.collection("pdvs").doc(slug(d.codigo)).set(Object.assign({},old?stripId(old):{},d)),"PDV salvo");
+  closeAll();
+}
+const stripId = o => { const c=Object.assign({},o); delete c.id; return c; };
+
+/* ---------- CHAMADOS ---------- */
+function filteredCh(){
+  const f=S.f.ch,q=norm(f.q);
+  return S.chamados.filter(c=>{
+    if(f.status==="abertos"&&c.status==="resolvido") return false;
+    if(f.status&&f.status!=="abertos"&&c.status!==f.status) return false;
+    if(f.prioridade&&c.prioridade!==f.prioridade) return false;
+    if(f.origem&&c.origem!==f.origem) return false;
+    if(f.fornecedor&&c.fornecedor!==f.fornecedor) return false;
+    if(f.categoria&&c.categoria!==f.categoria) return false;
+    if(f.dono==="__sem"&&donoDe(c)) return false;
+    if(f.dono&&f.dono!=="__sem"&&donoDe(c)!==f.dono) return false;
+    if(q&&!norm([c.titulo,c.pdv,pdvLabel(c.pdv),c.protocolo,donoDe(c),c.obs,c.proximaAcao].join(" ")).includes(q)) return false;
+    return true;
+  }).sort((a,b)=>{const o={critica:0,alta:1,media:2,baixa:3}; return (a.status==="resolvido")-(b.status==="resolvido")||o[a.prioridade]-o[b.prioridade]||String(b.abertoEm).localeCompare(String(a.abertoEm));});
+}
+const prPill = p => '<span class="pill '+({critica:"p-bad",alta:"p-warn",media:"p-info",baixa:"p-idle"}[p]||"p-idle")+'" title="'+esc(PRIOR_HELP[p]||"")+'">'+esc(PRIOR[p]||p)+'</span>';
+const chPill = s => '<span class="pill '+({aberto:"p-bad",andamento:"p-info",fornecedor:"p-warn",contorno:"p-brand",validacao:"p-info",resolvido:"p-ok"}[s]||"p-idle")+'">'+esc(ST_CH[s]||s)+'</span>';
+const optList=(arr,v)=>arr.map(x=>Array.isArray(x)?`<option value="${esc(x[0])}"${v===x[0]?" selected":""}>${esc(x[1])}</option>`:`<option${v===x?" selected":""}>${esc(x)}</option>`).join("");
+const dtLocal=iso=>iso?new Date(new Date(iso)-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,16):"";
+function pChamados(){
+  const f=S.f.ch, rows=filteredCh(), o=optList;
+  return `
+  <div class="topbar"><div><h1>Fila de chamados</h1><p class="sub">Fila única: todo chamado tem dono na fast4you, próxima ação e data de retorno, mesmo quando está com o fornecedor.</p></div>
+  <div class="row"><button class="btn" data-act="export-ch">Exportar</button>${S.canWrite?'<button class="btn" data-act="tpl-ch">Baixar modelo</button><button class="btn" data-act="import-ch">Importar planilha do fornecedor</button><button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
+  <div class="filters">
+    <input type="search" placeholder="Buscar título, PDV, protocolo, dono ou próxima ação" value="${esc(f.q)}" data-f="ch.q" aria-label="Buscar">
+    <select data-f="ch.dono" aria-label="Dono"><option value="">Todos os donos</option>${o([...timeList(),["__sem","Sem dono"]],f.dono)}</select>
+    <select data-f="ch.status" aria-label="Status">${o([["abertos","Todos os abertos"],["","Todos"],...Object.entries(ST_CH)],f.status)}</select>
+    <select data-f="ch.prioridade" aria-label="Prioridade"><option value="">Toda prioridade</option>${o(Object.entries(PRIOR),f.prioridade)}</select>
+    <select data-f="ch.categoria" aria-label="Tipo"><option value="">Todo tipo</option>${o(CATEGORIAS,f.categoria)}</select>
+    <select data-f="ch.fornecedor" aria-label="Fornecedor"><option value="">Todo fornecedor</option>${o(FORNECEDORES,f.fornecedor)}</select>
+    <select data-f="ch.origem" aria-label="Canal"><option value="">Todo canal</option>${o(ORIGENS,f.origem)}</select>
+  </div>
+  <p class="small muted">${rows.length} chamados</p>
+  <div class="tablewrap"><table><thead><tr><th>Prioridade</th><th>Chamado</th><th>PDV</th><th>Fornecedor</th><th>Dono</th><th>Próxima ação</th><th>Aberto</th><th>Status</th></tr></thead>
+  <tbody>${rows.map(c=>{const venc=c.status!=="resolvido"&&c.proximoRetorno&&new Date(c.proximoRetorno)<now(); const prob=c.problemaId&&S.problemas.find(p=>p.id===c.problemaId);
+    return `<tr data-act="ch" data-id="${esc(c.id)}"><td>${prPill(c.prioridade)}</td><td class="wrap"><b>${esc(c.titulo)}</b><div class="small muted">${esc(c.categoria)}${c.reaberturas?' | reaberto '+c.reaberturas+'x':''}</div>${c.feedbackFranqueado?'<span class="pill p-brand">Feedback do franqueado</span> ':''}${prob?'<span class="pill p-warn">Problema: '+esc(prob.titulo)+'</span>':''}</td><td>${esc(pdvLabel(c.pdv))}</td><td>${esc(c.fornecedor)}<div class="small muted">${esc(c.origem)}${c.protocolo?' | '+esc(c.protocolo):''}${c.turno==="plantao"?' | plantão':''}</div></td><td>${donoDe(c)?esc(donoDe(c)):'<span class="pill p-warn">Sem dono</span>'}</td><td class="wrap">${esc(c.proximaAcao||"—")}${c.proximoRetorno?'<div class="small" style="color:'+(venc?'var(--bad)':'var(--muted)')+'">'+(venc?'Vencido: ':'Retorno: ')+fmtDT(c.proximoRetorno)+'</div>':''}</td><td>${fmtDT(c.abertoEm)}<div class="small muted">há ${ago(c.abertoEm)}</div></td><td>${chPill(c.status)}</td></tr>`;}).join("")||'<tr><td colspan="8" class="empty">Nenhum chamado com esses filtros.</td></tr>'}</tbody></table></div>`;
+}
+function chForm(c,pre){
+  const isNew=!c; pre=pre||{};
+  c=c||Object.assign({origem:"WhatsApp",fornecedor:"Soft-line/Infinity",categoria:"PDV sem vendas",prioridade:"critica",status:"aberto",abertoEm:now().toISOString(),pdv:""},pre);
+  const o=optList;
+  const pdvOpts=S.pdvs.slice().sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})).map(p=>`<option value="${esc(p.codigo)}"${String(c.pdv)===String(p.codigo)?" selected":""}>${esc(p.codigo+" "+p.unidade)}</option>`).join("");
+  const probOpts=S.problemas.filter(p=>p.status!=="resolvido"||p.id===c.problemaId).map(p=>[p.id,p.titulo]);
+  const donos=timeList(); if(donoDe(c)&&!donos.includes(donoDe(c))) donos.push(donoDe(c));
+  openModal(`<h2>${isNew?"Registrar chamado":"Chamado"}</h2>
+  <div class="form" id="chForm">
+    <input type="hidden" name="id" value="${esc(c.id||"")}">
+    <label class="field full">O que aconteceu<input name="titulo" value="${esc(c.titulo||"")}" placeholder="Ex.: maquininha não comunica com o ERP"></label>
+    <label class="field">PDV<select name="pdv"><option value="">Sem PDV específico</option>${pdvOpts}</select></label>
+    <label class="field">Canal de entrada<select name="origem">${o(ORIGENS,c.origem)}</select></label>
+    <label class="field">Tipo<select name="categoria">${o(CATEGORIAS,c.categoria)}</select></label>
+    <label class="field">Fornecedor responsável<select name="fornecedor">${o(FORNECEDORES,c.fornecedor)}</select></label>
+    <label class="field">Prioridade (pelo impacto real)<select name="prioridade" data-act="prio-help">${o(Object.entries(PRIOR),c.prioridade)}</select></label>
+    <label class="field">Status<select name="status">${o(Object.entries(ST_CH),c.status)}</select></label>
+    <div class="help full" id="prioHelp" style="grid-column:1/-1">${esc(PRIOR_HELP[c.prioridade])}</div>
+    <label class="field">Dono na fast4you<select name="dono"><option value="">Sem dono</option>${o(donos,donoDe(c))}</select></label>
+    <label class="field">Protocolo (Sults ou fornecedor)<input name="protocolo" value="${esc(c.protocolo||"")}"></label>
+    <label class="field">Turno<select name="turno">${o([["","—"],["suporte","Suporte (horário comercial)"],["plantao","Plantão"]],c.turno||"")}</select></label>
+    <label class="field full">Próxima ação<input name="proximaAcao" value="${esc(c.proximaAcao||"")}" placeholder="Ex.: Soft-line enviar técnico; cobrar retorno da PagBank sobre a POS"></label>
+    <label class="field">Próximo retorno combinado<input type="datetime-local" name="proximoRetorno" value="${dtLocal(c.proximoRetorno)}"></label>
+    <label class="field">Aberto em<input type="datetime-local" name="abertoEm" value="${dtLocal(c.abertoEm)}"></label>
+    <label class="field">Primeira resposta do fornecedor<input type="datetime-local" name="primeiraRespostaEm" value="${dtLocal(c.primeiraRespostaEm)}"></label>
+    <label class="field">Operação restabelecida (contorno)<input type="datetime-local" name="contornoEm" value="${dtLocal(c.contornoEm)}"></label>
+    <label class="field">Solução definitiva<input type="datetime-local" name="resolvidoEm" value="${dtLocal(c.resolvidoEm)}"></label>
+    <label class="field">Problema recorrente vinculado<select name="problemaId"><option value="">Nenhum</option>${o(probOpts,c.problemaId||"")}</select></label>
+    <div class="field full" style="flex-direction:row;flex-wrap:wrap;gap:16px">
+      <label class="check"><input type="checkbox" name="feedbackFranqueado" ${c.feedbackFranqueado?"checked":""}> Feedback recorrente do franqueado</label>
+      <label class="check"><input type="checkbox" name="validadoFranqueado" ${c.validadoFranqueado?"checked":""}> Franqueado confirmou que está funcionando</label>
+    </div>
+    <label class="field full">Diagnóstico e evidências<textarea name="evidencias" rows="3" placeholder="Venda autorizada na PagBank? Apareceu no SacVarejo? Wi-Fi caiu? POS usou 4G? Erro de integração?">${esc(c.evidencias||"")}</textarea></label>
+    <label class="field full">Andamento e solução registrada<textarea name="obs" rows="3">${esc(c.obs||"")}</textarea></label>
+  </div>
+  ${c.reaberturas?`<p class="small" style="color:var(--warn)">Este chamado já foi reaberto ${c.reaberturas} vez(es).</p>`:""}
+  <div class="row" style="margin-top:16px;justify-content:space-between">
+    <div>${!isNew&&S.canWrite?`<button class="btn danger" data-act="del-ch" data-id="${esc(c.id)}">Excluir</button>`:""}</div>
+    <div class="row"><button class="btn" data-act="close">${S.canWrite?"Cancelar":"Fechar"}</button>${S.canWrite?'<button class="btn primary" data-act="save-ch">Salvar chamado</button>':''}</div></div>
+  <p class="small muted" id="formMsg"></p>`);
+}
+async function saveCh(force){
+  const d=readForm("chForm"); if(!d.titulo){ $("#formMsg").textContent="Descreva o que aconteceu."; return; }
+  const id=d.id||uid(); delete d.id; const old=S.chamados.find(c=>c.id===id); const t=now().toISOString();
+  if(d.status==="resolvido" && (d.prioridade==="critica"||d.prioridade==="alta") && !d.validadoFranqueado && !force){
+    $("#formMsg").innerHTML='P1 e P2 só fecham com validação. Marque “Franqueado confirmou”, use “Aguardando validação” ou <button class="btn small" data-act="save-ch-force">encerrar mesmo assim</button>'; return; }
+  if(old&&old.status==="resolvido"&&d.status!=="resolvido"){ d.reaberturas=(old.reaberturas||0)+1; d.resolvidoEm=null; }
+  if(d.status!=="aberto"&&!d.primeiraRespostaEm&&d.status!=="andamento") d.primeiraRespostaEm=t;
+  if(["contorno","validacao","resolvido"].includes(d.status)&&!d.contornoEm) d.contornoEm=t;
+  if(d.status==="resolvido"&&!d.resolvidoEm) d.resolvidoEm=t;
+  if(d.status!=="resolvido") d.resolvidoEm=null;
+  if(d.status==="resolvido") d.proximoRetorno=null;
+  d.atualizadoEm=t; d.demo=old?!!old.demo:false; delete d.responsavel;
+  await safeWrite(()=>S.db.collection("chamados").doc(id).set(Object.assign({},old?stripId(old):{},d,{responsavel:null})),"Chamado salvo");
+  closeAll();
+}
+
+
+/* ---------- PROBLEMAS RECORRENTES ---------- */
+function pProblemas(){
+  const ab=S.problemas.filter(p=>p.status!=="resolvido").sort((a,b)=>String(b.criadoEm).localeCompare(String(a.criadoEm)));
+  const fe=S.problemas.filter(p=>p.status==="resolvido");
+  const sug=recorrencias(now(),30).filter(r=>!r.vinculado), inc=incidentesGerais();
+  const card=p=>{const ch=S.chamados.filter(c=>c.problemaId===p.id); const venc=p.prazo&&daysUntil(p.prazo)<0&&p.status!=="resolvido";
+    return `<article class="panel" style="cursor:pointer" data-act="prob" data-id="${esc(p.id)}"><div class="card-h"><h3>${esc(p.titulo)}</h3><span class="pill ${p.status==="resolvido"?"p-ok":p.causaRaiz?"p-info":"p-warn"}">${esc(ST_PROB[p.status]||p.status)}</span></div>
+    <p class="small muted" style="margin:2px 0 8px">${p.tipo==="incidente"?"Incidente geral":"Recorrente"} | ${esc(p.fornecedor||"—")} | unidades ${esc(p.pdvs||"—")}</p>
+    <div class="score"><span>Chamados vinculados</span><b>${ch.length}</b><span>Causa raiz</span><b class="${p.causaRaiz?"":"warn"}">${p.causaRaiz?"identificada":"desconhecida"}</b><span>Responsável pela investigação</span><b>${esc(p.responsavelInvestigacao||"—")}</b><span>Dono fast4you</span><b>${esc(p.dono||"—")}</b><span>Prazo do plano</span><b class="${venc?"bad":""}">${p.prazo?fmtD(p.prazo):"—"}</b></div></article>`;};
+  return `
+  <div class="topbar"><div><h1>Problemas recorrentes</h1><p class="sub">Encerrar cinco tickets não basta: aqui cada falha que se repete tem hipóteses, causa raiz, plano de ação e validação.</p></div>
+  ${S.canWrite?'<div class="row"><button class="btn primary" data-act="new-prob">Abrir problema</button></div>':''}</div>
+  ${inc.length||sug.length?`<section class="panel" style="margin-bottom:14px"><h2>Sugestões automáticas</h2><div class="stack">
+    ${inc.map(i=>`<div class="alert crit"><span class="bar"></span><div><div class="t">Possível instabilidade geral: ${esc(i.categoria)} (${esc(i.fornecedor)})</div><div class="m">${i.pdvs.length} unidades nas últimas 24 h: ${esc(i.pdvs.join(", "))}</div></div>${S.canWrite?`<button class="btn small" data-act="prob-from-inc" data-cat="${esc(i.categoria)}" data-forn="${esc(i.fornecedor)}">Abrir incidente</button>`:''}</div>`).join("")}
+    ${sug.map(r=>`<div class="alert warn"><span class="bar"></span><div><div class="t">${esc(pdvLabel(r.pdv))}: ${r.qtd}x ${esc(r.categoria)} em 30 dias</div><div class="m">${esc([...new Set(r.ultimos.map(c=>c.fornecedor))].join(", "))}</div></div>${S.canWrite?`<button class="btn small" data-act="prob-from-rec" data-rec="${esc(r.pdv+"|"+r.categoria)}">Abrir problema</button>`:''}</div>`).join("")}
+  </div></section>`:''}
+  <h2 class="sec">Em aberto (${ab.length})</h2>
+  <div class="cards" style="margin-bottom:18px">${ab.map(card).join("")||'<div class="panel empty">Nenhum problema aberto.</div>'}</div>
+  ${fe.length?`<h2 class="sec">Resolvidos (${fe.length})</h2><div class="cards">${fe.map(card).join("")}</div>`:''}`;
+}
+function probForm(pr,linkIds){
+  const isNew=!pr; pr=pr||{tipo:"recorrente",status:"investigando",criadoEm:now().toISOString()};
+  const ch=isNew?S.chamados.filter(c=>(linkIds||[]).includes(c.id)):S.chamados.filter(c=>c.problemaId===pr.id);
+  const o=optList, donos=timeList();
+  openModal(`<h2>${isNew?"Abrir problema":esc(pr.titulo)}</h2>
+  <div class="form" id="probForm">
+    <input type="hidden" name="id" value="${esc(pr.id||"")}">
+    <label class="field full">Título<input name="titulo" value="${esc(pr.titulo||"")}" placeholder="Ex.: Unidade 107: POS sem comunicação com o ERP à noite"></label>
+    <label class="field">Tipo<select name="tipo">${o([["recorrente","Recorrente em uma unidade"],["incidente","Incidente geral (várias unidades)"]],pr.tipo)}</select></label>
+    <label class="field">Status<select name="status">${o(Object.entries(ST_PROB),pr.status)}</select></label>
+    <label class="field">Fornecedor principal<select name="fornecedor">${o(FORNECEDORES,pr.fornecedor)}</select></label>
+    <label class="field">Outros fornecedores envolvidos<input name="envolvidos" value="${esc(pr.envolvidos||"")}" placeholder="Ex.: PagBank"></label>
+    <label class="field">Unidades afetadas (códigos, separados por vírgula)<input name="pdvs" value="${esc(pr.pdvs||"")}"></label>
+    <label class="field">Responsável pela investigação (fornecedor)<input name="responsavelInvestigacao" value="${esc(pr.responsavelInvestigacao||"")}"></label>
+    <label class="field">Dono na fast4you<select name="dono"><option value="">—</option>${o(donos,pr.dono||"")}</select></label>
+    <label class="field">Prazo do plano de ação<input type="date" name="prazo" value="${esc(pr.prazo||"")}"></label>
+    <label class="field full">Hipóteses<textarea name="hipoteses" rows="2">${esc(pr.hipoteses||"")}</textarea></label>
+    <label class="field full">Causa raiz identificada (deixe vazio se ainda desconhecida)<textarea name="causaRaiz" rows="2">${esc(pr.causaRaiz||"")}</textarea></label>
+    <label class="field full">Plano de ação<textarea name="planoAcao" rows="3">${esc(pr.planoAcao||"")}</textarea></label>
+    <label class="field full">Como a solução foi validada<textarea name="validacao" rows="2" placeholder="Ex.: 15 dias sem reincidência e franqueado confirmou">${esc(pr.validacao||"")}</textarea></label>
+  </div>
+  <h3 style="margin-top:14px">Chamados vinculados (${ch.length})</h3>
+  ${ch.length?'<ul class="small">'+ch.map(c=>`<li>${fmtDT(c.abertoEm)}: ${esc(pdvLabel(c.pdv))}, ${esc(c.titulo)} (${esc(ST_CH[c.status])})</li>`).join("")+'</ul>':'<p class="small muted">Vincule chamados pelo campo “Problema recorrente vinculado” no próprio chamado.</p>'}
+  <div class="row" style="margin-top:16px;justify-content:space-between">
+    <div>${!isNew&&S.canWrite?`<button class="btn danger" data-act="del-prob" data-id="${esc(pr.id)}">Excluir</button>`:""}</div>
+    <div class="row"><button class="btn" data-act="close">${S.canWrite?"Cancelar":"Fechar"}</button>${S.canWrite?'<button class="btn primary" data-act="save-prob">Salvar problema</button>':''}</div></div>
+  <p class="small muted" id="formMsg"></p>`);
+  S._probLink = isNew? (linkIds||[]) : [];
+}
+async function saveProb(){
+  const d=readForm("probForm"); if(!d.titulo){ $("#formMsg").textContent="Dê um título ao problema."; return; }
+  const id=d.id||uid(); delete d.id; const old=S.problemas.find(x=>x.id===id);
+  if(d.status==="resolvido"&&!String(d.validacao).trim()){ $("#formMsg").textContent="Descreva como a solução foi validada antes de resolver."; return; }
+  d.atualizadoEm=now().toISOString(); if(!old) d.criadoEm=d.atualizadoEm; if(d.status==="resolvido"&&!(old&&old.resolvidoEm)) d.resolvidoEm=d.atualizadoEm;
+  const ok=await safeWrite(()=>S.db.collection("problemas").doc(id).set(Object.assign({},old?stripId(old):{},d)),"Problema salvo");
+  if(ok&&S._probLink&&S._probLink.length){ for(const cid of S._probLink){ const c=S.chamados.find(x=>x.id===cid); if(c){ try{ await S.db.collection("chamados").doc(cid).set(Object.assign(stripId(c),{problemaId:id})); }catch(_){} } } }
+  closeAll();
+}
+
+/* ---------- FORNECEDORES ---------- */
+function fornScore(nome){
+  const ch=S.chamados.filter(c=>c.fornecedor===nome), A=ch.filter(c=>c.status!=="resolvido"), c30=ch.filter(c=>hoursSince(c.abertoEm)<24*30);
+  const res=c30.filter(c=>c.resolvidoEm), fr=c30.filter(c=>c.primeiraRespostaEm);
+  const avg=(arr,k)=>arr.length? arr.reduce((s,c)=>s+(new Date(c[k])-new Date(c.abertoEm))/36e5,0)/arr.length : null;
+  const recIds=new Set(); recorrencias(now(),30).forEach(r=>r.ultimos.forEach(c=>recIds.add(c.id)));
+  const probs=S.problemas.filter(p=>p.fornecedor===nome&&p.status!=="resolvido");
+  return {abertos:A.length, encerrados30:res.length, criticos:A.filter(c=>c.prioridade==="critica").length, aguardando:A.filter(c=>c.status==="fornecedor").length,
+    vencidas:A.filter(c=>c.proximoRetorno&&new Date(c.proximoRetorno)<now()).length, primResp:avg(fr,"primeiraRespostaEm"), solucao:avg(res,"resolvidoEm"),
+    reincid:c30.length?Math.round(c30.filter(c=>recIds.has(c.id)||c.problemaId).length/c30.length*100):0, reabertos:c30.filter(c=>c.reaberturas).length,
+    semCausa:probs.filter(p=>!String(p.causaRaiz||"").trim()).length, probs:probs.length, total30:c30.length};
+}
+function pFornecedores(){
+  return `
+  <div class="topbar"><div><h1>Fornecedores e SLAs</h1><p class="sub">Reunião de desempenho, não só revisão de chamados: números, compromissos, escalonamento e fronteiras de responsabilidade.</p></div></div>
+  <div class="cards" style="margin-bottom:16px">${FORNECEDORES.filter(f=>f!=="Interno").map(n=>{const s=fornScore(n), fi=fornInfo(n);
+    return `<article class="panel"><div class="card-h"><div><h3>${esc(n)}</h3><p class="small muted" style="margin:0">${esc(fi.reuniao?("Reunião "+fi.reuniao.toLowerCase()):"Sem reunião fixa")}${fi.proximaReuniao?" | próxima "+fmtD(fi.proximaReuniao):""}</p></div>${s.criticos?'<span class="pill p-bad">'+s.criticos+' P1</span>':'<span class="pill p-ok">Sem P1</span>'}</div>
+    <div class="score">
+      <span>Abertos / encerrados (30 d)</span><b>${s.abertos} / ${s.encerrados30}</b>
+      <span>Aguardando o fornecedor</span><b>${s.aguardando}</b>
+      <span>Pendências vencidas</span><b class="${s.vencidas?"bad":""}">${s.vencidas}</b>
+      <span>Primeira resposta média</span><b class="${fi.slaRespostaP1&&s.primResp!=null&&s.primResp*60>fi.slaRespostaP1?"warn":""}">${fmtH(s.primResp)}</b>
+      <span>Solução média</span><b>${fmtH(s.solucao)}</b>
+      <span>Reincidência</span><b class="${s.reincid>20?"warn":""}">${s.reincid}%</b>
+      <span>Reabertos (30 d)</span><b class="${s.reabertos?"warn":""}">${s.reabertos}</b>
+      <span>Problemas sem causa identificada</span><b class="${s.semCausa?"warn":""}">${s.semCausa}</b>
+    </div>
+    <p class="small" style="margin:0 0 8px"><b>Responde por:</b> ${esc(fi.escopo||"—")}</p>
+    ${fi.dependencias?`<p class="small" style="margin:0 0 8px"><b>Fronteiras:</b> ${esc(fi.dependencias)}</p>`:""}
+    <p class="small muted" style="margin:0 0 10px">Escalonamento: ${esc(fi.nivel1||"nível 1 não cadastrado")}${fi.nivel2?" → "+esc(fi.nivel2):""}${fi.nivel3?" → "+esc(fi.nivel3):""}</p>
+    <div class="row"><button class="btn small" data-act="export-forn" data-forn="${esc(n)}">Painel para a reunião</button>${S.canWrite?`<button class="btn small" data-act="edit-forn" data-forn="${esc(n)}">Editar SLA e contatos</button>`:''}</div></article>`;}).join("")}</div>
+  <div class="grid g2">
+    <section class="panel"><h2>Matriz de prioridade</h2><p class="small muted">Prioridade pelo impacto real, não pelo assunto: um problema fiscal pode ser P1 se parar a loja; uma falha de equipamento pode ser P3 se houver alternativa.</p>
+      <div class="tablewrap"><table class="matrix"><thead><tr><th>Prioridade</th><th>Exemplo e tratamento</th></tr></thead><tbody>${Object.keys(PRIOR).map(k=>`<tr><td>${prPill(k)}</td><td>${esc(PRIOR_HELP[k])}</td></tr>`).join("")}</tbody></table></div></section>
+    <section class="panel"><h2>Regras de plantão</h2><ul class="small" style="padding-left:18px;margin:0">
+      <li>O plantão existe para restabelecer ou preservar a operação em situação crítica, não para estender o suporte comum.</li>
+      <li>P1 entra no plantão na hora, venha de onde vier (Sults, WhatsApp, e-mail, Teams).</li>
+      <li>P2 é avaliado pelo impacto e pela cobertura contratada de cada fornecedor.</li>
+      <li>P3 e P4 ficam para o expediente, com registro e previsão.</li>
+      <li>Todo acionamento de plantão gera registro de chamado com turno “Plantão”.</li>
+      <li>Sem resposta no SLA pactuado, a Central avisa e indica o próximo contato do escalonamento.</li>
+      <li>O time da fast4you coordena e cobra; não assume atendimento 24 horas nem obrigações técnicas dos fornecedores.</li>
+      <li>Tempos medidos separadamente: primeira resposta, diagnóstico, contorno e solução definitiva.</li>
+    </ul></section>
+  </div>
+  <section class="panel" style="margin-top:14px"><h2>Inventário de responsabilidades a fechar com cada parceiro</h2><ul class="small" style="padding-left:18px;margin:0">
+    <li>Quem responde pela falha e quem responde quando dois sistemas não se comunicam (ex.: venda aprovada na PagBank que não aparece no SacVarejo)?</li>
+    <li>Quem demonstra, com evidência, que a integração funciona?</li>
+    <li>Quem coordena uma ocorrência com mais de um fornecedor? (Recomendação: a fast4you coordena, cada fornecedor entrega evidências da sua parte.)</li>
+    <li>Qual o prazo contratual de resposta e de solução, como é o escalonamento e o que acontece quando o prazo não é cumprido?</li>
+  </ul><p class="small muted" style="margin-bottom:0">Registre as respostas em “Editar SLA e contatos”, campo Fronteiras.</p></section>`;
+}
+function fornForm(nome){
+  const f=fornInfo(nome);
+  openModal(`<h2>${esc(nome)}: SLA e contatos</h2><div class="form" id="fornForm">
+    <input type="hidden" name="nome" value="${esc(nome)}">
+    <label class="field full">Responde por<textarea name="escopo" rows="2">${esc(f.escopo||"")}</textarea></label>
+    <label class="field full">Fronteiras e dependências com outros fornecedores<textarea name="dependencias" rows="2" placeholder="Ex.: venda aprovada na POS e ausente no ERP: Soft-line comprova integração, PagBank comprova autorização">${esc(f.dependencias||"")}</textarea></label>
+    <label class="field">Horário do suporte<input name="horarioSuporte" value="${esc(f.horarioSuporte||"")}" placeholder="Seg a sex, 8h às 18h"></label>
+    <label class="field">Cobertura de plantão<input name="plantao" value="${esc(f.plantao||"")}" placeholder="Noites e fins de semana, só P1"></label>
+    <label class="field">SLA de primeira resposta P1 (minutos)<input type="number" min="0" name="slaRespostaP1" value="${esc(f.slaRespostaP1||"")}"></label>
+    <label class="field">SLA de contorno P1 (horas)<input type="number" min="0" name="slaContornoP1" value="${esc(f.slaContornoP1||"")}"></label>
+    <label class="field">Contato nível 1<input name="nivel1" value="${esc(f.nivel1||"")}"></label>
+    <label class="field">Contato nível 2 (escalonamento)<input name="nivel2" value="${esc(f.nivel2||"")}"></label>
+    <label class="field">Contato nível 3 (gestão)<input name="nivel3" value="${esc(f.nivel3||"")}"></label>
+    <label class="field">Reunião<select name="reuniao">${optList(["","Semanal","Quinzenal","Mensal"],f.reuniao||"")}</select></label>
+    <label class="field">Próxima reunião<input type="date" name="proximaReuniao" value="${esc(f.proximaReuniao||"")}"></label>
+    <label class="field full">Observações do contrato<textarea name="obs" rows="2">${esc(f.obs||"")}</textarea></label></div>
+    <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="save-forn">Salvar</button></div><p class="small muted" id="formMsg"></p>`);
+}
+
+/* ---------- BASE DE CONHECIMENTO ---------- */
+function pConhecimento(){
+  const q=norm(S.f.kb||""); const list=S.procs.filter(p=>!q||norm([p.titulo,p.categoria,p.sintomas,p.fornecedor].join(" ")).includes(q)).sort((a,b)=>String(a.categoria).localeCompare(String(b.categoria)));
+  return `
+  <div class="topbar"><div><h1>Base de conhecimento</h1><p class="sub">Procedimentos oficiais e triagem guiada. A mesma base pode alimentar o Cestinha, para que o chamado chegue com diagnóstico em vez de “a maquininha não funciona”.</p></div>
+  <div class="row"><button class="btn" data-act="export-kb">Exportar para o Cestinha</button>${S.canWrite?'<button class="btn primary" data-act="new-proc">Novo procedimento</button>':''}</div></div>
+  <div class="filters"><input type="search" placeholder="Buscar sintoma, sistema ou fornecedor" value="${esc(S.f.kb||"")}" data-f="kb" aria-label="Buscar procedimento"></div>
+  <div class="cards">${list.map(p=>`<article class="panel"><div class="card-h"><h3>${esc(p.titulo)}</h3><span class="pill ${p.status==="validado"?"p-ok":"p-warn"}">${p.status==="validado"?"Validado":"Rascunho, validar"}</span></div>
+    <p class="small muted" style="margin:2px 0 8px">${esc(p.categoria)} | ${esc(p.fornecedor||"—")} | sugere ${esc(PCODE[p.prioridade]||"—")}</p>
+    <p class="small" style="margin:0 0 10px">${esc(p.sintomas||"")}</p>
+    <p class="small muted" style="margin:0 0 10px">Usado ${p.usos||0}x, resolveu ${p.resolvidos||0}x</p>
+    <div class="row"><button class="btn small purple" data-act="triagem" data-id="${esc(p.id)}">Fazer triagem</button>${S.canWrite?`<button class="btn small" data-act="edit-proc" data-id="${esc(p.id)}">Editar</button>`:''}</div></article>`).join("")||'<div class="panel empty">Nenhum procedimento cadastrado.</div>'}</div>
+  <section class="panel read" style="margin-top:16px"><h2>Como a triagem conversa com a fila</h2><p class="small" style="margin:0">Franqueado relata, a triagem segue as perguntas aprovadas. Se resolver, fica registrado o uso do procedimento. Se não resolver, abre um chamado já com as respostas como evidência. Regra: em P1 a triagem nunca atrasa o acionamento humano, e nada fora do procedimento validado é orientado ao franqueado.</p></section>`;
+}
+function procForm(pr){
+  const isNew=!pr; pr=pr||{status:"rascunho",prioridade:"alta",categoria:"Pagamento/POS",fornecedor:"Soft-line/Infinity"};
+  openModal(`<h2>${isNew?"Novo procedimento":"Editar procedimento"}</h2><div class="form" id="procForm">
+    <input type="hidden" name="id" value="${esc(pr.id||"")}">
+    <label class="field full">Título<input name="titulo" value="${esc(pr.titulo||"")}"></label>
+    <label class="field">Tipo<select name="categoria">${optList(CATEGORIAS,pr.categoria)}</select></label>
+    <label class="field">Fornecedor<select name="fornecedor">${optList(FORNECEDORES,pr.fornecedor)}</select></label>
+    <label class="field">Prioridade sugerida se não resolver<select name="prioridade">${optList(Object.entries(PRIOR),pr.prioridade)}</select></label>
+    <label class="field">Situação<select name="status">${optList([["rascunho","Rascunho"],["validado","Validado pelo time"]],pr.status)}</select></label>
+    <label class="field full">Sintomas relatados<textarea name="sintomas" rows="2">${esc(pr.sintomas||"")}</textarea></label>
+    <label class="field full">Perguntas de triagem (uma por linha)<textarea name="perguntas" rows="5">${esc(pr.perguntas||"")}</textarea></label>
+    <label class="field full">Orientação ao franqueado<textarea name="solucao" rows="3">${esc(pr.solucao||"")}</textarea></label>
+    <label class="field full">Quando escalar<textarea name="escalar" rows="2">${esc(pr.escalar||"")}</textarea></label>
+    <label class="field">Validado por<input name="validadoPor" value="${esc(pr.validadoPor||"")}"></label></div>
+    <div class="row" style="margin-top:14px;justify-content:space-between"><div>${!isNew?`<button class="btn danger" data-act="del-proc" data-id="${esc(pr.id)}">Excluir</button>`:""}</div><div class="row"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="save-proc">Salvar</button></div></div><p class="small muted" id="formMsg"></p>`);
+}
+function triagem(pr){
+  const qs=String(pr.perguntas||"").split("\n").map(s=>s.trim()).filter(Boolean);
+  const pdvOpts=S.pdvs.slice().sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})).map(p=>`<option value="${esc(p.codigo)}">${esc(p.codigo+" "+p.unidade)}</option>`).join("");
+  openModal(`<h2>Triagem: ${esc(pr.titulo)}</h2>${pr.status!=="validado"?'<p class="small" style="color:var(--warn)">Procedimento em rascunho: confirme com o time antes de orientar o franqueado.</p>':''}
+  <label class="field" style="margin-bottom:12px">Unidade<select id="triPdv"><option value="">Selecione</option>${pdvOpts}</select></label>
+  <div class="qa">${qs.map((q,i)=>`<div class="qa-it"><span>${esc(q)}</span><select data-q="${i}"><option value="">—</option><option>Sim</option><option>Não</option><option>Não sei</option></select></div>`).join("")}</div>
+  ${pr.solucao?`<div class="help" style="margin-top:12px"><b>Orientação:</b> ${esc(pr.solucao)}</div>`:""}
+  ${pr.escalar?`<div class="help" style="margin-top:8px"><b>Quando escalar:</b> ${esc(pr.escalar)}</div>`:""}
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-act="close">Cancelar</button>${S.canWrite?`<button class="btn" data-act="tri-ok" data-id="${esc(pr.id)}">Resolveu</button><button class="btn primary" data-act="tri-nok" data-id="${esc(pr.id)}">Não resolveu: abrir chamado</button>`:''}</div>`);
+}
+
+/* ---------- RELATÓRIO DE SEGUNDA ---------- */
+function semanaRange(){
+  if(!S.semanaIni){ const d=now(); const day=(d.getDay()+6)%7; const mon=new Date(d.getFullYear(),d.getMonth(),d.getDate()-day-7); S.semanaIni=isoDay(mon); }
+  const ini=new Date(S.semanaIni+"T00:00:00"), fim=new Date(ini.getTime()+7*864e5-1);
+  return [ini,fim];
+}
+function semanaData(off){
+  let [ini,fim]=semanaRange(); if(off){ ini=new Date(ini-7*864e5); fim=new Date(fim-7*864e5); }
+  const ch=S.chamados.filter(c=>{const d=new Date(c.abertoEm); return d>=ini&&d<=fim;});
+  const crit=ch.filter(c=>c.prioridade==="critica"||CRITICAS.includes(c.categoria));
+  const res=ch.filter(c=>c.status==="resolvido"&&c.resolvidoEm);
+  const tm=res.length?res.reduce((s,c)=>s+(new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5,0)/res.length:null;
+  const forn=FORNECEDORES.map(f=>{const x=ch.filter(c=>c.fornecedor===f); if(!x.length) return null; const r=x.filter(c=>c.status==="resolvido"&&c.resolvidoEm);
+    return {Fornecedor:f,Total:x.length,"Críticos":x.filter(c=>c.prioridade==="critica"||CRITICAS.includes(c.categoria)).length,Resolvidos:r.length,"Em aberto":x.length-x.filter(c=>c.status==="resolvido").length,"Plantão":x.filter(c=>c.turno==="plantao").length,"Tempo médio (h)":r.length?Math.round(r.reduce((s,c)=>s+(new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5,0)/r.length):"—"};}).filter(Boolean);
+  const rec=recorrencias(fim,30);
+  const fb=ch.filter(c=>c.feedbackFranqueado);
+  const reab=ch.filter(c=>c.reaberturas).length;
+  return {ini,fim,ch,crit,res,tm,forn,rec,fb,reab};
+}
+function pSemanal(){
+  const w=semanaData(), pw=semanaData(true);
+  const dlt=(a,b,inv)=>{ const d=a-b; if(!d) return '<span class="d muted">igual à semana anterior</span>'; const good=inv? d>0 : d<0; return '<span class="d" style="color:'+(good?'var(--ok)':'var(--bad)')+'">'+(d>0?'+':'')+d+' vs semana anterior</span>'; };
+  return `
+  <div class="topbar"><div><h1>Relatório de segunda</h1><p class="sub">Semana de ${w.ini.toLocaleDateString("pt-BR")} a ${w.fim.toLocaleDateString("pt-BR")}: críticos, fornecedores e o que se repete.</p></div>
+  <div class="row"><label class="small muted">Semana iniciando em <input type="date" value="${S.semanaIni}" data-act="semana" class="btn small" style="padding:5px 8px"></label>
+  <button class="btn" data-act="copy-semana">Copiar resumo</button><button class="btn primary" data-act="export-semana">Exportar relatório (Excel)</button></div></div>
+  <div class="kpis" style="margin-bottom:14px">
+    <div class="kpi"><span class="v">${w.ch.length}</span><span class="l">Chamados na semana</span>${dlt(w.ch.length,pw.ch.length)}</div>
+    <div class="kpi bad"><span class="v">${w.crit.length}</span><span class="l">Críticos</span>${dlt(w.crit.length,pw.crit.length)}</div>
+    <div class="kpi ok"><span class="v">${w.res.length}</span><span class="l">Resolvidos</span>${dlt(w.res.length,pw.res.length,true)}</div>
+    <div class="kpi"><span class="v">${w.reab}</span><span class="l">Reabertos</span>${dlt(w.reab,pw.reab)}</div>
+    <div class="kpi warn"><span class="v">${w.ch.length-w.ch.filter(c=>c.status==="resolvido").length}</span><span class="l">Ainda abertos</span></div>
+    <div class="kpi"><span class="v">${w.tm==null?"—":Math.round(w.tm)+" h"}</span><span class="l">Tempo médio de solução</span></div>
+    <div class="kpi warn"><span class="v">${w.rec.length}</span><span class="l">Recorrências (30 dias)</span></div>
+  </div>
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel"><h2>Críticos por tipo</h2><div class="chartbox"><canvas id="cSemCat"></canvas></div></section>
+    <section class="panel"><h2>Por fornecedor</h2><div class="tablewrap"><table><thead><tr>${["Fornecedor","Total","Críticos","Resolvidos","Em aberto","Plantão","Tempo médio (h)"].map(h=>"<th>"+h+"</th>").join("")}</tr></thead><tbody>${w.forn.map(r=>"<tr>"+Object.values(r).map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join("")||'<tr><td colspan="7" class="empty">Sem chamados na semana.</td></tr>'}</tbody></table></div></section>
+  </div>
+  <section class="panel" style="margin-bottom:14px"><h2>Chamados críticos da semana</h2>
+    <div class="tablewrap"><table><thead><tr><th>PDV</th><th>Tipo</th><th>Chamado</th><th>Fornecedor</th><th>Aberto</th><th>Status</th></tr></thead><tbody>
+    ${w.crit.map(c=>`<tr data-act="ch" data-id="${esc(c.id)}"><td>${esc(pdvLabel(c.pdv))}</td><td>${esc(c.categoria)}</td><td class="wrap">${esc(c.titulo)}</td><td>${esc(c.fornecedor)}</td><td>${fmtDT(c.abertoEm)}</td><td>${chPill(c.status)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">Nenhum crítico nesta semana.</td></tr>'}
+    </tbody></table></div></section>
+  <div class="grid g2">
+    <section class="panel"><h2>O que se repete</h2><p class="small muted">Mesmo PDV e mesmo tipo de problema ${S.config.recorrenciaMin}+ vezes em 30 dias: pauta para cobrar causa raiz do fornecedor.</p>
+      ${w.rec.length?'<ul>'+w.rec.map(r=>`<li><b>${esc(pdvLabel(r.pdv))}</b>: ${r.qtd}x ${esc(r.categoria)} (${esc([...new Set(r.ultimos.map(c=>c.fornecedor))].join(", "))})${r.vinculado?' <span class="pill p-info">com problema aberto</span>':''}</li>`).join("")+'</ul>':'<p class="muted">Nenhuma recorrência no período.</p>'}
+      ${S.problemas.filter(p=>p.status!=="resolvido").length?'<h3 style="margin-top:10px">Problemas em investigação</h3><ul>'+S.problemas.filter(p=>p.status!=="resolvido").map(p=>`<li><b>${esc(p.titulo)}</b>: ${esc(ST_PROB[p.status])}, ${p.causaRaiz?"causa identificada":"causa desconhecida"}${p.prazo?", prazo "+fmtD(p.prazo):""}</li>`).join("")+'</ul>':''}</section>
+    <section class="panel"><h2>Feedbacks dos franqueados</h2>
+      ${w.fb.length?'<ul>'+w.fb.map(c=>`<li><b>${esc(pdvLabel(c.pdv))}</b>: ${esc(c.titulo)} <span class="muted small">(${esc(ST_CH[c.status])})</span></li>`).join("")+'</ul>':'<p class="muted">Nenhum feedback marcado nesta semana. Marque “Feedback recorrente do franqueado” ao registrar o chamado.</p>'}</section>
+  </div>
+  ${S.sample?`<section class="panel read" style="margin-top:14px"><h2>Pauta da reunião</h2><p class="small muted">O Claude monta uma pauta objetiva com base nos números acima.</p><button class="btn purple small" data-act="ai-semana">Gerar pauta com o Claude</button><div class="ai-out" id="aiSemana"></div></section>`:""}`;
+}
+function drawSemanaCharts(){
+  const w=semanaData(); const [l,d]=countBy(w.crit,"categoria",CATEGORIAS); barChart("cSemCat",l,d,css("--bad"),true);
+}
+function resumoSemanaTexto(){
+  const w=semanaData(), m=metrics();
+  let t=`RELATÓRIO SEMANAL SISTEMAS fast4you\nSemana ${w.ini.toLocaleDateString("pt-BR")} a ${w.fim.toLocaleDateString("pt-BR")}\n\n`;
+  t+=`Rede hoje: ${m.ativos} PDVs ativos, ${m.online} online, ${m.offline} offline, ${m.semVenda} sem vendas há +${S.config.horasSemVenda} h.\n`;
+  t+=`Chamados na semana: ${w.ch.length} (${w.crit.length} críticos), ${w.res.length} resolvidos, tempo médio ${w.tm==null?"—":Math.round(w.tm)+" h"}.\n\nPor fornecedor:\n`;
+  w.forn.forEach(r=>t+=`- ${r.Fornecedor}: ${r.Total} chamados, ${r["Críticos"]} críticos, ${r["Em aberto"]} em aberto, tempo médio ${r["Tempo médio (h)"]} h\n`);
+  t+=`\nCríticos:\n`; w.crit.forEach(c=>t+=`- ${pdvLabel(c.pdv)} | ${c.categoria} | ${c.titulo} | ${c.fornecedor} | ${ST_CH[c.status]}\n`);
+  const pw=semanaData(true); t+=`Semana anterior: ${pw.ch.length} chamados (${pw.crit.length} críticos).\n`;
+  t+=`\nRecorrências (30 dias):\n`; w.rec.forEach(r=>t+=`- ${pdvLabel(r.pdv)}: ${r.qtd}x ${r.categoria}\n`);
+  const pa=S.problemas.filter(p=>p.status!=="resolvido"); if(pa.length){ t+=`\nProblemas em investigação:\n`; pa.forEach(p=>t+=`- ${p.titulo} | ${p.fornecedor||""} | ${ST_PROB[p.status]} | causa: ${p.causaRaiz||"desconhecida"} | prazo: ${p.prazo?fmtD(p.prazo):"—"}\n`); }
+  if(w.fb.length){ t+=`\nFeedbacks de franqueados:\n`; w.fb.forEach(c=>t+=`- ${pdvLabel(c.pdv)}: ${c.titulo}\n`); }
+  return t;
+}
+
+/* ---------- ALERTAS ---------- */
+function pAlertas(){
+  const al=computeAlerts(), c=s=>al.filter(a=>a.sev===s).length;
+  const label={crit:"Crítico",high:"Alta",warn:"Atenção",info:"Aviso"};
+  return `
+  <div class="topbar"><div><h1>Alertas</h1><p class="sub">Calculados em tempo real a partir dos PDVs e chamados. ${c("crit")} críticos, ${c("high")} de alta, ${c("warn")} de atenção, ${c("info")} avisos.</p></div>
+  <div class="row"><button class="btn" data-act="export-alertas">Exportar alertas</button></div></div>
+  <div class="stack">${al.map(a=>`<div class="alert ${a.sev}"><span class="bar"></span><div><div class="t">${esc(a.t)}</div><div class="m">${esc(a.m)}</div></div>
+    <div class="row"><span class="pill ${({crit:"p-bad",high:"p-warn",warn:"p-warn",info:"p-info"})[a.sev]}">${label[a.sev]}</span>${a.pdv?`<button class="btn small" data-act="pdv" data-id="${esc(a.pdv)}">Ver PDV</button>`:""}${a.ch?`<button class="btn small" data-act="ch" data-id="${esc(a.ch)}">Ver chamado</button>`:""}${a.prob?`<button class="btn small" data-act="prob" data-id="${esc(a.prob)}">Ver problema</button>`:""}${a.rec&&S.canWrite?`<button class="btn small" data-act="prob-from-rec" data-rec="${esc(a.rec)}">Abrir problema</button>`:""}${a.go?`<a class="btn small" href="#${a.go}">Abrir</a>`:""}</div></div>`).join("")||'<div class="panel empty">Nenhum alerta agora. A rede está em dia.</div>'}</div>
+  <section class="panel" style="margin-top:20px"><h2>Regras dos alertas</h2>
+    <div class="form" id="cfgForm">
+      <label class="field">Sem vendas há mais de (horas)<input type="number" min="1" name="horasSemVenda" value="${S.config.horasSemVenda}"></label>
+      <label class="field">Avisar certificado com antecedência (dias)<input type="number" min="1" name="diasCertAviso" value="${S.config.diasCertAviso}"></label>
+      <label class="field">Chamado crítico em atraso após (horas)<input type="number" min="1" name="horasSLACritico" value="${S.config.horasSLACritico}"></label>
+      <label class="field">Recorrência a partir de (chamados em 30 dias)<input type="number" min="2" name="recorrenciaMin" value="${S.config.recorrenciaMin}"></label>
+      <label class="field">Base da OKR: média mensal de P1 antes do projeto<input type="number" min="0" name="okrBaseCriticos" value="${S.config.okrBaseCriticos||0}"></label>
+      <label class="field">Meta de redução de críticos (%)<input type="number" min="1" name="okrReducao" value="${S.config.okrReducao||20}"></label>
+      <label class="field full">Time de Sistemas (nomes separados por vírgula)<input name="time" value="${esc(S.config.time||"")}"></label>
+    </div>
+    ${S.canWrite?'<div class="row" style="margin-top:12px"><button class="btn primary" data-act="save-cfg">Salvar regras</button></div>':''}
+  </section>`;
+}
+
+/* ---------- NOVIDADES ---------- */
+function pNovidades(){
+  const ds=S.dicas.slice().sort((a,b)=>String(b.criadoEm).localeCompare(String(a.criadoEm)));
+  const cls={"Novidade":"p-brand","Dica":"p-ok","Atualização de fornecedor":"p-info","Segurança":"p-bad"};
+  return `
+  <div class="topbar"><div><h1>Novidades e dicas</h1><p class="sub">Tecnologia para franquias e mercados autônomos, atualizações dos fornecedores e boas práticas do time.</p></div>
+  ${S.canWrite?'<div class="row"><button class="btn primary" data-act="new-dica">Publicar novidade</button></div>':''}</div>
+  <div class="grid g3">${ds.map(d=>`<article class="panel tip"><div class="row" style="justify-content:space-between"><span class="pill ${cls[d.categoria]||"p-idle"}">${esc(d.categoria||"Dica")}</span><span class="meta">${fmtD(d.criadoEm)}</span></div>
+    <h3>${esc(d.titulo)}</h3><p style="margin:0">${esc(d.texto)}</p>${d.link&&/^https?:\/\//.test(d.link)?`<a href="${esc(d.link)}" target="_blank" rel="noopener">Abrir fonte</a>`:""}
+    ${S.canWrite?`<div><button class="btn small ghost danger" data-act="del-dica" data-id="${esc(d.id)}">Remover</button></div>`:""}</article>`).join("")||'<div class="panel empty">Nenhuma novidade publicada ainda.</div>'}</div>`;
+}
+function dicaForm(){
+  openModal(`<h2>Publicar novidade</h2><div class="form" id="dicaForm">
+    <label class="field full">Título<input name="titulo"></label>
+    <label class="field">Categoria<select name="categoria"><option>Novidade</option><option>Dica</option><option>Atualização de fornecedor</option><option>Segurança</option></select></label>
+    <label class="field">Link da fonte (opcional)<input name="link" placeholder="https://"></label>
+    <label class="field full">Resumo<textarea name="texto" rows="4"></textarea></label></div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="save-dica">Publicar</button></div><p class="small muted" id="formMsg"></p>`);
+}
+
+/* ---------- INTEGRAÇÕES ---------- */
+function pIntegracoes(){
+  const card=(t,tag,body)=>`<details class="panel integ"><summary><span>${t}</span><span class="pill ${tag[1]}">${tag[0]}</span></summary>${body}</details>`;
+  return `
+  <div class="topbar"><div><h1>Integrações e APIs</h1><p class="sub">O que cada fonte oferece hoje e o caminho para alimentar este painel automaticamente.</p></div></div>
+  <section class="panel" style="margin-bottom:14px"><h2>Status das integrações automáticas</h2>
+    <div class="tablewrap"><table><thead><tr><th>Integração</th><th>Situação</th><th>Última execução</th><th>Registros</th><th>Mensagem</th></tr></thead><tbody>
+    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
+    </tbody></table></div></section>
+  <section class="panel" style="margin-bottom:14px"><h2>Como as peças se conectam</h2>
+    <div class="arch">
+      <div><b>Fontes</b>Sults, Infinity, Beepay, Preditta, PagBank, Santander/Getnet, WhatsApp, e-mail, Teams, planilhas</div>
+      <div><b>Coletor no GitHub Actions</b>Workflow agendado que chama as APIs a cada 30 min, com os tokens guardados nos Secrets do repositório</div>
+      <div><b>Dados no repositório privado</b>Arquivos JSON na branch “dados”; cada alteração vira um commit com autor e horário</div>
+      <div><b>Esta Central</b>Painel, alertas e relatórios; lê e grava os dados com o token de cada pessoa do time</div>
+    </div>
+    <p class="small muted" style="margin-top:10px">Cadastro manual e importação de planilhas continuam funcionando. O coletor grava os mesmos campos automaticamente; o que o time classifica na Central nunca é sobrescrito.</p>
+  </section>
+  <section class="panel" style="margin-bottom:14px"><h2>Passo a passo de implantação</h2>
+    <ol class="steps">
+      <li><div><b>Defina o código único de cada unidade.</b> A causa de “nunca bater” entre Sults e Infinity é a falta de uma chave comum. Crie a tabela-mestre (código, nome, CNPJ, franqueado, status do contrato) e registre o código correspondente em cada sistema: ID da unidade no Sults, código da loja no Infinity, ID da loja na Beepay, número de terminal/estabelecimento no PagBank e na Getnet.</div></li>
+      <li><div><b>Solicite credenciais e documentação a cada fornecedor.</b> Peça por escrito: documentação da API, ambiente de testes, limite de requisições, webhooks disponíveis e um responsável técnico. Use o modelo de pedido no fim desta página.</div></li>
+      <li><div><b>Ative o coletor no GitHub Actions.</b> Cada integração é um módulo do coletor que lê a API, converte para o formato da Central e grava na branch de dados.</div></li>
+      <li><div><b>Comece pelo Sults.</b> Tem API pública documentada: é o ganho mais rápido (chamados ao setor de sistemas e cadastro de unidades).</div></li>
+      <li><div><b>Conecte vendas por PDV (PagBank EDI e Getnet).</b> Última venda por terminal é o dado que define “PDV sem vendas” com confiança.</div></li>
+      <li><div><b>Conecte status online e equipamentos (Infinity e Beepay).</b> Heartbeat do PDV, status de totem, facial e app.</div></li>
+      <li><div><b>Feche os canais informais.</b> Todo acionamento por WhatsApp, e-mail ou Teams é registrado na Fila com protocolo. A entrada automática pelo WhatsApp exige um endpoint que receba webhooks, algo que o GitHub sozinho não oferece.</div></li>
+      <li><div><b>Padronize as planilhas semanais.</b> Envie aos fornecedores o modelo de chamados (botão “Baixar modelo” em Chamados) até que a integração por API esteja pronta.</div></li>
+      <li><div><b>Leve os alertas para fora da tela.</b> O coletor envia os alertas críticos para um canal do Teams (Workflows) a cada execução.</div></li>
+    </ol>
+  </section>
+  <div class="stack">
+  ${card("Sults: chamados e unidades",["API pública","p-ok"],`
+    <p>O Sults tem API REST pública documentada em <a href="https://developers.sults.com.br/sults/informacoes-basicas/" target="_blank" rel="noopener">developers.sults.com.br</a>. O token é gerado no próprio sistema (módulo Segurança) e enviado no cabeçalho <code>Authorization</code>.</p>
+    <ul><li>Chamados: <code>GET https://api.sults.com.br/api/v1/chamado/ticket</code>, paginado (até 100 por página), com filtros de período de abertura (<code>abertoStart</code>, <code>abertoEnd</code>).</li>
+    <li>Unidades: <code>GET https://api.sults.com.br/v1/empresas?start=0&amp;limit=100&amp;ativo=true</code>, com situação e datas de inativação, útil para implantação, distrato e cancelamento.</li>
+    <li>Pessoas das unidades: <code>GET https://api.sults.com.br/v1/pessoas</code>.</li></ul>
+    <p><b>Como fazer:</b> gerar token no Sults; no coletor, buscar chamados do departamento de Sistemas a cada 10 min; mapear o ID da unidade para o código único; gravar protocolo, status e datas. Atenção: tokens v1 e v2 não são intercambiáveis.</p>`)}
+  ${card("Soft-line / SacVarejo / Infinity: ERP, PDV e infraestrutura",["Solicitar ao fornecedor","p-warn"],`
+    <p>Não encontrei documentação pública de API. É a fonte mais importante para status do PDV, então vale negociar formalmente.</p>
+    <ul><li>Peça: endpoint ou view de leitura com heartbeat/último sinal de cada PDV, última venda, status dos equipamentos e validade do certificado digital A1 por unidade.</li>
+    <li>Se não houver API: relatório agendado (CSV) enviado por e-mail ou SFTP a cada hora, que o coletor importa.</li>
+    <li>Peça também a planilha semanal de chamados de suporte e plantão no modelo padrão da Central.</li></ul>`)}
+  ${card("Beepay: app F4Y, painel do franqueado e facial",["Solicitar ao fornecedor","p-warn"],`
+    <p>Não há documentação pública de API. Peça acesso de integração ao painel:</p>
+    <ul><li>Lista de lojas com status (online, totem, facial, app) e última venda pelo app.</li>
+    <li>Webhooks de falha de acesso por facial e de erro de pagamento no app, para virarem alerta em minutos.</li>
+    <li>Exportação de chamados abertos ao suporte da Beepay.</li></ul>`)}
+  ${card("Preditta: Audit pelas câmeras",["Solicitar ao fornecedor","p-warn"],`
+    <p>Sem documentação pública encontrada. Peça API ou exportação com status de cada câmera por PDV (online/offline), ocorrências de auditoria e data da última imagem recebida. Isso alimenta o campo “Câmeras Audit” e o alerta correspondente.</p>`)}
+  ${card("PagBank: vendas, conciliação e POS em comodato",["API documentada","p-ok"],`
+    <p>O PagBank oferece a <a href="https://developer.pagbank.com.br/docs/edi" target="_blank" rel="noopener">API EDI</a> com três tipos de movimento: transacional, financeiro e antecipação. É autenticada por token gerado pelo cliente, e conciliadores ou sistemas próprios passam por homologação junto ao PagBank.</p>
+    <ul><li>Use o EDI transacional para saber a última venda por terminal/estabelecimento: é o dado que confirma “PDV vendendo”.</li>
+    <li>Para o inventário de POS em comodato (número de série por unidade), peça a relação ao seu gerente comercial PagBank e cadastre no campo de POS do PDV.</li></ul>`)}
+  ${card("Santander / Getnet: adquirência secundária",["Arquivo EDI","p-info"],`
+    <p>A Getnet disponibiliza o Extrato Eletrônico, um arquivo EDI diário em layout padrão com vendas, pagamentos e antecipações, solicitado pelo atendimento da Getnet. O coletor lê o arquivo e atualiza a última venda dos PDVs que usam Santander.</p>`)}
+  ${card("WhatsApp: acabar com o chamado perdido",["API oficial da Meta","p-ok"],`
+    <ul><li>Crie um número oficial do setor de Sistemas na WhatsApp Business Platform (Cloud API da Meta) ou por um parceiro oficial (BSP).</li>
+    <li>A Meta entrega as mensagens por webhook, que precisa de um servidor sempre ligado para receber. O GitHub não recebe webhooks externos, então nesta arquitetura o registro continua manual na Fila (canal WhatsApp), com aviso quando faltar protocolo.</li>
+    <li>Conversas em grupos têm suporte limitado nessa API: confirme com o BSP antes de depender delas. Enquanto isso, registre aqui todo acionamento de grupo usando “Registrar chamado”.</li></ul>`)}
+  ${card("Cestinha e Jira",["Ferramentas que vocês já têm","p-brand"],`
+    <ul><li><b>Cestinha:</b> use a Base de conhecimento desta Central como fonte única. O botão “Exportar para o Cestinha” gera um JSON só com os procedimentos validados (sintomas, perguntas de triagem, orientação, quando escalar). Quando o Cestinha não resolver, ele deve abrir o chamado com as respostas da triagem como evidência.</li>
+    <li><b>Jira:</b> a Fila de chamados, os Problemas recorrentes e o painel de Fornecedores já cobrem o papel de “planner interno”. Recomendo não alimentar Jira e Central em paralelo à mão; se o time preferir o Jira, a API REST dele permite que o coletor sincronize os chamados para cá.</li>
+    <li><b>Sults</b> continua como canal oficial do franqueado e para formalizações (distrato, alterações contratuais); a Central importa dele em vez de substituí-lo.</li></ul>`)}
+  ${card("E-mail e Microsoft Teams",["Microsoft Graph","p-ok"],`
+    <ul><li>Mais simples: fluxos do Power Automate que, ao chegar e-mail na caixa compartilhada do setor ou mensagem em um canal do Teams, enviam os dados ao coletor.</li>
+    <li>Via código: Microsoft Graph API com registro de aplicativo no Azure AD (permissões de leitura de e-mail da caixa compartilhada e de mensagens do canal).</li>
+    <li>Saída de alertas: webhook de entrada do canal do Teams do time.</li></ul>`)}
+  </div>
+  <section class="panel" style="margin-top:14px"><h2>Modelo de pedido aos fornecedores</h2>
+  <p class="small" style="white-space:pre-wrap;margin:0">Assunto: Integração de dados com a Central de Sistemas fast4you
+
+Olá, estamos centralizando o monitoramento da rede fast4you e precisamos integrar os dados de vocês. Poderiam nos enviar:
+1. Documentação da API (ou alternativa de exportação automática) e ambiente de testes;
+2. Forma de autenticação e como gerar as credenciais;
+3. Webhooks disponíveis para eventos de falha;
+4. Limites de requisição;
+5. Contato técnico para a integração.
+
+Dados de que precisamos por unidade: [listar conforme o fornecedor].
+Obrigado!</p></section>`;
+}
+
+/* ---------- modal / drawer ---------- */
+function openModal(html){ $("#modal").innerHTML=html; $("#modal").classList.add("show"); $("#scrim").classList.add("show"); $("#drawer").classList.remove("show"); const f=$("#modal input:not([type=hidden]):not([readonly]),#modal select"); if(f) f.focus(); }
+function openDrawer(){ $("#drawer").classList.add("show"); $("#scrim").classList.add("show"); }
+function closeAll(){ $("#modal").classList.remove("show"); $("#drawer").classList.remove("show"); $("#scrim").classList.remove("show"); }
+$("#scrim").addEventListener("click",closeAll);
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeAll(); });
+function toast(msg){ const t=$("#toast"); t.innerHTML="<div>"+esc(msg)+"</div>"; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),3500); }
+async function safeWrite(fn,ok){
+  if(!S.db||!S.canWrite){ toast("Você está em modo de leitura."); return false; }
+  try{ await fn(); if(ok) toast(ok); return true; }
+  catch(e){ if(e&&e.code==="invalid_argument"){ S.canWrite=false; renderAll(); toast("Sem permissão para editar. Peça acesso de colaborador ao dono da Central."); } else if(e&&e.code==="quota_exceeded") toast("Limite de armazenamento atingido. Exporte e remova chamados antigos."); else toast("Não foi possível salvar ("+(e&&e.code||"erro")+")."); return false; }
+}
+
+/* ---------- exportação ---------- */
+async function saveFile(filename,data){
+  if(!S.dl){ toast("Exportação disponível apenas ao abrir a Central no Claude."); return; }
+  try{ await S.dl.save({filename,data}); }catch(e){ if(e.code!=="declined") toast("Não foi possível exportar ("+e.code+")."); }
+}
+function xlsxFile(name,sheets){
+  if(!window.XLSX){ toast("Biblioteca de planilhas não carregou."); return; }
+  const wb=XLSX.utils.book_new(); sheets.forEach(([n,rows])=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows.length?rows:[{"":"Sem dados"}]),n.slice(0,31)));
+  const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}); saveFile(name, new Blob([buf]));
+}
+const stamp=()=>isoDay(now());
+const pdvRow=p=>({"Código":p.codigo,"Unidade":p.unidade,"Franqueado":p.franqueado,"Cidade":p.cidade,"UF":p.uf,"Status contrato":STATUS_PDV[p.status]||p.status,"Situação":({on:"Vendendo",nosale:"Sem vendas",off:"Offline",impl:"Fora de operação"})[pdvState(p)],"Online":p.online?"Sim":"Não","Último sinal":fmtDT(p.ultimoPing),"Última venda":fmtDT(p.ultimaVenda),"Trava cervejeira":p.travaCervejeira?"Sim":"Não","Trava porta":p.travaPorta?"Sim":"Não","Certificado validade":p.certValidade||"","Certificado situação":({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"})[certState(p)],"Facial":p.facialOk===false?"Falha":"OK","App":p.appOk===false?"Falha":"OK","Câmeras Audit":p.auditOk===false?"Falha":"OK","Adquirente":p.adquirente||"","POS comodato":p.posQtd||"","Internet":p.internet||"","Versão sistema":p.versaoSistema||"","Equipamentos":p.equipamentos||"","Observações":p.obs||""});
+const chRow=c=>({"Protocolo":c.protocolo||"","Título":c.titulo,"PDV":pdvLabel(c.pdv),"Tipo":c.categoria,"Prioridade":PRIOR[c.prioridade]||c.prioridade,"Status":ST_CH[c.status]||c.status,"Fornecedor":c.fornecedor,"Canal":c.origem,"Turno":c.turno==="plantao"?"Plantão":c.turno==="suporte"?"Suporte":"","Aberto em":fmtDT(c.abertoEm),"Resolvido em":fmtDT(c.resolvidoEm),"Horas até solução":c.resolvidoEm&&c.abertoEm?Math.round((new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5):"","Dono fast4you":donoDe(c),"Próxima ação":c.proximaAcao||"","Próximo retorno":fmtDT(c.proximoRetorno),"Primeira resposta":fmtDT(c.primeiraRespostaEm),"Contorno":fmtDT(c.contornoEm),"Reaberturas":c.reaberturas||0,"Problema vinculado":(S.problemas.find(p=>p.id===c.problemaId)||{}).titulo||"","Validado pelo franqueado":c.validadoFranqueado?"Sim":"","Feedback franqueado":c.feedbackFranqueado?"Sim":"","Evidências":c.evidencias||"","Andamento":c.obs||""});
+
+/* ---------- importação ---------- */
+const MAP_PDV={codigo:["codigo","cod","codigo unidade","unidade codigo","id","loja","pdv"],unidade:["unidade","nome","nome unidade","nome da unidade","condominio","local"],franqueado:["franqueado","franqueada","proprietario","responsavel"],cidade:["cidade","municipio"],uf:["uf","estado"],status:["status","status contrato","situacao contrato","contrato"],online:["online","conectado","status conexao"],ultimoPing:["ultimo sinal","ultimo ping","ping","ultima conexao"],ultimaVenda:["ultima venda","data ultima venda"],travaCervejeira:["trava cervejeira","cervejeira"],travaPorta:["trava porta","porta","trava porta entrada","porta de entrada"],certValidade:["certificado","validade certificado","certificado validade","vencimento certificado","certificado digital"],adquirente:["adquirente","maquininha","pos"],posQtd:["pos comodato","qtd pos","quantidade pos"],facialOk:["facial"],appOk:["app"],auditOk:["cameras","camera","audit","cameras audit"],obs:["observacoes","obs","observacao"]};
+const MAP_CH={protocolo:["protocolo","chamado","ticket","numero","n chamado","no chamado","id","n"],titulo:["titulo","assunto","descricao","problema","ocorrencia","resumo","detalhe"],pdv:["pdv","unidade","loja","codigo","cod unidade","cliente","codigo unidade"],abertoEm:["data","abertura","data abertura","aberto em","data/hora","data hora abertura","inicio"],resolvidoEm:["fechamento","encerramento","resolvido em","data fechamento","data encerramento","fim","conclusao"],status:["status","situacao"],prioridade:["prioridade","criticidade","severidade","urgencia"],categoria:["categoria","tipo","classificacao","motivo"],turno:["turno","plantao","atendimento"],responsavel:["responsavel","tecnico","atendente"],obs:["observacoes","obs","solucao","andamento","comentario"]};
+function mapHeaders(headers,map){ const res={}; headers.forEach(h=>{const n=norm(h).replace(/[_.:]/g," ").replace(/\s+/g," "); for(const [k,syn] of Object.entries(map)){ if(res[k]) continue; if(syn.includes(n)){res[k]=h;break;} } });
+  headers.forEach(h=>{const n=norm(h); for(const [k,syn] of Object.entries(map)){ if(res[k]) continue; if(syn.some(s=>s.length>3&&n.includes(s))) res[k]=h; }}); return res; }
+function parseDate(v){
+  if(v==null||v==="") return null;
+  if(v instanceof Date) return isNaN(v)?null:v.toISOString();
+  if(typeof v==="number"){ const d=new Date(Math.round((v-25569)*864e5)); return isNaN(d)?null:new Date(d.getTime()+d.getTimezoneOffset()*6e4).toISOString(); }
+  const s=String(v).trim(); let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ T](\d{1,2}):(\d{2}))?/);
+  if(m){ const y=m[3].length===2?2000+Number(m[3]):Number(m[3]); return new Date(y,Number(m[2])-1,Number(m[1]),Number(m[4]||0),Number(m[5]||0)).toISOString(); }
+  const d=new Date(s); return isNaN(d)?null:d.toISOString();
+}
+const truthy=v=>{const n=norm(v); return ["sim","s","yes","y","true","1","ok","online","instalada","instalado","x"].includes(n);};
+function inferCat(t){ const n=norm(t);
+  if(/sem venda|nao vend|zerad/.test(n)) return "PDV sem vendas"; if(/offline|sem conex|sem internet|fora do ar|desconect/.test(n)) return "PDV offline";
+  if(/facial|reconhec/.test(n)) return "Facial"; if(/\bapp\b|aplicativo/.test(n)) return "App F4Y"; if(/trava|fechadura|cervejeira|porta/.test(n)) return "Trava";
+  if(/certificado|nfc|nota fiscal|sefaz/.test(n)) return "Certificado digital"; if(/pos\b|maquin|pagamento|cartao|pix|tef/.test(n)) return "Pagamento/POS";
+  if(/camera|audit|imagem/.test(n)) return "Câmeras/Audit"; if(/totem|roteador|switch|equip|impressora|balanca/.test(n)) return "Equipamento/Infra"; return "Outro"; }
+function inferStatus(v){ const n=norm(v); if(/fech|resol|conclu|encerr|finaliz/.test(n)) return "resolvido"; if(/andamento|atendimento|em analise|tratativa/.test(n)) return "andamento"; if(/aguard|pendente fornec|terceiro/.test(n)) return "fornecedor"; return "aberto"; }
+function inferPrio(v,cat){ const n=norm(v); if(/crit|urg|1|emerg/.test(n)) return "critica"; if(/alt|2/.test(n)) return "alta"; if(/baix|4/.test(n)) return "baixa"; if(/med|3|normal/.test(n)) return "media"; return CRITICAS.includes(cat)?"critica":"media"; }
+function matchPdv(v){ if(!v) return ""; const s=String(v).trim(); const p=S.pdvs.find(p=>String(p.codigo)===s)||S.pdvs.find(p=>norm(p.unidade)===norm(s))||S.pdvs.find(p=>norm(s).includes(norm(p.unidade))&&p.unidade); return p?p.codigo:s; }
+
+function startImport(kind){ S.importCtx={kind}; const fi=$("#fileInput"); fi.value=""; fi.click(); }
+$("#fileInput").addEventListener("change",e=>{
+  const file=e.target.files[0]; if(!file||!window.XLSX) return;
+  const r=new FileReader(); r.onload=()=>{
+    try{ const wb=XLSX.read(r.result,{type:"array",cellDates:true}); const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true}); if(!rows.length){ toast("A planilha está vazia."); return; }
+      const headers=Object.keys(rows[0]); S.importCtx.rows=rows; S.importCtx.file=file.name;
+      S.importCtx.map=mapHeaders(headers,S.importCtx.kind==="pdvs"?MAP_PDV:MAP_CH); importPreview(headers);
+    }catch(err){ toast("Não consegui ler o arquivo. Use .xlsx ou .csv."); }
+  }; r.readAsArrayBuffer(file);
+});
+function importPreview(headers){
+  const ctx=S.importCtx, map=ctx.kind==="pdvs"?MAP_PDV:MAP_CH;
+  const labels=ctx.kind==="pdvs"?{codigo:"Código*",unidade:"Unidade",franqueado:"Franqueado",cidade:"Cidade",uf:"UF",status:"Status contrato",online:"Online",ultimoPing:"Último sinal",ultimaVenda:"Última venda",travaCervejeira:"Trava cervejeira",travaPorta:"Trava porta",certValidade:"Validade certificado",adquirente:"Adquirente",posQtd:"POS comodato",facialOk:"Facial",appOk:"App",auditOk:"Câmeras",obs:"Observações"}
+   :{titulo:"Descrição*",protocolo:"Protocolo",pdv:"PDV/unidade",abertoEm:"Data de abertura",resolvidoEm:"Data de fechamento",status:"Status",prioridade:"Prioridade",categoria:"Tipo",turno:"Turno",responsavel:"Responsável",obs:"Observações"};
+  const sel=k=>`<select data-map="${k}"><option value="">Não importar</option>${headers.map(h=>`<option${ctx.map[k]===h?" selected":""}>${esc(h)}</option>`).join("")}</select>`;
+  openModal(`<h2>Importar ${ctx.kind==="pdvs"?"PDVs":"chamados"}</h2><p class="muted small">${esc(ctx.file)}: ${ctx.rows.length} linhas. Confira de qual coluna vem cada campo.</p>
+  ${ctx.kind==="ch"?`<div class="form" style="margin-bottom:12px"><label class="field">Fornecedor da planilha<select id="impForn">${FORNECEDORES.map(f=>`<option>${f}</option>`).join("")}</select></label><label class="field">Canal<select id="impOrig">${ORIGENS.map(o=>`<option${o==="Planilha fornecedor"?" selected":""}>${o}</option>`).join("")}</select></label></div>`:""}
+  <div class="form">${Object.keys(map).map(k=>`<label class="field">${labels[k]}${sel(k)}</label>`).join("")}</div>
+  <p class="small muted" style="margin-top:10px">${ctx.kind==="ch"?"Chamados com o mesmo protocolo e fornecedor são atualizados, não duplicados. Sem tipo informado, o tipo é deduzido pela descrição.":"PDVs com o mesmo código são atualizados."}</p>
+  <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="do-import">Importar ${ctx.rows.length} linhas</button></div><p class="small muted" id="formMsg"></p>`);
+}
+async function doImport(){
+  const ctx=S.importCtx; document.querySelectorAll("[data-map]").forEach(s=>ctx.map[s.dataset.map]=s.value);
+  const g=(r,k)=>ctx.map[k]?r[ctx.map[k]]:""; const docs=[];
+  if(ctx.kind==="pdvs"){
+    if(!ctx.map.codigo){ $("#formMsg").textContent="Escolha a coluna do código."; return; }
+    ctx.rows.forEach(r=>{ const codigo=String(g(r,"codigo")).trim(); if(!codigo) return; const old=pdvByCode(codigo);
+      const st=norm(g(r,"status")); const status=/implant/.test(st)?"implantacao":/repass/.test(st)?"repasse":/distrat/.test(st)?"distrato":/cancel/.test(st)?"cancelado":(st?"ativo":(old?old.status:"ativo"));
+      const d=Object.assign({},old?stripId(old):{}, {codigo,status,demo:false,atualizadoEm:now().toISOString()});
+      ["unidade","franqueado","cidade","adquirente","obs"].forEach(k=>{ if(ctx.map[k]&&g(r,k)!=="") d[k]=String(g(r,k)).trim(); });
+      if(ctx.map.uf&&g(r,"uf")) d.uf=String(g(r,"uf")).trim().toUpperCase().slice(0,2);
+      ["online","travaCervejeira","travaPorta","facialOk","appOk","auditOk"].forEach(k=>{ if(ctx.map[k]&&g(r,k)!=="") d[k]=truthy(g(r,k)); });
+      ["ultimoPing","ultimaVenda"].forEach(k=>{ if(ctx.map[k]){ const v=parseDate(g(r,k)); if(v) d[k]=v; } });
+      if(ctx.map.certValidade){ const v=parseDate(g(r,"certValidade")); if(v) d.certValidade=v.slice(0,10); }
+      if(ctx.map.posQtd&&g(r,"posQtd")!=="") d.posQtd=Number(g(r,"posQtd"))||0;
+      docs.push(["pdvs",slug(codigo),d]); });
+  } else {
+    if(!ctx.map.titulo){ $("#formMsg").textContent="Escolha a coluna da descrição."; return; }
+    const forn=$("#impForn").value, orig=$("#impOrig").value;
+    ctx.rows.forEach(r=>{ const titulo=String(g(r,"titulo")).trim(); if(!titulo) return;
+      const protocolo=String(g(r,"protocolo")||"").trim(); const id=protocolo? slug(forn+"-"+protocolo) : uid();
+      const old=S.chamados.find(c=>c.id===id); const categoria=ctx.map.categoria&&g(r,"categoria")? (CATEGORIAS.find(c=>norm(c)===norm(g(r,"categoria")))||inferCat(g(r,"categoria")+" "+titulo)) : inferCat(titulo);
+      const tn=norm(g(r,"turno"));
+      const d=Object.assign({},old?stripId(old):{}, {titulo,protocolo,fornecedor:forn,origem:orig,categoria,pdv:matchPdv(g(r,"pdv")),
+        prioridade:inferPrio(g(r,"prioridade"),categoria),status:ctx.map.status?inferStatus(g(r,"status")):(old?old.status:"aberto"),
+        abertoEm:parseDate(g(r,"abertoEm"))||(old&&old.abertoEm)||now().toISOString(),resolvidoEm:parseDate(g(r,"resolvidoEm"))||null,
+        turno:/plant/.test(tn)?"plantao":tn?"suporte":(old?old.turno||"":""),dono:String(g(r,"responsavel")||"").trim()||(old?donoDe(old):""),obs:String(g(r,"obs")||"").trim(),
+        demo:false,importadoDe:ctx.file,atualizadoEm:now().toISOString()});
+      if(d.status==="resolvido"&&!d.resolvidoEm) d.resolvidoEm=d.abertoEm;
+      docs.push(["chamados",id,d]); });
+  }
+  const btn=document.querySelector('[data-act="do-import"]'); btn.disabled=true;
+  let ok=0, fail=0;
+  const LOTE=500;
+  for(let i=0;i<docs.length;i+=LOTE){
+    $("#formMsg").textContent="Importando "+Math.min(i+LOTE,docs.length)+" de "+docs.length+"…";
+    const res=await Promise.allSettled(docs.slice(i,i+LOTE).map(([c,id,d])=>S.db.collection(c).doc(id).set(d)));
+    res.forEach(r=>r.status==="fulfilled"?ok++:fail++);
+    if(fail&&res.some(r=>r.status==="rejected"&&r.reason&&r.reason.code==="invalid_argument")){ break; }
+  }
+  closeAll(); toast(ok+" registros importados"+(fail?", "+fail+" com erro":"")+".");
+}
+
+/* ---------- Claude ---------- */
+async function askClaude(prompt,outId,btn){
+  const out=document.getElementById(outId); out.classList.add("show"); out.textContent="Pensando…"; if(btn) btn.disabled=true;
+  try{ const r=await S.sample(prompt,{modelTier:"default",onText:({text})=>{out.textContent=text;}}); out.textContent=r.text; }
+  catch(e){ out.textContent = e.code==="not_granted"?"O uso do Claude não foi autorizado nesta página.": e.code==="rate_limited"?"Muitos pedidos em sequência. Tente de novo em instantes.":"Não foi possível gerar agora ("+e.code+")."; }
+  finally{ if(btn) btn.disabled=false; }
+}
+function dadosParaIA(){
+  const m=metrics(); const al=computeAlerts().slice(0,25).map(a=>a.sev+": "+a.t+" — "+a.m);
+  return "Indicadores: "+JSON.stringify(m)+"\nAlertas principais:\n"+al.join("\n");
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("input",e=>{
+  const f=e.target.dataset.f; if(!f) return; const [g,k]=f.split("."); if(k) S.f[g][k]=e.target.value; else S.f[g]=e.target.value;
+  if(e.target.type==="search"){ clearTimeout(S._q); S._q=setTimeout(()=>{ const pos=e.target.selectionStart; renderMain(); const el=document.querySelector('[data-f="'+f+'"]'); if(el){el.focus(); try{el.setSelectionRange(pos,pos)}catch(_){}} },200); }
+  else renderMain();
+});
+document.addEventListener("change",e=>{ if(e.target.dataset.act==="semana"&&e.target.value){ S.semanaIni=e.target.value; renderMain(); }
+  if(e.target.dataset.act==="prio-help"){ const hlp=$("#prioHelp"); if(hlp) hlp.textContent=PRIOR_HELP[e.target.value]||""; } });
+document.addEventListener("click",async e=>{
+  const go=e.target.closest("[data-go]"); if(go&&go.dataset.go){ location.hash=go.dataset.go; return; }
+  const el=e.target.closest("[data-act]"); if(!el) return; const a=el.dataset.act, id=el.dataset.id;
+  if(el.tagName==="INPUT"||el.tagName==="SELECT") return;
+  switch(a){
+    case "close": closeAll(); break;
+    case "toast-go": $("#toast").classList.remove("show"); location.hash="alertas"; break;
+    case "pdv": closeAll(); openPdv(id); break;
+    case "ch": { const c=S.chamados.find(x=>x.id===id); if(c){ chForm(c); } break; }
+    case "new-ch": chForm(null,el.dataset.pdv?{pdv:el.dataset.pdv}:null); break;
+    case "save-ch": saveCh(); break;
+    case "save-ch-force": saveCh(true); break;
+    case "del-ch": if(confirm("Excluir este chamado?")){ await safeWrite(()=>S.db.collection("chamados").doc(id).delete(),"Chamado excluído"); closeAll(); } break;
+    case "new-pdv": pdvForm(); break;
+    case "edit-pdv": pdvForm(pdvByCode(id)); break;
+    case "save-pdv": savePdv(); break;
+    case "del-pdv": if(confirm("Excluir este PDV?")){ const p=pdvByCode(id); await safeWrite(()=>S.db.collection("pdvs").doc(p.id).delete(),"PDV excluído"); closeAll(); } break;
+    case "prob": closeAll(); { const pr=S.problemas.find(x=>x.id===id); if(pr) probForm(pr); } break;
+    case "new-prob": probForm(); break;
+    case "save-prob": saveProb(); break;
+    case "del-prob": if(confirm("Excluir este problema? Os chamados continuam.")){ await safeWrite(()=>S.db.collection("problemas").doc(id).delete(),"Problema excluído"); closeAll(); } break;
+    case "prob-from-rec": { const [pdv,cat]=el.dataset.rec.split("|"); const r=recorrencias(now(),30).find(x=>x.pdv===pdv&&x.categoria===cat); if(!r) break; const fs=[...new Set(r.ultimos.map(c=>c.fornecedor))];
+      probForm(null,r.ultimos.map(c=>c.id)); const f=$("#probForm"); f.querySelector('[name=titulo]').value=pdvLabel(pdv)+": "+cat+" recorrente"; f.querySelector('[name=pdvs]').value=pdv; f.querySelector('[name=fornecedor]').value=fs[0]; f.querySelector('[name=envolvidos]').value=fs.slice(1).join(", "); break; }
+    case "prob-from-inc": { const cat=el.dataset.cat, fo=el.dataset.forn; const chs=S.chamados.filter(c=>hoursSince(c.abertoEm)<24&&c.categoria===cat&&c.fornecedor===fo);
+      probForm(null,chs.map(c=>c.id)); const f=$("#probForm"); f.querySelector('[name=titulo]').value="Instabilidade geral: "+cat; f.querySelector('[name=tipo]').value="incidente"; f.querySelector('[name=fornecedor]').value=fo; f.querySelector('[name=pdvs]').value=[...new Set(chs.map(c=>c.pdv))].join(", "); break; }
+    case "edit-forn": fornForm(el.dataset.forn); break;
+    case "save-forn": { const d=readForm("fornForm"); d.atualizadoEm=now().toISOString(); await safeWrite(()=>S.db.collection("fornecedores").doc(slug(d.nome)).set(d),"Fornecedor salvo"); closeAll(); break; }
+    case "export-forn": { const n=el.dataset.forn, s=fornScore(n); xlsxFile("painel-"+slug(n)+"-"+stamp()+".xlsx",[["Desempenho",[["Chamados abertos",s.abertos],["Encerrados 30 dias",s.encerrados30],["P1 ativos",s.criticos],["Aguardando fornecedor",s.aguardando],["Pendências vencidas",s.vencidas],["Primeira resposta média",fmtH(s.primResp)],["Solução média",fmtH(s.solucao)],["Reincidência",s.reincid+"%"],["Reabertos 30 dias",s.reabertos],["Problemas sem causa identificada",s.semCausa]].map(([a,b])=>({Indicador:a,Valor:b}))],["Chamados abertos",S.chamados.filter(c=>c.fornecedor===n&&c.status!=="resolvido").map(chRow)],["Problemas",S.problemas.filter(p=>p.fornecedor===n).map(p=>({Problema:p.titulo,Status:ST_PROB[p.status],Unidades:p.pdvs||"",Hipóteses:p.hipoteses||"","Causa raiz":p.causaRaiz||"desconhecida","Plano de ação":p.planoAcao||"",Prazo:p.prazo||"","Responsável investigação":p.responsavelInvestigacao||""}))],["Encerrados 30 dias",S.chamados.filter(c=>c.fornecedor===n&&c.resolvidoEm&&hoursSince(c.abertoEm)<24*30).map(chRow)]]); break; }
+    case "new-proc": procForm(); break;
+    case "edit-proc": procForm(S.procs.find(x=>x.id===id)); break;
+    case "save-proc": { const d=readForm("procForm"); if(!d.titulo){ $("#formMsg").textContent="Dê um título."; return; } const pid=d.id||uid(); delete d.id; const old=S.procs.find(x=>x.id===pid); d.atualizadoEm=now().toISOString(); await safeWrite(()=>S.db.collection("procedimentos").doc(pid).set(Object.assign({},old?stripId(old):{},d)),"Procedimento salvo"); closeAll(); break; }
+    case "del-proc": if(confirm("Excluir este procedimento?")){ await safeWrite(()=>S.db.collection("procedimentos").doc(id).delete(),"Excluído"); closeAll(); } break;
+    case "triagem": triagem(S.procs.find(x=>x.id===id)); break;
+    case "tri-ok": case "tri-nok": { const pr=S.procs.find(x=>x.id===id); if(!pr) break; const qs=String(pr.perguntas||"").split("\n").map(s=>s.trim()).filter(Boolean);
+      const ans=qs.map((q,i)=>q+" "+((document.querySelector('[data-q="'+i+'"]')||{}).value||"—")).join("\n"); const pdv=$("#triPdv").value;
+      const upd=Object.assign(stripId(pr),{usos:(pr.usos||0)+1}); if(a==="tri-ok") upd.resolvidos=(pr.resolvidos||0)+1;
+      await safeWrite(()=>S.db.collection("procedimentos").doc(id).set(upd), a==="tri-ok"?"Triagem registrada como resolvida":null);
+      if(a==="tri-ok"){ closeAll(); break; }
+      chForm(null,{pdv,categoria:pr.categoria,fornecedor:pr.fornecedor,prioridade:pr.prioridade,titulo:pr.titulo,evidencias:"Triagem pelo procedimento “"+pr.titulo+"”:\n"+ans}); break; }
+    case "export-kb": { const data=S.procs.filter(p=>p.status==="validado").map(p=>({titulo:p.titulo,tipo:p.categoria,fornecedor:p.fornecedor,sintomas:p.sintomas,perguntas_triagem:String(p.perguntas||"").split("\n").filter(Boolean),orientacao:p.solucao,quando_escalar:p.escalar,prioridade_se_nao_resolver:PCODE[p.prioridade]}));
+      if(!data.length){ toast("Nenhum procedimento validado para exportar ainda."); break; } saveFile("base-conhecimento-cestinha-"+stamp()+".json", JSON.stringify(data,null,2)); break; }
+    case "new-dica": dicaForm(); break;
+    case "save-dica": { const d=readForm("dicaForm"); if(!d.titulo){ $("#formMsg").textContent="Dê um título."; return; } d.criadoEm=now().toISOString(); await safeWrite(()=>S.db.collection("dicas").doc(uid()).set(d),"Novidade publicada"); closeAll(); break; }
+    case "del-dica": await safeWrite(()=>S.db.collection("dicas").doc(id).delete(),"Removida"); break;
+    case "save-cfg": { const d=readForm("cfgForm"); Object.keys(d).forEach(k=>{ if(k==="time") return; if(k==="okrBaseCriticos"){ d[k]=Math.max(0,Number(d[k])||0); return; } d[k]=Math.max(1,Number(d[k])||DEF_CONFIG[k]); }); await safeWrite(()=>S.db.doc("config/geral").set(d),"Regras salvas"); break; }
+    case "clear-demo": if(confirm("Remover todos os PDVs e chamados de exemplo?")){ const list=[...S.pdvs.filter(p=>p.demo).map(p=>["pdvs",p.id]),...S.chamados.filter(c=>c.demo).map(c=>["chamados",c.id]),...S.problemas.filter(x=>x.demo).map(x=>["problemas",x.id]),...S.dicas.filter(d=>d.demo&&d.exemploApagar).map(d=>["dicas",d.id])]; await Promise.allSettled(list.map(([c,x])=>S.db.collection(c).doc(x).delete())); await Promise.allSettled(S.snaps.map(s=>S.db.doc("snapshots/"+s.id).delete())); S.snapWritten=false; toast("Dados de exemplo removidos."); } break;
+    case "import-pdvs": startImport("pdvs"); break;
+    case "import-ch": startImport("ch"); break;
+    case "do-import": doImport(); break;
+    case "tpl-pdvs": xlsxFile("modelo-pdvs-fast4you.xlsx",[["PDVs",[{"Código":"101","Unidade":"Cond. Exemplo","Franqueado":"Nome","Cidade":"Cidade","UF":"RS","Status contrato":"Ativo","Online":"Sim","Último sinal":"04/11/2026 08:00","Última venda":"04/11/2026 07:45","Trava cervejeira":"Sim","Trava porta":"Não","Validade certificado":"30/06/2027","Adquirente":"PagBank","POS comodato":1,"Facial":"OK","App":"OK","Câmeras":"OK","Observações":""}]]]); break;
+    case "tpl-ch": xlsxFile("modelo-chamados-fornecedor-fast4you.xlsx",[["Chamados",[{"Protocolo":"12345","Data abertura":"03/11/2026 21:10","Data fechamento":"","Unidade":"101","Descrição":"PDV sem vendas desde 20h","Tipo":"PDV sem vendas","Prioridade":"Crítica","Status":"Aberto","Turno":"Plantão","Responsável":"Técnico","Observações":""}]]]); break;
+    case "export-pdvs": xlsxFile("pdvs-fast4you-"+stamp()+".xlsx",[["PDVs",filteredPdvs().map(pdvRow)]]); break;
+    case "export-ch": xlsxFile("chamados-fast4you-"+stamp()+".xlsx",[["Chamados",filteredCh().map(chRow)]]); break;
+    case "export-alertas": xlsxFile("alertas-fast4you-"+stamp()+".xlsx",[["Alertas",computeAlerts().map(a=>({Severidade:{crit:"Crítico",high:"Alta",warn:"Atenção",info:"Aviso"}[a.sev],Alerta:a.t,Detalhe:a.m}))]]); break;
+    case "export-painel": { const m=metrics(); const rows=[["PDVs ativos",m.ativos],["Franqueados com PDV",m.franqueados],["Online",m.online],["Vendendo",m.onVenda],["Sem vendas",m.semVenda],["Offline",m.offline],["Em implantação",m.implantacao],["Repasses",m.repasse],["Distratos",m.distrato],["Cancelamentos",m.cancelado],["Com trava na cervejeira",m.travaCerv],["Com trava na porta",m.travaPorta],["Certificados vencidos",m.certVenc],["Certificados a vencer",m.certAvencer],["Facial com falha",m.facialFalha],["App com falha",m.appFalha],["Câmeras com falha",m.auditFalha],["Chamados abertos",m.chAbertos],["Chamados críticos abertos",m.chCriticos],["Abertos via WhatsApp",m.chWhats],["Tempo médio de solução (h)",m.slaMedio==null?"":Math.round(m.slaMedio)],["Recorrências 30 dias",m.recorrencias]].map(([k,v])=>({Indicador:k,Valor:v}));
+      xlsxFile("indicadores-fast4you-"+stamp()+".xlsx",[["Indicadores",rows],["PDVs",S.pdvs.map(pdvRow)],["Chamados abertos",abertos().map(chRow)],["Histórico diário",S.snaps.slice().sort((a,b)=>a.id.localeCompare(b.id)).map(s=>({Dia:s.id,Ativos:s.ativos,Online:s.online,"Sem vendas":s.semVenda,Offline:s.offline,"Chamados abertos":s.chAbertos,"Críticos":s.chCriticos,"Cert. vencidos":s.certVenc}))]]); break; }
+    case "export-semana": { const w=semanaData(); xlsxFile("relatorio-semanal-sistemas-"+isoDay(w.ini)+".xlsx",[["Resumo",[{Item:"Período",Valor:w.ini.toLocaleDateString("pt-BR")+" a "+w.fim.toLocaleDateString("pt-BR")},{Item:"Chamados",Valor:w.ch.length},{Item:"Críticos",Valor:w.crit.length},{Item:"Resolvidos",Valor:w.res.length},{Item:"Em aberto",Valor:w.ch.length-w.ch.filter(c=>c.status==="resolvido").length},{Item:"Tempo médio de solução (h)",Valor:w.tm==null?"":Math.round(w.tm)}]],["Por fornecedor",w.forn],["Críticos",w.crit.map(chRow)],["Recorrências",w.rec.map(r=>({PDV:pdvLabel(r.pdv),Tipo:r.categoria,"Chamados 30 dias":r.qtd,Fornecedores:[...new Set(r.ultimos.map(c=>c.fornecedor))].join(", ")}))],["Feedbacks franqueados",w.fb.map(chRow)],["Todos da semana",w.ch.map(chRow)]]); break; }
+    case "copy-semana": { const t=resumoSemanaTexto(); try{ await navigator.clipboard.writeText(t); toast("Resumo copiado."); }catch(_){ openModal('<h2>Resumo da semana</h2><p class="small muted">Selecione e copie o texto.</p><textarea style="width:100%;height:50vh" readonly>'+esc(t)+'</textarea><div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" data-act="close">Fechar</button></div>'); } break; }
+    case "ai-painel": askClaude("Você é analista do time de Sistemas da fast4you, rede de franquias de mercados autônomos. Fornecedores: Soft-line/Infinity (infra, ERP, PDV), Beepay (app F4Y e facial), Preditta (Audit por câmeras), PagBank (adquirente principal, POS em comodato) e Santander. Com os dados abaixo, escreva em português do Brasil uma leitura qualitativa curta da rede hoje: 1) situação geral em duas frases, 2) três prioridades do dia com o fornecedor a acionar, 3) um risco que pode crescer se nada for feito. Texto simples, sem markdown, no máximo 180 palavras.\n\n"+dadosParaIA(),"aiPainel",el); break;
+    case "ai-semana": askClaude("Você prepara a reunião de segunda do time de Sistemas da fast4you (mercados autônomos). Com o relatório abaixo, escreva uma pauta objetiva em português do Brasil: destaques da semana, cobranças por fornecedor (com fatos e números), problemas recorrentes que pedem causa raiz e próximos passos com responsável sugerido. Texto simples, tópicos com hífen, sem markdown, no máximo 250 palavras.\n\n"+resumoSemanaTexto(),"aiSemana",el); break;
+  }
+});
+$("#menuBtn").addEventListener("click",()=>$("#side").classList.toggle("open"));
+$("#themeBtn").addEventListener("click",()=>{ const r=document.documentElement; const dark=r.dataset.theme? r.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme=dark?"light":"dark"; try{localStorage.setItem("f4y-theme",r.dataset.theme)}catch(_){} renderMain(); });
+try{ const t=localStorage.getItem("f4y-theme"); if(t) document.documentElement.dataset.theme=t; }catch(_){}
+setInterval(()=>{ if(S.ready&&!$("#modal").classList.contains("show")){ renderNav(); if(S.page==="painel") renderMain(); } },5*60*1000);
+
+init();
+})();
+</script>
+</body>
+</html>
