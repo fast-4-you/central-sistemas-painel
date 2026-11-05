@@ -11,7 +11,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   /* Opcional: preencha para o login já vir com o repositório certo */
-  window.CENTRAL_REPO = { owner: "fast-4-you", repo: "central-sistemas", branch: "dados" };
+  window.CENTRAL_REPO = { owner: "", repo: "central-sistemas", branch: "dados" };
 </script>
 <script src="github-shim.js"></script>
 <style>
@@ -94,7 +94,7 @@ h3{font-size:15px;margin:0 0 6px}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px}
 .tile{border:0;border-radius:7px;height:38px;cursor:pointer;color:#fff;font-weight:700;font-size:11.5px;font-stretch:78%;display:flex;align-items:flex-end;justify-content:flex-start;padding:4px 6px;position:relative}
-.tile.on{background:var(--ok)} .tile.nosale{background:var(--warn);color:#2b2100} .tile.off{background:var(--bad)} .tile.impl{background:var(--idle)}
+.tile.on{background:var(--ok)} .tile.nosale{background:var(--warn);color:#2b2100} .tile.off{background:var(--bad)} .tile.impl{background:var(--idle)} .tile.nodata{background:transparent;border:1px dashed var(--line-strong);color:var(--muted)}
 .tile.flag::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.18)}
 .tile:hover{filter:brightness(1.08)}
 
@@ -297,6 +297,7 @@ function css(v){ return getComputedStyle(document.documentElement).getPropertyVa
 /* ---------- regras de negócio ---------- */
 function pdvState(p){
   if(p.status!=="ativo") return "impl";
+  if(p.online==null) return "nodata"; // conexão ainda não monitorada
   if(!p.online) return "off";
   if(hoursSince(p.ultimaVenda) > S.config.horasSemVenda) return "nosale";
   return "on";
@@ -321,6 +322,7 @@ function metrics(){
     onVenda: st.filter(s=>s==="on").length,
     semVenda: st.filter(s=>s==="nosale").length,
     offline: st.filter(s=>s==="off").length,
+    semDados: st.filter(s=>s==="nodata").length,
     implantacao:P.filter(p=>p.status==="implantacao").length,
     repasse:P.filter(p=>p.status==="repasse").length,
     distrato:P.filter(p=>p.status==="distrato").length,
@@ -382,7 +384,7 @@ function computeAlerts(){
     if(p.facialOk===false) out.push({sev:"high",t:"Falha no acesso por facial: "+lbl,m:"Clientes podem não conseguir entrar.",pdv:p.codigo});
     if(p.appOk===false) out.push({sev:"high",t:"Falha no app F4Y: "+lbl,m:"Clientes podem não conseguir comprar pelo app.",pdv:p.codigo});
     if(p.auditOk===false) out.push({sev:"warn",t:"Câmeras/Audit com falha: "+lbl,m:"Auditoria Preditta sem imagem.",pdv:p.codigo});
-    if(!p.travaCervejeira||!p.travaPorta) out.push({sev:"info",t:"Trava pendente: "+lbl,m:[!p.travaCervejeira?"cervejeira":null,!p.travaPorta?"porta de entrada":null].filter(Boolean).join(" e ")+" sem trava instalada.",pdv:p.codigo});
+    if(p.travaCervejeira===false||p.travaPorta===false) out.push({sev:"info",t:"Trava pendente: "+lbl,m:[p.travaCervejeira===false?"cervejeira":null,p.travaPorta===false?"porta de entrada":null].filter(Boolean).join(" e ")+" sem trava instalada.",pdv:p.codigo});
   });
   abertos().forEach(c=>{
     if(c.prioridade==="critica" && hoursSince(c.abertoEm)>cfg.horasSLACritico) out.push({sev:"crit",t:"Chamado crítico aberto há "+ago(c.abertoEm),m:c.titulo+" | "+pdvLabel(c.pdv)+" | "+c.fornecedor,ch:c.id});
@@ -477,10 +479,10 @@ function renderMain(){
 /* ---------- PAINEL ---------- */
 function pPainel(){
   const m=metrics(), P=S.pdvs.filter(p=>p.status==="ativo"||p.status==="implantacao");
-  P.sort((a,b)=>{const o={off:0,nosale:1,on:2,impl:3};return o[pdvState(a)]-o[pdvState(b)]||String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})});
+  P.sort((a,b)=>{const o={off:0,nosale:1,on:2,nodata:3,impl:4};return o[pdvState(a)]-o[pdvState(b)]||String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true})});
   const hoje=now().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"});
   const tiles = P.map(p=>{const s=pdvState(p); const flag=certState(p)==="vencido"||p.facialOk===false||p.appOk===false;
-    const lab={on:"vendendo",nosale:"sem vendas",off:"offline",impl:"em implantação"}[s];
+    const lab={on:"vendendo",nosale:"sem vendas",off:"offline",nodata:"sem monitoramento",impl:"em implantação"}[s];
     return '<button class="tile '+s+(flag?' flag':'')+'" data-act="pdv" data-id="'+esc(p.codigo)+'" title="'+esc(p.codigo+" "+p.unidade+" | "+lab)+'" aria-label="'+esc(p.unidade+", "+lab)+'">'+esc(p.codigo)+'</button>';}).join("");
   const k=(v,l,d,cls,go)=>'<button class="kpi '+(cls||"")+'" data-go="'+(go||"")+'"><span class="v">'+v+'</span><span class="l">'+l+'</span>'+(d?'<span class="d muted">'+d+'</span>':'')+'</button>';
   const leitura = leituraDoDia(m);
@@ -489,8 +491,8 @@ function pPainel(){
     <div class="row"><button class="btn" data-act="export-painel">Exportar indicadores</button>${S.canWrite?'<button class="btn primary" data-act="new-ch">Registrar chamado</button>':''}</div></div>
   <section class="panel" style="margin-bottom:14px">
     <div class="wall-head">
-      <div><div class="wall-big">${m.ativos?pct(m.onVenda,m.ativos):0}%<small>dos PDVs ativos vendendo normalmente</small></div></div>
-      <div class="legend"><span><i style="background:var(--ok)"></i>Vendendo (${m.onVenda})</span><span><i style="background:var(--warn)"></i>Online sem vendas há +${S.config.horasSemVenda} h (${m.semVenda})</span><span><i style="background:var(--bad)"></i>Offline (${m.offline})</span><span><i style="background:var(--idle)"></i>Em implantação (${m.implantacao})</span><span><i style="background:transparent;border:2px solid var(--muted);border-radius:50%"></i>Certificado vencido, facial ou app com falha</span></div>
+      <div>${(m.ativos-m.semDados)>0?`<div class="wall-big">${pct(m.onVenda,m.ativos-m.semDados)}%<small>dos PDVs monitorados vendendo normalmente</small></div>`:`<div class="wall-big">—<small>conexão e vendas dos PDVs ainda sem monitoramento</small></div><p class="small muted" style="margin:6px 0 0">Esses dados chegam com a integração do Infinity e do PagBank, ou podem ser marcados à mão em cada PDV.</p>`}</div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Vendendo (${m.onVenda})</span><span><i style="background:var(--warn)"></i>Online sem vendas há +${S.config.horasSemVenda} h (${m.semVenda})</span><span><i style="background:var(--bad)"></i>Offline (${m.offline})</span><span><i style="background:transparent;border:1px dashed var(--line-strong)"></i>Sem monitoramento (${m.semDados})</span><span><i style="background:var(--idle)"></i>Em implantação (${m.implantacao})</span><span><i style="background:transparent;border:2px solid var(--muted);border-radius:50%"></i>Certificado vencido, facial ou app com falha</span></div>
     </div>
     ${P.length?'<div class="wall">'+tiles+'</div>':'<div class="empty">Nenhum PDV cadastrado ainda. <a href="#pdvs">Cadastre ou importe seus PDVs</a>.</div>'}
   </section>
@@ -614,9 +616,9 @@ function filteredPdvs(){
     return true;
   }).sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),undefined,{numeric:true}));
 }
-function stPill(p){ const s=pdvState(p); return {on:'<span class="pill p-ok">Vendendo</span>',nosale:'<span class="pill p-warn">Sem vendas</span>',off:'<span class="pill p-bad">Offline</span>',impl:'<span class="pill p-idle">'+esc(STATUS_PDV[p.status]||p.status)+'</span>'}[s]; }
+function stPill(p){ const s=pdvState(p); return {on:'<span class="pill p-ok">Vendendo</span>',nosale:'<span class="pill p-warn">Sem vendas</span>',off:'<span class="pill p-bad">Offline</span>',nodata:'<span class="pill p-idle">Sem monitoramento</span>',impl:'<span class="pill p-idle">'+esc(STATUS_PDV[p.status]||p.status)+'</span>'}[s]; }
 function certPill(p){ const c=certState(p), d=daysUntil(p.certValidade); return {vencido:'<span class="pill p-bad">Vencido</span>',avencer:'<span class="pill p-warn">'+d+' dias</span>',ok:'<span class="pill p-ok">'+fmtD(p.certValidade)+'</span>',sem:'<span class="pill p-idle">Sem data</span>'}[c]; }
-const yn = v => v? '<span class="pill p-ok">Sim</span>':'<span class="pill p-bad">Não</span>';
+const yn = v => v==null? '<span class="pill p-idle">—</span>' : v? '<span class="pill p-ok">Sim</span>':'<span class="pill p-bad">Não</span>';
 function pPdvs(){
   const f=S.f.pdv, rows=filteredPdvs();
   const opt=(o,v)=>Object.entries(o).map(([k,l])=>'<option value="'+k+'"'+(v===k?" selected":"")+'>'+l+'</option>').join("");
@@ -629,13 +631,13 @@ function pPdvs(){
   <div class="filters">
     <input type="search" placeholder="Buscar código, unidade, franqueado ou cidade" value="${esc(f.q)}" data-f="pdv.q" aria-label="Buscar">
     <select data-f="pdv.status" aria-label="Status do contrato"><option value="">Todos os status</option>${opt(STATUS_PDV,f.status)}</select>
-    <select data-f="pdv.online" aria-label="Situação"><option value="">Toda situação</option>${opt({on:"Vendendo",nosale:"Sem vendas",off:"Offline",impl:"Fora de operação"},f.online)}</select>
+    <select data-f="pdv.online" aria-label="Situação"><option value="">Toda situação</option>${opt({on:"Vendendo",nosale:"Sem vendas",off:"Offline",nodata:"Sem monitoramento",impl:"Fora de operação"},f.online)}</select>
     <select data-f="pdv.trava" aria-label="Travas"><option value="">Todas as travas</option>${opt({completas:"Com as duas travas","sem-cerv":"Sem trava na cervejeira","sem-porta":"Sem trava na porta"},f.trava)}</select>
     <select data-f="pdv.cert" aria-label="Certificado"><option value="">Todo certificado</option>${opt({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"},f.cert)}</select>
   </div>
   <p class="small muted">${rows.length} de ${S.pdvs.length} PDVs</p>
   <div class="tablewrap"><table><thead><tr><th>Código</th><th>Unidade</th><th>Franqueado</th><th>Contrato</th><th>Situação</th><th>Última venda</th><th>Trava cervejeira</th><th>Trava porta</th><th>Certificado</th><th>Facial</th><th>App</th><th>Adquirente</th></tr></thead>
-  <tbody>${rows.map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td><b>${esc(p.codigo)}</b></td><td>${esc(p.unidade)}<div class="small muted">${esc([p.cidade,p.uf].filter(Boolean).join("/"))}</div></td><td>${esc(p.franqueado||"—")}</td><td>${esc(STATUS_PDV[p.status]||p.status||"—")}</td><td>${stPill(p)}</td><td>${p.status==="ativo"?ago(p.ultimaVenda):"—"}</td><td>${yn(p.travaCervejeira)}</td><td>${yn(p.travaPorta)}</td><td>${certPill(p)}</td><td>${p.facialOk===false?'<span class="pill p-bad">Falha</span>':'<span class="pill p-ok">OK</span>'}</td><td>${p.appOk===false?'<span class="pill p-bad">Falha</span>':'<span class="pill p-ok">OK</span>'}</td><td>${esc(p.adquirente||"—")}</td></tr>`).join("") || '<tr><td colspan="12" class="empty">Nenhum PDV encontrado com esses filtros.</td></tr>'}</tbody></table></div>`;
+  <tbody>${rows.map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td><b>${esc(p.codigo)}</b></td><td>${esc(p.unidade)}<div class="small muted">${esc([p.cidade,p.uf].filter(Boolean).join("/"))}</div></td><td>${esc(p.franqueado||"—")}</td><td>${esc(STATUS_PDV[p.status]||p.status||"—")}</td><td>${stPill(p)}</td><td>${p.status==="ativo"?ago(p.ultimaVenda):"—"}</td><td>${yn(p.travaCervejeira)}</td><td>${yn(p.travaPorta)}</td><td>${certPill(p)}</td><td>${p.facialOk===false?'<span class="pill p-bad">Falha</span>':p.facialOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${p.appOk===false?'<span class="pill p-bad">Falha</span>':p.appOk?'<span class="pill p-ok">OK</span>':'<span class="pill p-idle">—</span>'}</td><td>${esc(p.adquirente||"—")}</td></tr>`).join("") || '<tr><td colspan="12" class="empty">Nenhum PDV encontrado com esses filtros.</td></tr>'}</tbody></table></div>`;
 }
 function openPdv(code){
   const p=pdvByCode(code); if(!p) return;
@@ -684,14 +686,7 @@ function pdvForm(p){
     <label class="field">Internet (operadora e tipo)<input name="internet" value="${esc(p.internet||"")}" placeholder="Ex.: fibra Vivo + 4G de contingência"></label>
     <label class="field">Versão do sistema PDV<input name="versaoSistema" value="${esc(p.versaoSistema||"")}"></label>
     <label class="field full">Equipamentos e módulos<input name="equipamentos" value="${esc(p.equipamentos||"")}" placeholder="Ex.: totem, leitor, balança, roteador, módulo facial, câmeras"></label>
-    <div class="field full" style="flex-direction:row;flex-wrap:wrap;gap:16px">
-      <label class="check"><input type="checkbox" name="online" ${p.online?"checked":""}> PDV online</label>
-      <label class="check"><input type="checkbox" name="travaCervejeira" ${p.travaCervejeira?"checked":""}> Trava na cervejeira</label>
-      <label class="check"><input type="checkbox" name="travaPorta" ${p.travaPorta?"checked":""}> Trava na porta de entrada</label>
-      <label class="check"><input type="checkbox" name="facialOk" ${p.facialOk!==false?"checked":""}> Facial funcionando</label>
-      <label class="check"><input type="checkbox" name="appOk" ${p.appOk!==false?"checked":""}> App F4Y funcionando</label>
-      <label class="check"><input type="checkbox" name="auditOk" ${p.auditOk!==false?"checked":""}> Câmeras Audit ok</label>
-    </div>
+    ${[["online","Conexão do PDV","Online","Offline"],["travaCervejeira","Trava na cervejeira","Instalada","Não instalada"],["travaPorta","Trava na porta de entrada","Instalada","Não instalada"],["facialOk","Facial","Funcionando","Com falha"],["appOk","App F4Y","Funcionando","Com falha"],["auditOk","Câmeras Audit","OK","Com falha"]].map(([k,l,sim,nao])=>`<label class="field">${l}<select name="${k}" data-tri="1"><option value=""${p[k]==null?" selected":""}>Sem informação</option><option value="true"${p[k]===true?" selected":""}>${sim}</option><option value="false"${p[k]===false?" selected":""}>${nao}</option></select></label>`).join("")}
     <label class="field full">Observações<textarea name="obs" rows="2">${esc(p.obs||"")}</textarea></label>
   </div>
   <div class="row" style="margin-top:16px;justify-content:space-between">
@@ -704,13 +699,14 @@ function readForm(id){
     if(el.type==="checkbox") o[el.name]=el.checked;
     else if(el.type==="datetime-local") o[el.name]=el.value? new Date(el.value).toISOString() : null;
     else if(el.type==="number") o[el.name]=el.value===""?null:Number(el.value);
+    else if(el.dataset&&el.dataset.tri) o[el.name]=el.value===""?null:el.value==="true";
     else o[el.name]=el.value.trim();
   }); return o;
 }
 async function savePdv(){
   const d=readForm("pdvForm"); if(!d.codigo){ $("#formMsg").textContent="Informe o código da unidade."; return; }
   const old=pdvByCode(d.codigo); d.uf=(d.uf||"").toUpperCase(); d.atualizadoEm=now().toISOString(); d.demo=old?!!old.demo:false;
-  await safeWrite(()=>S.db.collection("pdvs").doc(slug(d.codigo)).set(Object.assign({},old?stripId(old):{},d)),"PDV salvo");
+  await safeWrite(()=>S.db.collection("pdvs").doc(old?old.id:slug(d.codigo)).set(Object.assign({},old?stripId(old):{},d)),"PDV salvo");
   closeAll();
 }
 const stripId = o => { const c=Object.assign({},o); delete c.id; return c; };
@@ -1202,7 +1198,7 @@ function xlsxFile(name,sheets){
   const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"}); saveFile(name, new Blob([buf]));
 }
 const stamp=()=>isoDay(now());
-const pdvRow=p=>({"Código":p.codigo,"Unidade":p.unidade,"Franqueado":p.franqueado,"Cidade":p.cidade,"UF":p.uf,"Status contrato":STATUS_PDV[p.status]||p.status,"Situação":({on:"Vendendo",nosale:"Sem vendas",off:"Offline",impl:"Fora de operação"})[pdvState(p)],"Online":p.online?"Sim":"Não","Último sinal":fmtDT(p.ultimoPing),"Última venda":fmtDT(p.ultimaVenda),"Trava cervejeira":p.travaCervejeira?"Sim":"Não","Trava porta":p.travaPorta?"Sim":"Não","Certificado validade":p.certValidade||"","Certificado situação":({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"})[certState(p)],"Facial":p.facialOk===false?"Falha":"OK","App":p.appOk===false?"Falha":"OK","Câmeras Audit":p.auditOk===false?"Falha":"OK","Adquirente":p.adquirente||"","POS comodato":p.posQtd||"","Internet":p.internet||"","Versão sistema":p.versaoSistema||"","Equipamentos":p.equipamentos||"","Observações":p.obs||""});
+const pdvRow=p=>({"Código":p.codigo,"Unidade":p.unidade,"Franqueado":p.franqueado,"Cidade":p.cidade,"UF":p.uf,"Status contrato":STATUS_PDV[p.status]||p.status,"Situação":({on:"Vendendo",nosale:"Sem vendas",off:"Offline",nodata:"Sem monitoramento",impl:"Fora de operação"})[pdvState(p)],"Online":p.online==null?"":p.online?"Sim":"Não","Último sinal":fmtDT(p.ultimoPing),"Última venda":fmtDT(p.ultimaVenda),"Trava cervejeira":p.travaCervejeira?"Sim":"Não","Trava porta":p.travaPorta?"Sim":"Não","Certificado validade":p.certValidade||"","Certificado situação":({vencido:"Vencido",avencer:"A vencer",ok:"Em dia",sem:"Sem data"})[certState(p)],"Facial":p.facialOk===false?"Falha":"OK","App":p.appOk===false?"Falha":"OK","Câmeras Audit":p.auditOk===false?"Falha":"OK","Adquirente":p.adquirente||"","POS comodato":p.posQtd||"","Internet":p.internet||"","Versão sistema":p.versaoSistema||"","Equipamentos":p.equipamentos||"","Observações":p.obs||""});
 const chRow=c=>({"Protocolo":c.protocolo||"","Título":c.titulo,"PDV":pdvLabel(c.pdv),"Tipo":c.categoria,"Prioridade":PRIOR[c.prioridade]||c.prioridade,"Status":ST_CH[c.status]||c.status,"Fornecedor":c.fornecedor,"Canal":c.origem,"Turno":c.turno==="plantao"?"Plantão":c.turno==="suporte"?"Suporte":"","Aberto em":fmtDT(c.abertoEm),"Resolvido em":fmtDT(c.resolvidoEm),"Horas até solução":c.resolvidoEm&&c.abertoEm?Math.round((new Date(c.resolvidoEm)-new Date(c.abertoEm))/36e5):"","Dono fast4you":donoDe(c),"Próxima ação":c.proximaAcao||"","Próximo retorno":fmtDT(c.proximoRetorno),"Primeira resposta":fmtDT(c.primeiraRespostaEm),"Contorno":fmtDT(c.contornoEm),"Reaberturas":c.reaberturas||0,"Problema vinculado":(S.problemas.find(p=>p.id===c.problemaId)||{}).titulo||"","Validado pelo franqueado":c.validadoFranqueado?"Sim":"","Feedback franqueado":c.feedbackFranqueado?"Sim":"","Evidências":c.evidencias||"","Andamento":c.obs||""});
 
 /* ---------- importação ---------- */
@@ -1264,7 +1260,7 @@ async function doImport(){
       ["ultimoPing","ultimaVenda"].forEach(k=>{ if(ctx.map[k]){ const v=parseDate(g(r,k)); if(v) d[k]=v; } });
       if(ctx.map.certValidade){ const v=parseDate(g(r,"certValidade")); if(v) d.certValidade=v.slice(0,10); }
       if(ctx.map.posQtd&&g(r,"posQtd")!=="") d.posQtd=Number(g(r,"posQtd"))||0;
-      docs.push(["pdvs",slug(codigo),d]); });
+      docs.push(["pdvs",old?old.id:slug(codigo),d]); });
   } else {
     if(!ctx.map.titulo){ $("#formMsg").textContent="Escolha a coluna da descrição."; return; }
     const forn=$("#impForn").value, orig=$("#impOrig").value;
