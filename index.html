@@ -288,6 +288,7 @@ h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
     <nav class="nav" id="nav">
       <a href="#painel">Painel da rede</a>
       <a href="#chamados">Fila de chamados <span class="count" id="navChamados" hidden></span></a>
+      <a href="#vendas">Vendas</a>
       <a href="#sla">SLA do atendimento</a>
       <a href="#pdvs">Unidades e PDVs</a>
       <a href="#problemas">Problemas recorrentes <span class="count" id="navProb" hidden></span></a>
@@ -339,7 +340,7 @@ const DEF_FORN = {
   "Interno":{escopo:"Demandas resolvidas pelo próprio time de Sistemas fast4you.",reuniao:""}};
 
 const S = {db:null,user:null,dl:null,sample:null,canWrite:false,ready:false,
-  pdvs:[],chamados:[],dicas:[],noticias:[],snaps:[],problemas:[],forn:[],procs:[],config:{...DEF_CONFIG},
+  pdvs:[],chamados:[],dicas:[],noticias:[],vendas:[],vendasMes:{},snaps:[],problemas:[],forn:[],procs:[],config:{...DEF_CONFIG},
   loaded:{pdvs:false,chamados:false,dicas:false,snaps:false,config:false,problemas:false,forn:false,procs:false},
   error:null, charts:[], snapWritten:false, toastShown:false,
   f:{pdv:{q:"",status:"",online:"",trava:"",cert:""}, ch:{q:"",status:"abertos",prioridade:"",origem:"",fornecedor:"",categoria:"",dono:""}},
@@ -364,11 +365,17 @@ function css(v){ return getComputedStyle(document.documentElement).getPropertyVa
 /* ---------- regras de negócio ---------- */
 function pdvState(p){
   if(p.status!=="ativo") return "impl";
-  if(p.online==null) return "nodata"; // conexão ainda não monitorada
-  if(!p.online) return "off";
-  if(hoursSince(p.ultimaVenda) > S.config.horasSemVenda) return "nosale";
+  if(p.online===false) return "off";
+  if(p.online==null && !p.vendasMonitoradas) return "nodata"; // sem telemetria e sem vendas do Infinity
+  if(horasSemVenda(p) > S.config.horasSemVenda) return "nosale";
   return "on";
 }
+function horasSemVenda(p){
+  if(p.ultimaVenda) return hoursSince(p.ultimaVenda);
+  if(p.ultimaVendaDia){ if(p.ultimaVendaDia>=isoDay(now())) return 0; return hoursSince(p.ultimaVendaDia+"T23:59:59-03:00"); }
+  return Infinity;
+}
+const ultimaVendaTxt = p => p.ultimaVendaDia? (p.ultimaVendaDia>=isoDay(now())?"hoje":"em "+fmtD(p.ultimaVendaDia)) : p.ultimaVenda? "há "+ago(p.ultimaVenda) : "sem registro";
 function certState(p){
   const d = daysUntil(p.certValidade);
   if(d===null) return "sem";
@@ -447,7 +454,7 @@ function computeAlerts(){
   S.pdvs.filter(p=>p.status==="ativo"&&isPdv(p)).forEach(p=>{
     const s=pdvState(p), lbl=p.codigo+" "+p.unidade;
     if(s==="off") out.push({sev:"crit",t:"PDV offline: "+lbl,m:"Último sinal há "+ago(p.ultimoPing)+". Franqueado "+(p.franqueado||"—")+".",pdv:p.codigo});
-    else if(s==="nosale") out.push({sev:"high",t:"PDV sem vendas: "+lbl,m:"Online, mas sem venda há "+ago(p.ultimaVenda)+" (limite "+cfg.horasSemVenda+" h).",pdv:p.codigo});
+    else if(s==="nosale") out.push({sev:"high",t:"PDV sem vendas: "+(p.nomeSults||lbl),m:"Última venda "+ultimaVendaTxt(p)+" (limite "+cfg.horasSemVenda+" h).",pdv:p.codigo});
     const c=certState(p), d=daysUntil(p.certValidade);
     if(c==="vencido") out.push({sev:"crit",t:"Certificado digital vencido: "+lbl,m:"Venceu em "+fmtD(p.certValidade)+". Emissão fiscal pode estar parada.",pdv:p.codigo});
     else if(c==="avencer") out.push({sev:"warn",t:"Certificado vence em "+d+" dias: "+lbl,m:"Validade "+fmtD(p.certValidade)+". Agende a renovação com o franqueado.",pdv:p.codigo});
@@ -492,7 +499,7 @@ async function init(){
     if(S.loaded.pdvs&&S.loaded.chamados){ clearTimeout(timer); if(S.error==="slow") S.error=null; }
     S.ready=true; renderAll(); maybeSnapshot(); maybeToast();
   },err=>{ S.error="db:"+err.code; renderAll(); });
-  sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("noticias","noticias"); sub("fornecedores","forn"); sub("procedimentos","procs");
+  sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("noticias","noticias"); sub("vendas","vendas",()=>{ S.vendasMes=Object.fromEntries(S.vendas.map(v=>[v.id,v])); }); sub("fornecedores","forn"); sub("procedimentos","procs");
   db.doc("config/infinityTeste").onSnapshot(d=>{ S.infTeste=d.exists?d.data():null; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/integracoes").onSnapshot(d=>{ S.integ=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/geral").onSnapshot(d=>{ S.config=Object.assign({},DEF_CONFIG,d.exists?d.data():{}); S.loaded.config=true; renderAll(); },()=>{});
@@ -514,7 +521,7 @@ function maybeToast(){
 }
 
 /* ---------- roteamento ---------- */
-const PAGES=["painel","sla","pdvs","chamados","problemas","fornecedores","conhecimento","semanal","alertas","novidades","integracoes"];
+const PAGES=["painel","vendas","sla","pdvs","chamados","problemas","fornecedores","conhecimento","semanal","alertas","novidades","integracoes"];
 function route(){
   const h=(location.hash||"").slice(1); const p=PAGES.includes(h)?h:"painel";
   document.querySelectorAll("#nav a").forEach(a=>a.setAttribute("aria-current", a.getAttribute("href")==="#"+p?"page":"false"));
@@ -544,11 +551,12 @@ function banners(){
 function destroyCharts(){ S.charts.forEach(c=>{try{c.destroy()}catch(e){}}); S.charts=[]; }
 function renderMain(){
   destroyCharts();
-  const el=$("#main"); const fn={sla:pSla,painel:pPainel,pdvs:pPdvs,chamados:pChamados,problemas:pProblemas,fornecedores:pFornecedores,conhecimento:pConhecimento,semanal:pSemanal,alertas:pAlertas,novidades:pNovidades,integracoes:pIntegracoes}[S.page];
+  const el=$("#main"); const fn={vendas:pVendas,sla:pSla,painel:pPainel,pdvs:pPdvs,chamados:pChamados,problemas:pProblemas,fornecedores:pFornecedores,conhecimento:pConhecimento,semanal:pSemanal,alertas:pAlertas,novidades:pNovidades,integracoes:pIntegracoes}[S.page];
   el.innerHTML = banners() + fn();
   if(S.page==="painel") drawPainelCharts();
   if(S.page==="semanal") drawSemanaCharts();
   if(S.page==="sla") drawSlaCharts();
+  if(S.page==="vendas") drawVendasCharts();
 }
 
 /* ---------- PAINEL ---------- */
@@ -564,6 +572,7 @@ function pPainel(){
   <section class="panel saude" style="margin-bottom:14px">${saudeRede(m,P)}</section>
   <h2 class="sec">A rede</h2>
   <div class="kpis" style="margin-bottom:18px">
+    ${Object.keys(S.vendasMes).length?k(brl(vendasDe(isoDay(now()),isoDay(now())).total).replace(",00",""),"Faturamento hoje","pelo Infinity","","vendas"):""}
     ${k(m.ativos,"PDVs ativos",m.franqueados+" franqueados com PDV","","pdvs")}
     ${k(m.offline,"PDVs offline","",m.offline?"bad":"ok","alertas")}
     ${k(m.semVenda,"Sem vendas",'há mais de '+S.config.horasSemVenda+' h',m.semVenda?"warn":"ok","alertas")}
@@ -609,7 +618,7 @@ function saudeRede(m,P){
   if(!P.length) return '<div class="empty">Nenhum PDV cadastrado ainda. <a href="#pdvs">Cadastre ou importe seus PDVs</a>.</div>';
   const total=P.length, mon=m.ativos-m.semDados;
   const seg=[["on","Vendendo",m.onVenda,"var(--ok)"],["nosale","Sem vendas há +"+S.config.horasSemVenda+" h",m.semVenda,"var(--warn)"],["off","Offline",m.offline,"var(--bad)"],["nodata","Sem monitoramento",m.semDados,"var(--line-strong)"],["impl","Em implantação",m.implantacao,"var(--idle)"]];
-  const motivo=p=>{const s=pdvState(p); return s==="off"?["Offline há "+ago(p.ultimoPing),"p-bad",0]:s==="nosale"?["Sem vendas há "+ago(p.ultimaVenda),"p-warn",1]:certState(p)==="vencido"?["Certificado vencido","p-bad",2]:p.facialOk===false?["Facial com falha","p-warn",3]:p.appOk===false?["App com falha","p-warn",3]:p.auditOk===false?["Câmeras sem imagem","p-warn",4]:null;};
+  const motivo=p=>{const s=pdvState(p); return s==="off"?["Offline há "+ago(p.ultimoPing),"p-bad",0]:s==="nosale"?["Última venda "+ultimaVendaTxt(p),"p-warn",1]:certState(p)==="vencido"?["Certificado vencido","p-bad",2]:p.facialOk===false?["Facial com falha","p-warn",3]:p.appOk===false?["App com falha","p-warn",3]:p.auditOk===false?["Câmeras sem imagem","p-warn",4]:null;};
   const atencao=P.filter(p=>p.status==="ativo").map(p=>[p,motivo(p)]).filter(x=>x[1]).sort((a,b)=>a[1][2]-b[1][2]);
   return `<div class="saude-top">
       <div>${mon>0?`<div class="wall-big">${pct(m.onVenda,mon)}%<small>dos PDVs monitorados vendendo normalmente</small></div>`:`<div class="wall-big">${m.ativos}<small>PDVs ativos</small></div><p class="small muted" style="margin:4px 0 0">Conexão e vendas ainda sem monitoramento. Chegam com a integração do Infinity e do PagBank.</p>`}</div>
@@ -742,7 +751,8 @@ function openPdv(code){
     <dl class="kv">
       <dt>Contrato</dt><dd>${esc(STATUS_PDV[p.status]||p.status)}</dd>
       <dt>Último sinal</dt><dd>${fmtDT(p.ultimoPing)} (${ago(p.ultimoPing)})</dd>
-      <dt>Última venda</dt><dd>${fmtDT(p.ultimaVenda)} (${ago(p.ultimaVenda)})</dd>
+      <dt>Última venda</dt><dd>${ultimaVendaTxt(p)}</dd>
+      ${p.vendasHoje?`<dt>Vendas hoje</dt><dd>${brl(p.vendasHoje.valor)} · ${p.vendasHoje.tickets} venda(s)</dd>`:""}
       <dt>Travas</dt><dd>Cervejeira: ${p.travaCervejeira?"sim":"não"}; porta: ${p.travaPorta?"sim":"não"}</dd>
       <dt>Facial / App</dt><dd>${p.facialOk===false?"falha":"ok"} / ${p.appOk===false?"falha":"ok"}</dd>
       <dt>Câmeras Audit</dt><dd>${p.auditOk===false?"falha":"ok"}</dd>
@@ -891,6 +901,66 @@ function pChamados(){
   </div>
   <p class="small muted">${rows.length} chamados</p>
   ${vista==="lista"?lista:quadro}`;
+}
+
+/* ---------- VENDAS ---------- */
+const brl = v => "R$ " + Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const addDia = (iso,n) => { const d=new Date(iso+"T12:00:00"); d.setDate(d.getDate()+n); return isoDay(d); };
+const difDias = (a,b) => Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
+function periodoVendas(){
+  const h=isoDay(now()), p=S.f.venP||"hoje";
+  const iniMes=h.slice(0,8)+"01";
+  if(p==="ontem"){ const o=addDia(h,-1); return {ini:o,fim:o,rot:"Ontem",cIni:addDia(o,-7),cFim:addDia(o,-7),cRot:"mesmo dia da semana anterior"}; }
+  if(p==="7d") return {ini:addDia(h,-6),fim:h,rot:"Últimos 7 dias",cIni:addDia(h,-13),cFim:addDia(h,-7),cRot:"7 dias anteriores"};
+  if(p==="mes"){ const d=Number(h.slice(8)); const ant=addDia(iniMes,-1).slice(0,8)+"01"; const fimAnt=addDia(ant,Math.min(d,Number(addDia(iniMes,-1).slice(8)))-1); return {ini:iniMes,fim:h,rot:"Este mês",cIni:ant,cFim:fimAnt,cRot:"mesmo período do mês anterior"}; }
+  if(p==="mesant"){ const fim=addDia(iniMes,-1), ini=fim.slice(0,8)+"01", f2=addDia(ini,-1); return {ini,fim,rot:"Mês anterior",cIni:f2.slice(0,8)+"01",cFim:f2,cRot:"mês antes dele"}; }
+  if(p==="custom"){ const ini=S.f.venIni||h, fim=S.f.venFim||h, n=difDias(ini,fim)+1; return {ini,fim,rot:fmtD(ini)+" a "+fmtD(fim),cIni:addDia(ini,-n),cFim:addDia(ini,-1),cRot:"período anterior de mesmo tamanho"}; }
+  return {ini:h,fim:h,rot:"Hoje",cIni:addDia(h,-7),cFim:addDia(h,-7),cRot:"mesmo dia da semana passada"};
+}
+function vendasDe(ini,fim){
+  const porPdv={}, porDia=[]; let total=0, tickets=0;
+  for(let d=ini; d<=fim; d=addDia(d,1)){
+    const doc=S.vendasMes[d.slice(0,7)], dd=doc&&doc.dias&&doc.dias[d.slice(8)];
+    let v=0,t=0; if(dd) Object.entries(dd).forEach(([cod,[val,tk]])=>{ const x=porPdv[cod]||(porPdv[cod]={v:0,t:0}); x.v+=val; x.t+=tk; v+=val; t+=tk; });
+    porDia.push({d,v,t,tem:!!dd}); total+=v; tickets+=t;
+  }
+  return {porPdv,porDia,total,tickets};
+}
+function pVendas(){
+  const pr=periodoVendas(), a=vendasDe(pr.ini,pr.fim), b=vendasDe(pr.cIni,pr.cFim);
+  const delta=(x,y)=>{ if(!y) return '<span class="d muted">sem base de comparação</span>'; const p=Math.round((x-y)/y*100); return `<span class="d" style="color:${p>=0?"var(--ok)":"var(--bad)"}">${p>=0?"+":""}${p}% vs ${esc(pr.cRot)}</span>`; };
+  const ativosMon=S.pdvs.filter(p=>isPdv(p)&&p.status==="ativo"&&p.vendasMonitoradas);
+  const comVenda=ativosMon.filter(p=>a.porPdv[p.codigo]&&a.porPdv[p.codigo].v>0), semVenda=ativosMon.filter(p=>!(a.porPdv[p.codigo]&&a.porPdv[p.codigo].v>0));
+  const semCad=Object.entries(a.porPdv).filter(([c])=>c.startsWith("?")).reduce((s,[,x])=>s+x.v,0);
+  const fr={}; Object.entries(a.porPdv).forEach(([cod,x])=>{ const p=pdvByCode(cod); const k=p?(p.grupoFranqueado||p.codigo):"Sem cadastro"; const f=fr[k]||(fr[k]={nome:p?(p.franqueado||""):"",v:0,t:0,n:0}); f.v+=x.v; f.t+=x.t; f.n++; });
+  const topF=Object.entries(fr).sort((x,y)=>y[1].v-x[1].v).slice(0,15);
+  const topP=Object.entries(a.porPdv).filter(([c])=>!c.startsWith("?")).sort((x,y)=>y[1].v-x[1].v).slice(0,10);
+  const doc=S.vendasMes[isoDay(now()).slice(0,7)];
+  const p=S.f.venP||"hoje";
+  if(!Object.keys(S.vendasMes).length) return `<div class="topbar"><div><h1>Vendas</h1><p class="sub">Faturamento da rede pelo Infinity.</p></div></div><div class="panel empty">Ainda não há vendas na Central. Elas chegam quando o coletor roda com o Infinity configurado (script de vendas 6). Rode <b>Actions > Coletor de integrações</b> com a opção <b>infinity</b>.</div>`;
+  return `
+  <div class="topbar"><div><h1>Vendas</h1><p class="sub">${esc(pr.rot)}${pr.ini!==pr.fim?` (${fmtD(pr.ini)} a ${fmtD(pr.fim)})`:` (${fmtD(pr.ini)})`} · dados do Infinity${doc&&doc.atualizadoEm?`, atualizados às ${new Date(doc.atualizadoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`:""}</p></div>
+  <div class="row"><div class="seg">${[["hoje","Hoje"],["ontem","Ontem"],["7d","7 dias"],["mes","Este mês"],["mesant","Mês anterior"],["custom","Período"]].map(([v,l])=>`<button class="${p===v?"on":""}" data-act="ven-p" data-v="${v}">${l}</button>`).join("")}</div><button class="btn" data-act="export-vendas">Exportar</button></div></div>
+  ${p==="custom"?`<div class="filters"><label class="small muted">De <input type="date" value="${esc(S.f.venIni||isoDay(now()))}" data-f="venIni"></label><label class="small muted">até <input type="date" value="${esc(S.f.venFim||isoDay(now()))}" data-f="venFim"></label></div>`:""}
+  <div class="kpis" style="margin-bottom:14px">
+    <div class="kpi" style="cursor:default"><span class="v">${brl(a.total)}</span><span class="l">Faturamento</span>${delta(a.total,b.total)}</div>
+    <div class="kpi" style="cursor:default"><span class="v">${a.tickets.toLocaleString("pt-BR")}</span><span class="l">Vendas (tickets)</span>${delta(a.tickets,b.tickets)}</div>
+    <div class="kpi" style="cursor:default"><span class="v">${brl(a.tickets?a.total/a.tickets:0)}</span><span class="l">Ticket médio</span></div>
+    <div class="kpi ok" style="cursor:default"><span class="v">${comVenda.length}</span><span class="l">PDVs ativos com venda</span><span class="d muted">de ${ativosMon.length} monitorados</span></div>
+    <div class="kpi ${semVenda.length?"warn":"ok"}" style="cursor:default"><span class="v">${semVenda.length}</span><span class="l">PDVs ativos sem venda no período</span></div>
+  </div>
+  ${pr.ini!==pr.fim?`<section class="panel" style="margin-bottom:14px"><h2>Faturamento por dia</h2><div class="chartbox"><canvas id="cVenDia"></canvas></div></section>`:""}
+  <div class="grid g2" style="margin-bottom:14px">
+    <section class="panel"><h2>Por franqueado</h2><div class="tablewrap"><table><thead><tr><th>Franqueado</th><th>PDVs</th><th>Faturamento</th><th>Tickets</th><th>% do total</th></tr></thead><tbody>${topF.map(([k,f])=>`<tr style="cursor:default"><td>${esc(k)} ${esc(f.nome)}</td><td>${f.n}</td><td>${brl(f.v)}</td><td>${f.t}</td><td>${a.total?pct(f.v,a.total):0}%</td></tr>`).join("")||'<tr><td colspan="5" class="empty">Sem vendas no período.</td></tr>'}</tbody></table></div>${Object.keys(fr).length>15?`<p class="small muted">Mostrando os 15 maiores de ${Object.keys(fr).length}. A lista completa está na exportação.</p>`:""}</section>
+    <section class="panel"><h2>PDVs que mais venderam</h2><div class="tablewrap"><table><thead><tr><th>PDV</th><th>Faturamento</th><th>Tickets</th><th>Ticket médio</th></tr></thead><tbody>${topP.map(([c,x])=>`<tr data-act="pdv" data-id="${esc(c)}"><td class="wrap">${esc(pdvLabel(c))}</td><td>${brl(x.v)}</td><td>${x.t}</td><td>${brl(x.t?x.v/x.t:0)}</td></tr>`).join("")||'<tr><td colspan="4" class="empty">Sem vendas no período.</td></tr>'}</tbody></table></div></section>
+  </div>
+  <section class="panel"><h2>PDVs ativos sem venda no período (${semVenda.length})</h2><p class="small muted">Para o time de Sistemas, é o principal sinal de problema: PDV, maquininha, app ou facial.</p>
+    <div class="tablewrap"><table><thead><tr><th>PDV</th><th>Última venda</th><th>Situação</th></tr></thead><tbody>${semVenda.sort((x,y)=>String(x.ultimaVendaDia||"").localeCompare(String(y.ultimaVendaDia||""))).slice(0,200).map(p=>`<tr data-act="pdv" data-id="${esc(p.codigo)}"><td class="wrap">${esc(p.nomeSults||p.unidade||p.codigo)}</td><td>${p.ultimaVendaDia?fmtD(p.ultimaVendaDia):"sem venda nos últimos 35 dias"}</td><td>${stPill(p)}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">Todos os PDVs ativos venderam no período.</td></tr>'}</tbody></table></div>
+    ${semCad?`<p class="small muted">${brl(semCad)} vieram de códigos do Infinity sem PDV correspondente na Central.</p>`:""}</section>`;
+}
+function drawVendasCharts(){
+  const pr=periodoVendas(); if(pr.ini===pr.fim||!window.Chart) return; const a=vendasDe(pr.ini,pr.fim);
+  barChart("cVenDia",a.porDia.map(x=>fmtD(x.d).slice(0,5)),a.porDia.map(x=>Math.round(x.v*100)/100),css("--orange"));
 }
 
 /* ---------- SLA DO ATENDIMENTO ---------- */
@@ -1450,7 +1520,7 @@ function pIntegracoes(){
   <div class="topbar"><div><h1>Integrações e APIs</h1><p class="sub">O que cada fonte oferece hoje e o caminho para alimentar este painel automaticamente.</p></div></div>
   <section class="panel" style="margin-bottom:14px"><h2>Status das integrações automáticas</h2>
     <div class="tablewrap"><table><thead><tr><th>Integração</th><th>Situação</th><th>Última execução</th><th>Registros</th><th>Mensagem</th></tr></thead><tbody>
-    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["infinityStatusPdv","Infinity: status dos PDVs"],["infinityTeste","Infinity: teste de scripts"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
+    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["infinityStatusPdv","Infinity: status dos PDVs"],["infinityVendas","Infinity: vendas"],["infinityTeste","Infinity: teste de scripts"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
     </tbody></table></div>
     ${S.infTeste&&S.infTeste.resultado?`<h3 style="margin-top:14px">Teste de scripts do Infinity (${fmtDT(S.infTeste.em)})</h3>${Object.entries(S.infTeste.resultado).map(([id,r])=>`<div class="nota"><b>IdScript ${esc(id)}</b>: ${r.ok?`${r.registros} registros. Campos: ${esc((r.campos||[]).join(", "))}`:`erro: ${esc(r.erro)}`}</div>`).join("")}`:""}</section>
   <section class="panel" style="margin-bottom:14px"><h2>Como as peças se conectam</h2>
@@ -1711,6 +1781,8 @@ document.addEventListener("click",async e=>{
     case "ch": closeAll(); openChamado(id); break;
     case "edit-ch": { const c=S.chamados.find(x=>x.id===id); if(c){ chForm(c); } break; }
     case "vista": S.f.ch.vista=el.dataset.v; renderMain(); break;
+    case "ven-p": S.f.venP=el.dataset.v; renderMain(); break;
+    case "export-vendas": { const pr=periodoVendas(), a=vendasDe(pr.ini,pr.fim); xlsxFile("vendas-"+pr.ini+"-a-"+pr.fim+".xlsx",[["Por PDV",Object.entries(a.porPdv).sort((x,y)=>y[1].v-x[1].v).map(([c,x])=>{const p=pdvByCode(c); return {"Código":c.replace(/^\?/,""),"PDV":p?(p.nomeSults||p.unidade):"Sem cadastro na Central","Franqueado":p?(p.grupoFranqueado+" "+(p.franqueado||"")):"","Faturamento":Math.round(x.v*100)/100,"Tickets":x.t,"Ticket médio":x.t?Math.round(x.v/x.t*100)/100:0};})],["Por dia",a.porDia.map(x=>({"Dia":fmtD(x.d),"Faturamento":Math.round(x.v*100)/100,"Tickets":x.t}))],["Sem venda",S.pdvs.filter(p=>isPdv(p)&&p.status==="ativo"&&p.vendasMonitoradas&&!(a.porPdv[p.codigo]&&a.porPdv[p.codigo].v>0)).map(p=>({"PDV":p.nomeSults||p.unidade,"Código":p.codigo,"Última venda":p.ultimaVendaDia?fmtD(p.ultimaVendaDia):""}))]]); break; }
     case "nov-aba": S.f.novAba=el.dataset.v; renderMain(); break;
     case "sla-dias": S.f.slaDias=Number(el.dataset.v); renderMain(); break;
     case "save-metas": { const d=readForm("metaForm"); Object.keys(d).forEach(k=>d[k]=Math.max(1,Number(d[k])||4)); await safeWrite(()=>S.db.doc("config/geral").set(Object.assign({},stripId(S.config),d)),"Metas salvas"); break; }

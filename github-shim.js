@@ -14,7 +14,7 @@
   const API = "https://api.github.com";
   const LS = "f4y-central-github";
   const POLL_MS = 30000;
-  const COLECOES = ["pdvs", "chamados", "dicas", "snapshots", "problemas", "fornecedores", "procedimentos", "config", "timelines", "noticias"];
+  const COLECOES = ["pdvs", "chamados", "dicas", "snapshots", "problemas", "fornecedores", "procedimentos", "config", "timelines", "noticias", "vendas"];
 
   /* ---------------- configuração e login ---------------- */
   function lerCfg() { try { return JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) { return null; } }
