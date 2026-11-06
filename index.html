@@ -316,7 +316,7 @@ h2.sec{font-size:13.5px;color:var(--muted);font-weight:600;margin:4px 0 8px}
 (function(){
 "use strict";
 /* ---------- constantes ---------- */
-const STATUS_PDV = {ativo:"Ativo",implantacao:"Em implantação",repasse:"Repasse",distrato:"Distrato",cancelado:"Cancelado"};
+const STATUS_PDV = {ativo:"Ativo",implantacao:"Em implantação",repasse:"Repasse",distrato:"Distrato",cancelado:"Inativo / cancelado"};
 const ORIGENS = ["Sults","WhatsApp","E-mail","Teams","Planilha fornecedor"];
 const FORNECEDORES = ["Soft-line/Infinity","Beepay","Preditta","PagBank","Santander","Interno"];
 const CATEGORIAS = ["PDV sem vendas","PDV offline","Facial","App F4Y","Trava","Certificado digital","Pagamento/POS","Câmeras/Audit","Equipamento/Infra","Outro"];
@@ -493,6 +493,7 @@ async function init(){
     S.ready=true; renderAll(); maybeSnapshot(); maybeToast();
   },err=>{ S.error="db:"+err.code; renderAll(); });
   sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("noticias","noticias"); sub("fornecedores","forn"); sub("procedimentos","procs");
+  db.doc("config/infinityTeste").onSnapshot(d=>{ S.infTeste=d.exists?d.data():null; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/integracoes").onSnapshot(d=>{ S.integ=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/geral").onSnapshot(d=>{ S.config=Object.assign({},DEF_CONFIG,d.exists?d.data():{}); S.loaded.config=true; renderAll(); },()=>{});
 }
@@ -750,6 +751,13 @@ function openPdv(code){
       <dt>Internet</dt><dd>${esc(p.internet||"—")}</dd>
       <dt>Versão do sistema</dt><dd>${esc(p.versaoSistema||"—")}</dd>
       <dt>Equipamentos</dt><dd>${esc(p.equipamentos||"—")}</dd>
+      ${p.statusInfinity?`<dt>Status no Infinity</dt><dd>${esc(p.statusInfinity)}${p.dataStatusInfinity?" desde "+fmtD(p.dataStatusInfinity):""}</dd>`:""}
+      ${p.qtdeUnidades?`<dt>Apartamentos / unidades</dt><dd>${esc(p.qtdeUnidades)}</dd>`:""}
+      ${p.tipoLoja||p.tipoEspaco?`<dt>Tipo de loja</dt><dd>${esc([p.tipoLoja,p.tipoEspaco].filter(Boolean).join(" · "))}</dd>`:""}
+      ${p.endereco?`<dt>Endereço</dt><dd>${esc(p.endereco)}${p.cep?" · "+esc(p.cep):""}</dd>`:""}
+      ${p.vigenciaContrato?`<dt>Vigência do contrato</dt><dd>${fmtD(p.vigenciaContrato)}</dd>`:""}
+      ${p.validadeTermo?`<dt>Validade do termo</dt><dd>${fmtD(p.validadeTermo)}</dd>`:""}
+      ${p.representanteLegal?`<dt>Representante legal</dt><dd>${esc(p.representanteLegal)}${p.telefoneRepresentante?" · "+esc(p.telefoneRepresentante):""}</dd>`:""}
       <dt>Observações</dt><dd>${esc(p.obs||"—")}</dd>
     </dl>
     ${S.canWrite?`<div class="row" style="margin:14px 0"><button class="btn" data-act="edit-pdv" data-id="${esc(p.codigo)}">Editar PDV</button><button class="btn primary" data-act="new-ch" data-pdv="${esc(p.codigo)}">Registrar chamado</button></div>`:""}
@@ -1442,8 +1450,9 @@ function pIntegracoes(){
   <div class="topbar"><div><h1>Integrações e APIs</h1><p class="sub">O que cada fonte oferece hoje e o caminho para alimentar este painel automaticamente.</p></div></div>
   <section class="panel" style="margin-bottom:14px"><h2>Status das integrações automáticas</h2>
     <div class="tablewrap"><table><thead><tr><th>Integração</th><th>Situação</th><th>Última execução</th><th>Registros</th><th>Mensagem</th></tr></thead><tbody>
-    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
-    </tbody></table></div></section>
+    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["infinityStatusPdv","Infinity: status dos PDVs"],["infinityTeste","Infinity: teste de scripts"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
+    </tbody></table></div>
+    ${S.infTeste&&S.infTeste.resultado?`<h3 style="margin-top:14px">Teste de scripts do Infinity (${fmtDT(S.infTeste.em)})</h3>${Object.entries(S.infTeste.resultado).map(([id,r])=>`<div class="nota"><b>IdScript ${esc(id)}</b>: ${r.ok?`${r.registros} registros. Campos: ${esc((r.campos||[]).join(", "))}`:`erro: ${esc(r.erro)}`}</div>`).join("")}`:""}</section>
   <section class="panel" style="margin-bottom:14px"><h2>Como as peças se conectam</h2>
     <div class="arch">
       <div><b>Fontes</b>Sults, Infinity, Beepay, Preditta, PagBank, Santander/Getnet, WhatsApp, e-mail, Teams, planilhas</div>
@@ -1572,13 +1581,51 @@ function startImport(kind){ S.importCtx={kind}; const fi=$("#fileInput"); fi.val
 $("#fileInput").addEventListener("change",e=>{
   const file=e.target.files[0]; if(!file||!window.XLSX) return;
   const r=new FileReader(); r.onload=()=>{
-    try{ const wb=XLSX.read(r.result,{type:"array",cellDates:true}); const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true}); if(!rows.length){ toast("A planilha está vazia."); return; }
+    try{ let rows;
+      if(/\.csv$/i.test(file.name)) rows=lerCsv(new TextDecoder("utf-8").decode(r.result));
+      else { const wb=XLSX.read(r.result,{type:"array",cellDates:true}); const ws=wb.Sheets[wb.SheetNames[0]]; rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true}); }
+      if(!rows.length){ toast("A planilha está vazia."); return; }
+      if(S.importCtx.kind==="pdvs"&&"cod_condominio" in rows[0]&&"status_pdv" in rows[0]){ previewInfinity(rows,file.name); return; }
       const headers=Object.keys(rows[0]); S.importCtx.rows=rows; S.importCtx.file=file.name;
       S.importCtx.map=mapHeaders(headers,S.importCtx.kind==="pdvs"?MAP_PDV:MAP_CH); importPreview(headers);
     }catch(err){ toast("Não consegui ler o arquivo. Use .xlsx ou .csv."); }
   }; r.readAsArrayBuffer(file);
 });
+function lerCsv(txt){
+  txt=txt.replace(/^\uFEFF/,""); const prim=txt.split(/\r?\n/)[0]||""; const sep=(prim.match(/;/g)||[]).length>(prim.match(/,/g)||[]).length?";":",";
+  const linhas=[]; let campo="", linha=[], aspas=false;
+  for(let i=0;i<txt.length;i++){ const ch=txt[i];
+    if(aspas){ if(ch==='"'){ if(txt[i+1]==='"'){campo+='"';i++;} else aspas=false; } else campo+=ch; }
+    else if(ch==='"') aspas=true; else if(ch===sep){ linha.push(campo); campo=""; }
+    else if(ch==="\n"||ch==="\r"){ if(ch==="\r"&&txt[i+1]==="\n") i++; linha.push(campo); linhas.push(linha); linha=[]; campo=""; }
+    else campo+=ch; }
+  if(campo||linha.length){ linha.push(campo); linhas.push(linha); }
+  const cab=(linhas.shift()||[]).map(s=>s.trim());
+  return linhas.filter(l=>l.some(v=>String(v).trim())).map(l=>Object.fromEntries(cab.map((c,i)=>[c,l[i]==null?"":l[i]])));
+}
+/* ---------- Importação do Infinity (Status franqueado - PDVs) ---------- */
+const chavePdv = c => { const s=String(c||"").trim(); let m=s.match(/^(\d{4})(\d{2})$/); if(m) return Number(m[1])+"-"+Number(m[2]); m=s.match(/^(\d{1,6})-(\d{1,3})$/); if(m) return Number(m[1])+"-"+Number(m[2]); return ""; };
+function statusInfinity(s){ const n=norm(s); if(!n) return null; if(n.includes("inaugura")) return "ativo"; if(n.includes("repasse")) return "repasse"; if(n.includes("distrato")) return "distrato"; if(n.includes("inativo")||n.includes("cancel")) return "cancelado"; if(n.includes("contrato")||n.includes("termo")||n.includes("implanta")) return "implantacao"; return null; }
+const dataBr = s => { const m=String(s||"").match(/^(\d{2})\/(\d{2})\/(\d{4})/); return m?`${m[3]}-${m[2]}-${m[1]}`:null; };
+function dadosInfinity(r){ return {statusInfinity:r.status_pdv||"",dataStatusInfinity:dataBr(r.data_status_pdv),idPdvInfinity:String(r.cod_pdv||""),qtdeUnidades:Number(String(r.qtde_unidades||"").replace(/\D/g,""))||null,tipoLoja:r.tipo_loja||"",tipoEspaco:r.tipo_espaco||"",vigenciaContrato:dataBr(r.vigencia_contrato),validadeTermo:dataBr(r.validade_termo),vencimentoSeguro:dataBr(r.vencimento_seguro),endereco:[r.logradouro,r.numero,r.complemento,r.bairro].map(x=>String(x||"").trim()).filter(Boolean).join(", "),cep:r.cep||"",representanteLegal:r.representante_legal||"",telefoneRepresentante:r.telefone_representante||"",emailRepresentante:r.email_representante||"",obsInfinity:r.observacao||""}; }
+function previewInfinity(rows,arquivo){
+  const porChave=new Map(); S.pdvs.forEach(p=>{const k=chavePdv(p.codigo); if(k&&!porChave.has(k)) porChave.set(k,p);});
+  const casados=[], fora=[]; rows.forEach(r=>{const p=porChave.get(chavePdv(r.cod_condominio)); p?casados.push([p,r]):fora.push(r);});
+  const cont={}; casados.forEach(([,r])=>{const s=STATUS_PDV[statusInfinity(r.status_pdv)]||"Sem status"; cont[s]=(cont[s]||0)+1;});
+  S.importCtx={kind:"infinity",casados,fora,arquivo};
+  openModal(`<h2>Importar status dos PDVs do Infinity</h2><p class="muted small">${esc(arquivo)}: ${rows.length} PDVs no arquivo.</p>
+   <div class="kpis" style="margin:12px 0"><div class="kpi ok" style="cursor:default"><span class="v">${casados.length}</span><span class="l">PDVs encontrados na Central</span></div><div class="kpi ${fora.length?"warn":""}" style="cursor:default"><span class="v">${fora.length}</span><span class="l">Sem PDV correspondente</span></div></div>
+   <p class="small"><b>Como ficam os status:</b> ${Object.entries(cont).map(([k,v])=>`${esc(k)}: ${v}`).join(" · ")}</p>
+   <p class="small muted">Inauguração vira Ativo; Contrato com franqueadora e Termo de cessão viram Em implantação; Repasse continua Repasse; PDV Inativo vira Inativo / cancelado. Também entram endereço, quantidade de apartamentos, tipo de loja e de espaço, vigência do contrato, validade do termo e representante legal. Travas, certificado e observações do time não são alterados.</p>
+   ${fora.length?`<details class="small"><summary>Ver os ${fora.length} sem correspondência</summary><p>${fora.slice(0,200).map(r=>esc(r.pdv||r.cod_condominio)).join("<br>")}</p></details>`:""}
+   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="do-import-inf">Atualizar ${casados.length} PDVs</button></div><p class="small muted" id="formMsg"></p>`);
+}
+async function importarInfinity(){
+  const {casados}=S.importCtx; const btn=document.querySelector('[data-act="do-import-inf"]'); if(btn) btn.disabled=true;
+  $("#formMsg").textContent="Gravando…";
+  const res=await Promise.allSettled(casados.map(([p,r])=>{ const d=Object.assign(stripId(p),dadosInfinity(r),{atualizadoInfinityEm:now().toISOString()}); const st=statusInfinity(r.status_pdv); if(st) d.status=st; return S.db.collection("pdvs").doc(p.id).set(d); }));
+  const ok=res.filter(x=>x.status==="fulfilled").length; closeAll(); toast(ok+" PDVs atualizados com os dados do Infinity.");
+}
 function importPreview(headers){
   const ctx=S.importCtx, map=ctx.kind==="pdvs"?MAP_PDV:MAP_CH;
   const labels=ctx.kind==="pdvs"?{codigo:"Código*",unidade:"Unidade",franqueado:"Franqueado",cidade:"Cidade",uf:"UF",status:"Status contrato",online:"Online",ultimoPing:"Último sinal",ultimaVenda:"Última venda",travaCervejeira:"Trava cervejeira",travaPorta:"Trava porta",certValidade:"Validade certificado",adquirente:"Adquirente",posQtd:"POS comodato",facialOk:"Facial",appOk:"App",auditOk:"Câmeras",obs:"Observações"}
@@ -1715,6 +1762,7 @@ document.addEventListener("click",async e=>{
     case "import-pdvs": startImport("pdvs"); break;
     case "import-ch": startImport("ch"); break;
     case "do-import": doImport(); break;
+    case "do-import-inf": importarInfinity(); break;
     case "tpl-pdvs": xlsxFile("modelo-pdvs-fast4you.xlsx",[["PDVs",[{"Código":"101","Unidade":"Cond. Exemplo","Franqueado":"Nome","Cidade":"Cidade","UF":"RS","Status contrato":"Ativo","Online":"Sim","Último sinal":"04/11/2026 08:00","Última venda":"04/11/2026 07:45","Trava cervejeira":"Sim","Trava porta":"Não","Validade certificado":"30/06/2027","Adquirente":"PagBank","POS comodato":1,"Facial":"OK","App":"OK","Câmeras":"OK","Observações":""}]]]); break;
     case "tpl-ch": xlsxFile("modelo-chamados-fornecedor-fast4you.xlsx",[["Chamados",[{"Protocolo":"12345","Data abertura":"03/11/2026 21:10","Data fechamento":"","Unidade":"101","Descrição":"PDV sem vendas desde 20h","Tipo":"PDV sem vendas","Prioridade":"Crítica","Status":"Aberto","Turno":"Plantão","Responsável":"Técnico","Observações":""}]]]); break;
     case "export-pdvs": xlsxFile("pdvs-fast4you-"+stamp()+".xlsx",[["PDVs",filteredPdvs().map(pdvRow)]]); break;
