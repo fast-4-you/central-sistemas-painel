@@ -943,6 +943,7 @@ function pVendas(){
   return `
   <div class="topbar"><div><h1>Vendas</h1><p class="sub">${esc(pr.rot)}${pr.ini!==pr.fim?` (${fmtD(pr.ini)} a ${fmtD(pr.fim)})`:` (${fmtD(pr.ini)})`} · dados do Infinity${doc&&doc.atualizadoEm?`, atualizados às ${new Date(doc.atualizadoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`:""}</p></div>
   <div class="row"><div class="seg">${[["hoje","Hoje"],["ontem","Ontem"],["7d","7 dias"],["mes","Este mês"],["mesant","Mês anterior"],["custom","Período"]].map(([v,l])=>`<button class="${p===v?"on":""}" data-act="ven-p" data-v="${v}">${l}</button>`).join("")}</div><button class="btn" data-act="export-vendas">Exportar</button></div></div>
+  ${p==="hoje"&&(()=>{const o=vendasDe(addDia(pr.ini,-1),addDia(pr.ini,-1)).total; return o>0&&a.total<o*0.05;})()?`<div class="banner"><span>As vendas de hoje ainda não chegaram ao Infinity. Pelo histórico, o dia aparece completo só no dia seguinte.</span><button class="btn small" data-act="ven-p" data-v="ontem">Ver ontem</button></div>`:""}
   ${p==="custom"?`<div class="filters"><label class="small muted">De <input type="date" value="${esc(S.f.venIni||isoDay(now()))}" data-f="venIni"></label><label class="small muted">até <input type="date" value="${esc(S.f.venFim||isoDay(now()))}" data-f="venFim"></label></div>`:""}
   <div class="kpis" style="margin-bottom:14px">
     <div class="kpi" style="cursor:default"><span class="v">${brl(a.total)}</span><span class="l">Faturamento</span>${delta(a.total,b.total)}</div>
