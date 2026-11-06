@@ -500,6 +500,7 @@ async function init(){
     S.ready=true; renderAll(); maybeSnapshot(); maybeToast();
   },err=>{ S.error="db:"+err.code; renderAll(); });
   sub("pdvs","pdvs"); sub("chamados","chamados"); sub("dicas","dicas"); sub("snapshots","snaps"); sub("problemas","problemas"); sub("noticias","noticias"); sub("vendas","vendas",()=>{ S.vendasMes=Object.fromEntries(S.vendas.map(v=>[v.id,v])); }); sub("fornecedores","forn"); sub("procedimentos","procs");
+  db.doc("config/infinity").onSnapshot(d=>{ S.infCfg=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/infinityTeste").onSnapshot(d=>{ S.infTeste=d.exists?d.data():null; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/integracoes").onSnapshot(d=>{ S.integ=d.exists?d.data():{}; if(S.page==="integracoes") renderMain(); },()=>{});
   db.doc("config/geral").onSnapshot(d=>{ S.config=Object.assign({},DEF_CONFIG,d.exists?d.data():{}); S.loaded.config=true; renderAll(); },()=>{});
@@ -752,6 +753,7 @@ function openPdv(code){
       <dt>Contrato</dt><dd>${esc(STATUS_PDV[p.status]||p.status)}</dd>
       <dt>Último sinal</dt><dd>${fmtDT(p.ultimoPing)} (${ago(p.ultimoPing)})</dd>
       <dt>Última venda</dt><dd>${ultimaVendaTxt(p)}</dd>
+      ${(p.terminais||[]).length?`<dt>Terminais</dt><dd>${p.terminais.map(t=>`<div><span class="dot" style="background:${t.online===false?"var(--bad)":t.online?"var(--ok)":"var(--idle)"}"></span>${esc(t.terminal?"PDV "+t.terminal:"PDV")} ${esc(t.serie||"")} ${t.versao?"· v"+esc(t.versao):""} ${t.ping?"· "+fmtDT(t.ping):""}</div>`).join("")}</dd>`:""}
       ${p.vendasHoje?`<dt>Vendas hoje</dt><dd>${brl(p.vendasHoje.valor)} · ${p.vendasHoje.tickets} venda(s)</dd>`:""}
       <dt>Travas</dt><dd>Cervejeira: ${p.travaCervejeira?"sim":"não"}; porta: ${p.travaPorta?"sim":"não"}</dd>
       <dt>Facial / App</dt><dd>${p.facialOk===false?"falha":"ok"} / ${p.appOk===false?"falha":"ok"}</dd>
@@ -1520,9 +1522,18 @@ function pIntegracoes(){
   <div class="topbar"><div><h1>Integrações e APIs</h1><p class="sub">O que cada fonte oferece hoje e o caminho para alimentar este painel automaticamente.</p></div></div>
   <section class="panel" style="margin-bottom:14px"><h2>Status das integrações automáticas</h2>
     <div class="tablewrap"><table><thead><tr><th>Integração</th><th>Situação</th><th>Última execução</th><th>Registros</th><th>Mensagem</th></tr></thead><tbody>
-    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["infinityStatusPdv","Infinity: status dos PDVs"],["infinityVendas","Infinity: vendas"],["infinityTeste","Infinity: teste de scripts"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
+    ${[["sultsChamados","Sults: chamados"],["sultsUnidades","Sults: unidades"],["infinityStatusPdv","Infinity: status dos PDVs"],["infinityVendas","Infinity: vendas"],["infinityTelemetria","Infinity: telemetria"],["infinityTeste","Infinity: teste de scripts"],["noticias","Notícias"],["alertasTeams","Alertas no Teams"]].map(([k,l])=>{const s=(S.integ||{})[k]; return `<tr><td>${l}</td><td>${!s?'<span class="pill p-idle">Não configurada</span>':s.ok?'<span class="pill p-ok">Funcionando</span>':'<span class="pill p-bad">Com erro</span>'}</td><td>${s?fmtDT(s.em):"—"}${s&&s.ok&&hoursSince(s.em)>2&&k!=="whatsapp"?' <span class="pill p-warn">atrasada</span>':''}</td><td>${s&&s.registros!=null?esc(s.registros):"—"}</td><td class="wrap">${s?esc(s.mensagem||""):"Configure os secrets do repositório e rode o workflow “Coletor de integrações”."}</td></tr>`;}).join("")}
     </tbody></table></div>
-    ${S.infTeste&&S.infTeste.resultado?`<h3 style="margin-top:14px">Teste de scripts do Infinity (${fmtDT(S.infTeste.em)})</h3>${Object.entries(S.infTeste.resultado).map(([id,r])=>`<div class="nota"><b>IdScript ${esc(id)}</b>: ${r.ok?`${r.registros} registros. Campos: ${esc((r.campos||[]).join(", "))}`:`erro: ${esc(r.erro)}`}</div>`).join("")}`:""}</section>
+    ${S.infTeste&&S.infTeste.resultado?`<h3 style="margin-top:14px">Teste de scripts do Infinity (${fmtDT(S.infTeste.em)})</h3>${Object.entries(S.infTeste.resultado).map(([id,r])=>`<div class="nota"><b>IdScript ${esc(id)}</b>: ${r.ok?`${r.registros} registros. Campos: ${esc((r.campos||[]).join(", "))}`:`erro: ${esc(r.erro)}`}</div>`).join("")}`:""}
+    <h3 style="margin-top:16px">Scripts do Infinity</h3>
+    <p class="small muted" style="margin-top:0">Número (IdScript) de cada consulta na API do Infinity. Vale mais que as variáveis do GitHub. Depois de salvar, rode o coletor com a opção “infinity”.</p>
+    <div class="form" id="infForm">
+      <label class="field">Status dos PDVs<input name="statusPdv" value="${esc((S.infCfg||{}).statusPdv||"")}" placeholder="36"></label>
+      <label class="field">Vendas por PDV e dia<input name="vendas" value="${esc((S.infCfg||{}).vendas||"")}" placeholder="6"></label>
+      <label class="field">Telemetria (online, último sinal, certificado)<input name="telemetria" value="${esc((S.infCfg||{}).telemetria||"")}" placeholder="número que a Soft-line enviar"></label>
+      <label class="field">Scripts para testar (separados por vírgula)<input name="teste" value="${esc((S.infCfg||{}).teste||"")}" placeholder="35"></label>
+      <label class="field">Considerar offline sem sinal há mais de (minutos)<input type="number" min="5" name="minutosOffline" value="${esc((S.infCfg||{}).minutosOffline||60)}"></label>
+    </div>${S.canWrite?'<div class="row" style="margin-top:10px"><button class="btn primary" data-act="save-inf">Salvar scripts do Infinity</button></div>':""}</section>
   <section class="panel" style="margin-bottom:14px"><h2>Como as peças se conectam</h2>
     <div class="arch">
       <div><b>Fontes</b>Sults, Infinity, Beepay, Preditta, PagBank, Santander/Getnet, WhatsApp, e-mail, Teams, planilhas</div>
@@ -1781,6 +1792,7 @@ document.addEventListener("click",async e=>{
     case "ch": closeAll(); openChamado(id); break;
     case "edit-ch": { const c=S.chamados.find(x=>x.id===id); if(c){ chForm(c); } break; }
     case "vista": S.f.ch.vista=el.dataset.v; renderMain(); break;
+    case "save-inf": { const d=readForm("infForm"); d.minutosOffline=Math.max(5,Number(d.minutosOffline)||60); ["statusPdv","vendas","telemetria","teste"].forEach(k=>d[k]=String(d[k]||"").replace(/[^\d,]/g,"")); await safeWrite(()=>S.db.doc("config/infinity").set(d),"Scripts do Infinity salvos. Rode o coletor com a opção infinity."); break; }
     case "ven-p": S.f.venP=el.dataset.v; renderMain(); break;
     case "export-vendas": { const pr=periodoVendas(), a=vendasDe(pr.ini,pr.fim); xlsxFile("vendas-"+pr.ini+"-a-"+pr.fim+".xlsx",[["Por PDV",Object.entries(a.porPdv).sort((x,y)=>y[1].v-x[1].v).map(([c,x])=>{const p=pdvByCode(c); return {"Código":c.replace(/^\?/,""),"PDV":p?(p.nomeSults||p.unidade):"Sem cadastro na Central","Franqueado":p?(p.grupoFranqueado+" "+(p.franqueado||"")):"","Faturamento":Math.round(x.v*100)/100,"Tickets":x.t,"Ticket médio":x.t?Math.round(x.v/x.t*100)/100:0};})],["Por dia",a.porDia.map(x=>({"Dia":fmtD(x.d),"Faturamento":Math.round(x.v*100)/100,"Tickets":x.t}))],["Sem venda",S.pdvs.filter(p=>isPdv(p)&&p.status==="ativo"&&p.vendasMonitoradas&&!(a.porPdv[p.codigo]&&a.porPdv[p.codigo].v>0)).map(p=>({"PDV":p.nomeSults||p.unidade,"Código":p.codigo,"Última venda":p.ultimaVendaDia?fmtD(p.ultimaVendaDia):""}))]]); break; }
     case "nov-aba": S.f.novAba=el.dataset.v; renderMain(); break;
